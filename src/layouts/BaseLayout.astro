@@ -1,0 +1,36 @@
+---
+import Navigation from '../components/layout/Navigation.astro';
+import Footer from '../components/layout/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const {
+	title = 'Cipher Challenge Tutorials',
+	description = 'Educational resources and walkthroughs for the National Cipher Challenge',
+} = Astro.props;
+
+const fullTitle = title === 'Cipher Challenge Tutorials' ? title : `${title} | Cipher Challenge Tutorials`;
+---
+
+<!doctype html>
+<html lang="en" data-theme="light">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content={description} />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/cipher-challenge/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{fullTitle}</title>
+	</head>
+	<body class="flex flex-col min-h-screen">
+		<Navigation />
+		<main class="flex-grow">
+			<slot />
+		</main>
+		<Footer />
+	</body>
+</html>

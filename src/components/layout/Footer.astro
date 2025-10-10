@@ -1,0 +1,30 @@
+---
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="footer footer-center p-10 bg-base-200 text-base-content">
+	<aside>
+		<p class="font-bold text-lg">Cipher Challenge Tutorial Site</p>
+		<p>Educational resources for the National Cipher Challenge</p>
+		<p class="text-sm opacity-70">
+			Not affiliated with the official <a
+				href="https://www.cipherchallenge.org/"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="link link-hover">National Cipher Challenge</a
+			>
+		</p>
+	</aside>
+	<nav>
+		<div class="grid grid-flow-col gap-4">
+			<p class="text-sm">
+				© {currentYear} - Built with <a
+					href="https://astro.build"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="link link-hover">Astro</a
+				>
+			</p>
+		</div>
+	</nav>
+</footer>

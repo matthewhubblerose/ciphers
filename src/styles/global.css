@@ -1,0 +1,76 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* Base styles */
+body {
+  @apply antialiased;
+}
+
+/* Typography for article content */
+.prose {
+  @apply max-w-none text-gray-900 dark:text-gray-100;
+}
+
+.prose h2,
+.prose h3,
+.prose h4 {
+  @apply font-bold text-gray-900 dark:text-gray-100;
+}
+
+.prose h2 {
+  @apply text-3xl mt-12 mb-4;
+}
+
+.prose h3 {
+  @apply text-2xl mt-8 mb-3;
+}
+
+.prose h4 {
+  @apply text-xl mt-6 mb-2;
+}
+
+.prose p {
+  @apply mb-4 leading-relaxed;
+}
+
+.prose a {
+  @apply text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline;
+}
+
+.prose code {
+  @apply bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm;
+}
+
+.prose pre {
+  @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto mb-4;
+}
+
+.prose ul,
+.prose ol {
+  @apply mb-4 ml-6;
+}
+
+.prose li {
+  @apply mb-2;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-blue-600 pl-4 italic my-4;
+}
+
+.prose table {
+  @apply w-full border-collapse;
+}
+
+.prose table th,
+.prose table td {
+  @apply border border-gray-300 dark:border-gray-700 px-4 py-2;
+}
+
+.prose table th {
+  @apply bg-gray-100 dark:bg-gray-800 font-bold;
+}
+
+.prose table tr:nth-child(even) {
+  @apply bg-gray-50 dark:bg-gray-900;
+}

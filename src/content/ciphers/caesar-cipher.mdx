@@ -1,0 +1,106 @@
+---
+title: "Caesar Cipher"
+difficulty: "beginner"
+description: "A simple substitution cipher that shifts letters by a fixed number of positions in the alphabet."
+order: 1
+---
+
+## What is a Caesar Cipher?
+
+The Caesar cipher is one of the simplest and most widely known encryption techniques. It's a type of **substitution cipher** where each letter in the plaintext is replaced by a letter some fixed number of positions down the alphabet.
+
+For example, with a shift of 3:
+- A becomes D
+- B becomes E
+- C becomes F
+- ... and so on
+
+## History
+
+The Caesar cipher is named after Julius Caesar, who apparently used it to communicate with his generals. According to Suetonius, Caesar used a shift of 3, but the general technique works with any shift value.
+
+## How It Works
+
+The encryption process is straightforward:
+
+1. Choose a shift value (also called the key), typically between 1 and 25
+2. For each letter in your message:
+   - Find its position in the alphabet (A=0, B=1, ... Z=25)
+   - Add the shift value
+   - Wrap around if necessary (after Z comes A)
+   - Replace with the letter at the new position
+
+### Example
+
+Let's encrypt "HELLO" with a shift of 3:
+
+- H (7) → K (10)
+- E (4) → H (7)
+- L (11) → O (14)
+- L (11) → O (14)
+- O (14) → R (17)
+
+Result: **KHOOR**
+
+## Decryption
+
+To decrypt a Caesar cipher, simply reverse the process:
+- Use the negative of the shift value (or shift in the opposite direction)
+- For a shift of 3, decrypt by shifting -3 (or +23)
+
+## Breaking the Caesar Cipher
+
+The Caesar cipher is extremely easy to break because:
+
+1. **Limited keyspace**: Only 25 possible shifts (26 if you include 0, which doesn't change anything)
+2. **Brute force**: You can try all 25 shifts in seconds
+3. **Frequency analysis**: Letter frequencies remain recognizable
+
+### Brute Force Attack
+
+Since there are only 25 possible shifts, you can simply try them all:
+
+```
+Ciphertext: KHOOR
+Shift 1: JGNNQ
+Shift 2: IFMMP
+Shift 3: HELLO ← Found it!
+...
+```
+
+When you see recognizable English words, you've found the right shift!
+
+## Variations
+
+- **ROT13**: A special case with a shift of 13. Since the alphabet has 26 letters, applying ROT13 twice returns the original text
+- **Negative shifts**: Shifting left instead of right
+- **Number shifts**: Some versions include numbers in the alphabet
+
+## Weaknesses
+
+The Caesar cipher should **never be used for real security** because:
+- Only 25 possible keys (trivial to brute force)
+- Vulnerable to frequency analysis
+- Pattern preservation (double letters stay double)
+- No key distribution needed (also a weakness!)
+
+## When You'll See It
+
+In the National Cipher Challenge, Caesar ciphers often appear:
+- As a first step before a more complex cipher
+- Combined with other techniques
+- As part of a multi-stage encryption process
+
+## Try It Yourself
+
+Use the interactive tool below to experiment with Caesar cipher encryption and decryption:
+
+import CaesarShiftTool from '../../components/tools/CaesarShiftTool';
+
+<CaesarShiftTool client:visible />
+
+## Related Ciphers
+
+- **Substitution Cipher**: A generalization where each letter can map to any other letter
+- **Vigenère Cipher**: Uses multiple Caesar shifts based on a keyword
+- **Affine Cipher**: Adds multiplication to the shift operation
