@@ -10,6 +10,7 @@ order: 1
 The Caesar cipher is one of the simplest and most widely known encryption techniques. It's a type of **substitution cipher** where each letter in the plaintext is replaced by a letter some fixed number of positions down the alphabet.
 
 For example, with a shift of 3:
+
 - A becomes D
 - B becomes E
 - C becomes F
@@ -45,6 +46,7 @@ Result: **KHOOR**
 ## Decryption
 
 To decrypt a Caesar cipher, simply reverse the process:
+
 - Use the negative of the shift value (or shift in the opposite direction)
 - For a shift of 3, decrypt by shifting -3 (or +23)
 
@@ -79,6 +81,7 @@ When you see recognizable English words, you've found the right shift!
 ## Weaknesses
 
 The Caesar cipher should **never be used for real security** because:
+
 - Only 25 possible keys (trivial to brute force)
 - Vulnerable to frequency analysis
 - Pattern preservation (double letters stay double)
@@ -87,6 +90,7 @@ The Caesar cipher should **never be used for real security** because:
 ## When You'll See It
 
 In the National Cipher Challenge, Caesar ciphers often appear:
+
 - As a first step before a more complex cipher
 - Combined with other techniques
 - As part of a multi-stage encryption process
@@ -95,7 +99,7 @@ In the National Cipher Challenge, Caesar ciphers often appear:
 
 Use the interactive tool below to experiment with Caesar cipher encryption and decryption:
 
-import CaesarShiftTool from '../../components/tools/CaesarShiftTool';
+import CaesarShiftTool from "../../components/tools/CaesarShiftTool";
 
 <CaesarShiftTool client:visible />
 

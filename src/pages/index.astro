@@ -1,96 +1,88 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout>
-	<div class="hero min-h-[60vh] bg-base-200">
-		<div class="hero-content text-center">
-			<div class="max-w-2xl">
-				<h1 class="text-5xl font-bold mb-6">Cipher Challenge Tutorials</h1>
-				<p class="text-xl mb-8">
-					Educational resources and walkthroughs for the National Cipher Challenge.
-					Learn cryptography through hands-on examples and interactive tools.
-				</p>
-				<div class="flex gap-4 justify-center flex-wrap">
-					<a href="/cipher-challenge/walkthroughs/" class="btn btn-primary btn-lg">
-						View Walkthroughs
-					</a>
-					<a href="/cipher-challenge/ciphers/" class="btn btn-outline btn-lg">
-						Learn Ciphers
-					</a>
-					<a href="/cipher-challenge/tools/" class="btn btn-outline btn-lg">
-						Try Tools
-					</a>
-				</div>
-			</div>
-		</div>
-	</div>
+  <div class="hero min-h-[60vh] bg-base-200">
+    <div class="hero-content text-center">
+      <div class="max-w-2xl">
+        <h1 class="text-5xl font-bold mb-6">Cipher Challenge Tutorials</h1>
+        <p class="text-xl mb-8">
+          Educational resources and walkthroughs for the National Cipher Challenge. Learn
+          cryptography through hands-on examples and interactive tools.
+        </p>
+        <div class="flex gap-4 justify-center flex-wrap">
+          <a href="/cipher-challenge/walkthroughs/" class="btn btn-primary btn-lg">
+            View Walkthroughs
+          </a>
+          <a href="/cipher-challenge/ciphers/" class="btn btn-outline btn-lg"> Learn Ciphers </a>
+          <a href="/cipher-challenge/tools/" class="btn btn-outline btn-lg"> Try Tools </a>
+        </div>
+      </div>
+    </div>
+  </div>
 
-	<div class="container mx-auto px-4 py-16">
-		<div class="grid md:grid-cols-3 gap-8">
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body">
-					<h2 class="card-title text-2xl">📖 Walkthroughs</h2>
-					<p>
-						Step-by-step guides published weekly after submissions close.
-						Learn how to approach and solve each challenge.
-					</p>
-					<div class="card-actions justify-end">
-						<a href="/cipher-challenge/walkthroughs/" class="btn btn-primary">
-							Read Walkthroughs
-						</a>
-					</div>
-				</div>
-			</div>
+  <div class="container mx-auto px-4 py-16">
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title text-2xl">📖 Walkthroughs</h2>
+          <p>
+            Step-by-step guides published weekly after submissions close. Learn how to approach and
+            solve each challenge.
+          </p>
+          <div class="card-actions justify-end">
+            <a href="/cipher-challenge/walkthroughs/" class="btn btn-primary">
+              Read Walkthroughs
+            </a>
+          </div>
+        </div>
+      </div>
 
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body">
-					<h2 class="card-title text-2xl">🔐 Ciphers</h2>
-					<p>
-						Detailed explanations of cipher types including Caesar shift,
-						substitution, Vigenère, and more.
-					</p>
-					<div class="card-actions justify-end">
-						<a href="/cipher-challenge/ciphers/" class="btn btn-primary">
-							Explore Ciphers
-						</a>
-					</div>
-				</div>
-			</div>
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title text-2xl">🔐 Ciphers</h2>
+          <p>
+            Detailed explanations of cipher types including Caesar shift, substitution, Vigenère,
+            and more.
+          </p>
+          <div class="card-actions justify-end">
+            <a href="/cipher-challenge/ciphers/" class="btn btn-primary"> Explore Ciphers </a>
+          </div>
+        </div>
+      </div>
 
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body">
-					<h2 class="card-title text-2xl">🔧 Tools</h2>
-					<p>
-						Interactive tools for frequency analysis, Caesar shifts,
-						substitution, and more cryptographic techniques.
-					</p>
-					<div class="card-actions justify-end">
-						<a href="/cipher-challenge/tools/" class="btn btn-primary">
-							Use Tools
-						</a>
-					</div>
-				</div>
-			</div>
-		</div>
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title text-2xl">🔧 Tools</h2>
+          <p>
+            Interactive tools for frequency analysis, Caesar shifts, substitution, and more
+            cryptographic techniques.
+          </p>
+          <div class="card-actions justify-end">
+            <a href="/cipher-challenge/tools/" class="btn btn-primary"> Use Tools </a>
+          </div>
+        </div>
+      </div>
+    </div>
 
-		<div class="mt-16 text-center">
-			<h2 class="text-3xl font-bold mb-6">About the National Cipher Challenge</h2>
-			<div class="max-w-3xl mx-auto">
-				<p class="text-lg mb-4">
-					The National Cipher Challenge is an annual cryptography competition
-					run by the University of Southampton. It's free to enter and perfect
-					for students interested in mathematics, problem-solving, and codes.
-				</p>
-				<a
-					href="https://www.cipherchallenge.org/"
-					target="_blank"
-					rel="noopener noreferrer"
-					class="btn btn-secondary"
-				>
-					Visit Official Challenge
-				</a>
-			</div>
-		</div>
-	</div>
+    <div class="mt-16 text-center">
+      <h2 class="text-3xl font-bold mb-6">About the National Cipher Challenge</h2>
+      <div class="max-w-3xl mx-auto">
+        <p class="text-lg mb-4">
+          The National Cipher Challenge is an annual cryptography competition run by the University
+          of Southampton. It's free to enter and perfect for students interested in mathematics,
+          problem-solving, and codes.
+        </p>
+        <a
+          href="https://www.cipherchallenge.org/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-secondary"
+        >
+          Visit Official Challenge
+        </a>
+      </div>
+    </div>
+  </div>
 </BaseLayout>

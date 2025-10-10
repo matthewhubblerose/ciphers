@@ -1,51 +1,54 @@
 ---
-import { getCollection } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
 
-const analysisEntries = await getCollection('analysis');
+const analysisEntries = await getCollection("analysis");
 const sortedAnalysis = analysisEntries.sort((a, b) => {
-	const orderA = a.data.order ?? 999;
-	const orderB = b.data.order ?? 999;
-	return orderA - orderB;
+  const orderA = a.data.order ?? 999;
+  const orderB = b.data.order ?? 999;
+  return orderA - orderB;
 });
 ---
 
-<BaseLayout title="Analysis Techniques" description="Learn cryptanalysis techniques for breaking ciphers">
-	<div class="container mx-auto px-4 py-8 max-w-6xl">
-		<h1 class="text-4xl font-bold mb-4">Analysis Techniques</h1>
-		<p class="text-lg text-base-content/80 mb-8">
-			Learn the essential techniques for analyzing and breaking ciphers.
-		</p>
+<BaseLayout
+  title="Analysis Techniques"
+  description="Learn cryptanalysis techniques for breaking ciphers"
+>
+  <div class="container mx-auto px-4 py-8 max-w-6xl">
+    <h1 class="text-4xl font-bold mb-4">Analysis Techniques</h1>
+    <p class="text-lg text-base-content/80 mb-8">
+      Learn the essential techniques for analyzing and breaking ciphers.
+    </p>
 
-		<div class="grid md:grid-cols-2 gap-6">
-			{
-				sortedAnalysis.map((analysis) => (
-					<a
-						href={`/cipher-challenge/analysis/${analysis.id}/`}
-						class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow"
-					>
-						<div class="card-body">
-							<h2 class="card-title text-xl">{analysis.data.title}</h2>
-							<p class="text-base-content/70">{analysis.data.description}</p>
-							{analysis.data.relatedCiphers && analysis.data.relatedCiphers.length > 0 && (
-								<div class="flex gap-2 flex-wrap mt-2">
-									{analysis.data.relatedCiphers.map((cipher) => (
-										<span class="badge badge-outline badge-sm">{cipher}</span>
-									))}
-								</div>
-							)}
-						</div>
-					</a>
-				))
-			}
-		</div>
+    <div class="grid md:grid-cols-2 gap-6">
+      {
+        sortedAnalysis.map((analysis) => (
+          <a
+            href={`/cipher-challenge/analysis/${analysis.id}/`}
+            class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow"
+          >
+            <div class="card-body">
+              <h2 class="card-title text-xl">{analysis.data.title}</h2>
+              <p class="text-base-content/70">{analysis.data.description}</p>
+              {analysis.data.relatedCiphers && analysis.data.relatedCiphers.length > 0 && (
+                <div class="flex gap-2 flex-wrap mt-2">
+                  {analysis.data.relatedCiphers.map((cipher) => (
+                    <span class="badge badge-outline badge-sm">{cipher}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </a>
+        ))
+      }
+    </div>
 
-		{
-			sortedAnalysis.length === 0 && (
-				<div class="alert alert-info">
-					<span>No analysis articles have been published yet. Check back soon!</span>
-				</div>
-			)
-		}
-	</div>
+    {
+      sortedAnalysis.length === 0 && (
+        <div class="alert alert-info">
+          <span>No analysis articles have been published yet. Check back soon!</span>
+        </div>
+      )
+    }
+  </div>
 </BaseLayout>

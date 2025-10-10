@@ -1,22 +1,15 @@
 # build output
 dist/
 .astro/
+pnpm-lock.yaml
 
 # dependencies
 node_modules/
 
 # logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+*.log
 
-
-# environment variables
-.env
-.env.production
-
-# macOS-specific files
+# OS-specific files
 .DS_Store
 
 # Claude
