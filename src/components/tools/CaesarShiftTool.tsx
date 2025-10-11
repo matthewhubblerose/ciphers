@@ -105,12 +105,9 @@ export default function CaesarShiftTool() {
 
       {/* Input Text */}
       <div class="form-control mb-4">
-        <label class="label">
-          <span class="label-text font-semibold">Input Text</span>
-        </label>
         <textarea
           class="textarea textarea-bordered h-32 font-mono"
-          placeholder="Enter text to encrypt or decrypt..."
+          placeholder={mode === "decrypt" ? "Enter cipher text" : "Enter plain text"}
           value={inputText}
           onInput={(e) => setInputText((e.target as HTMLTextAreaElement).value)}
         />
@@ -118,12 +115,11 @@ export default function CaesarShiftTool() {
 
       {/* Output Text */}
       <div class="form-control mb-4">
-        <label class="label">
-          <span class="label-text font-semibold">Output Text</span>
-        </label>
         <textarea
           class="textarea textarea-bordered h-32 font-mono"
-          placeholder="Result will appear here..."
+          placeholder={
+            mode === "decrypt" ? "Plain text will appear here" : "Cipher text will appear here"
+          }
           value={outputText}
           readOnly
         />
