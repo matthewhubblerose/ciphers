@@ -1,8 +1,6 @@
 import React from "preact/compat";
 import { useState } from "preact/hooks";
 
-type Mode = "encrypt" | "decrypt";
-
 interface EncryptOptions {
   stripNonAlpha: boolean;
   caseHandling: "leave" | "upper";
@@ -14,6 +12,10 @@ interface DecryptOptions {
   caseHandling: "leave" | "lower";
 }
 
+type CipherMode =
+  | { mode: "encrypt"; options: EncryptOptions }
+  | { mode: "decrypt"; options: DecryptOptions };
+
 interface BruteForceResult {
   shift: number;
   text: string;
@@ -22,30 +24,23 @@ interface BruteForceResult {
 export default function CaesarShiftTool() {
   const [inputText, setInputText] = useState("");
   const [shift, setShift] = useState(3);
-  const [mode, setMode] = useState<Mode>("encrypt");
   const [showBruteForce, setShowBruteForce] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
-
-  // Encrypt options
   const [encryptOptions, setEncryptOptions] = useState<EncryptOptions>({
     stripNonAlpha: false,
-    caseHandling: "leave",
+    caseHandling: "upper",
     blockSize: 0,
   });
-
-  // Decrypt options
   const [decryptOptions, setDecryptOptions] = useState<DecryptOptions>({
     stripSpaces: false,
-    caseHandling: "leave",
+    caseHandling: "lower",
+  });
+  const [cipherMode, setCipherMode] = useState<CipherMode>({
+    mode: "encrypt",
+    options: encryptOptions,
   });
 
-  function caesarShift(
-    text: string,
-    shift: number,
-    mode: Mode,
-    encryptOpts: EncryptOptions,
-    decryptOpts: DecryptOptions,
-  ): string {
+  function caesarShift(text: string, shift: number, cipherMode: CipherMode): string {
     function caesarShiftCharCode(charCode: number, shift: number) {
       return (charCode + shift) % 26;
     }
@@ -57,27 +52,27 @@ export default function CaesarShiftTool() {
     // Pre-process based on mode
     let processedText = text;
 
-    if (mode === "encrypt" && encryptOpts.stripNonAlpha) {
-      // Strip non-alphabetic characters
-      processedText = processedText.replace(/[^a-zA-Z]/g, "");
-    }
-
-    if (mode === "decrypt" && decryptOpts.stripSpaces) {
-      // Strip spaces
-      processedText = processedText.replace(/\s/g, "");
-    }
-
-    // Apply case transformation based on mode
-    if (mode === "encrypt" && encryptOpts.caseHandling === "upper") {
-      processedText = processedText.toUpperCase();
-    }
-
-    if (mode === "decrypt" && decryptOpts.caseHandling === "lower") {
-      processedText = processedText.toLowerCase();
+    if (cipherMode.mode === "encrypt") {
+      if (cipherMode.options.stripNonAlpha) {
+        // Strip non-alphabetic characters
+        processedText = processedText.replace(/[^a-zA-Z]/g, "");
+      }
+      if (cipherMode.options.caseHandling === "upper") {
+        processedText = processedText.toUpperCase();
+      }
+    } else {
+      // decrypt mode
+      if (cipherMode.options.stripSpaces) {
+        // Strip spaces
+        processedText = processedText.replace(/\s/g, "");
+      }
+      if (cipherMode.options.caseHandling === "lower") {
+        processedText = processedText.toLowerCase();
+      }
     }
 
     // Apply Caesar shift
-    shift = mode === "encrypt" ? shift : 26 - shift;
+    shift = cipherMode.mode === "encrypt" ? shift : 26 - shift;
     let result = processedText
       .split("")
       .map((char) => {
@@ -97,10 +92,10 @@ export default function CaesarShiftTool() {
       .join("");
 
     // Post-process: Apply block size for encrypt mode
-    if (mode === "encrypt" && encryptOpts.blockSize > 0) {
+    if (cipherMode.mode === "encrypt" && cipherMode.options.blockSize > 0) {
       const blocks: string[] = [];
-      for (let i = 0; i < result.length; i += encryptOpts.blockSize) {
-        blocks.push(result.slice(i, i + encryptOpts.blockSize));
+      for (let i = 0; i < result.length; i += cipherMode.options.blockSize) {
+        blocks.push(result.slice(i, i + cipherMode.options.blockSize));
       }
       result = blocks.join(" ");
     }
@@ -108,23 +103,16 @@ export default function CaesarShiftTool() {
     return result;
   }
 
-  function handleBruteForce(
-    text: string,
-    mode: Mode,
-    encryptOpts: EncryptOptions,
-    decryptOpts: DecryptOptions,
-  ): BruteForceResult[] {
+  function handleBruteForce(text: string, cipherMode: CipherMode): BruteForceResult[] {
     const results: BruteForceResult[] = [];
     for (let i = 0; i < 26; i++) {
-      results.push({ shift: i, text: caesarShift(text, i, mode, encryptOpts, decryptOpts) });
+      results.push({ shift: i, text: caesarShift(text, i, cipherMode) });
     }
     return results;
   }
 
-  const outputText = caesarShift(inputText, shift, mode, encryptOptions, decryptOptions);
-  const bruteForceResults = showBruteForce
-    ? handleBruteForce(inputText, mode, encryptOptions, decryptOptions)
-    : [];
+  const outputText = caesarShift(inputText, shift, cipherMode);
+  const bruteForceResults = showBruteForce ? handleBruteForce(inputText, cipherMode) : [];
 
   return (
     <div class="not-prose my-8 p-6 bg-base-200 rounded-lg shadow-lg">
@@ -133,14 +121,24 @@ export default function CaesarShiftTool() {
       {/* Mode Selection */}
       <div class="flex gap-2 mb-4">
         <button
-          class={`btn ${mode === "encrypt" ? "btn-primary" : "btn-outline"}`}
-          onClick={() => setMode("encrypt")}
+          class={`btn ${cipherMode.mode === "encrypt" ? "btn-primary" : "btn-outline"}`}
+          onClick={() =>
+            setCipherMode({
+              mode: "encrypt",
+              options: encryptOptions,
+            })
+          }
         >
           Encrypt
         </button>
         <button
-          class={`btn ${mode === "decrypt" ? "btn-primary" : "btn-outline"}`}
-          onClick={() => setMode("decrypt")}
+          class={`btn ${cipherMode.mode === "decrypt" ? "btn-primary" : "btn-outline"}`}
+          onClick={() =>
+            setCipherMode({
+              mode: "decrypt",
+              options: decryptOptions,
+            })
+          }
         >
           Decrypt
         </button>
@@ -186,7 +184,7 @@ export default function CaesarShiftTool() {
       </div>
 
       {/* Encrypt Options */}
-      {mode === "encrypt" && (
+      {cipherMode.mode === "encrypt" && (
         <div class="collapse collapse-arrow bg-base-300 rounded-lg mb-4">
           <input
             type="checkbox"
@@ -200,13 +198,20 @@ export default function CaesarShiftTool() {
                 <input
                   type="checkbox"
                   class="checkbox checkbox-sm"
-                  checked={encryptOptions.stripNonAlpha}
-                  onChange={(e) =>
-                    setEncryptOptions({
-                      ...encryptOptions,
-                      stripNonAlpha: (e.target as HTMLInputElement).checked,
-                    })
-                  }
+                  checked={cipherMode.mode === "encrypt" ? cipherMode.options.stripNonAlpha : false}
+                  onChange={(e) => {
+                    if (cipherMode.mode === "encrypt") {
+                      const options = {
+                        ...cipherMode.options,
+                        stripNonAlpha: (e.target as HTMLInputElement).checked,
+                      };
+                      setEncryptOptions(options);
+                      setCipherMode({
+                        ...cipherMode,
+                        options: options,
+                      });
+                    }
+                  }}
                 />
                 <span class="label-text">Strip non-alphabetic characters</span>
               </label>
@@ -217,16 +222,38 @@ export default function CaesarShiftTool() {
                 </label>
                 <div class="flex gap-2">
                   <button
-                    class={`btn btn-sm ${encryptOptions.caseHandling === "leave" ? "btn-primary" : "btn-outline"}`}
-                    onClick={() =>
-                      setEncryptOptions({ ...encryptOptions, caseHandling: "leave" })
-                    }
+                    class={`btn btn-sm ${cipherMode.mode === "encrypt" && cipherMode.options.caseHandling === "leave" ? "btn-primary" : "btn-outline"}`}
+                    onClick={() => {
+                      if (cipherMode.mode === "encrypt") {
+                        const options = {
+                          ...cipherMode.options,
+                          caseHandling: "leave" as const,
+                        };
+                        setEncryptOptions(options);
+                        setCipherMode({
+                          ...cipherMode,
+                          options: options,
+                        });
+                      }
+                    }}
                   >
                     Leave case
                   </button>
                   <button
-                    class={`btn btn-sm ${encryptOptions.caseHandling === "upper" ? "btn-primary" : "btn-outline"}`}
-                    onClick={() => setEncryptOptions({ ...encryptOptions, caseHandling: "upper" })}
+                    class={`btn btn-sm ${cipherMode.mode === "encrypt" && cipherMode.options.caseHandling === "upper" ? "btn-primary" : "btn-outline"}`}
+                    onClick={() => {
+                      if (cipherMode.mode === "encrypt") {
+                        const options = {
+                          ...cipherMode.options,
+                          caseHandling: "upper" as const,
+                        };
+                        setEncryptOptions(options);
+                        setCipherMode({
+                          ...cipherMode,
+                          options: options,
+                        });
+                      }
+                    }}
                   >
                     Uppercase
                   </button>
@@ -236,7 +263,12 @@ export default function CaesarShiftTool() {
               <div class="form-control">
                 <label class="label">
                   <span class="label-text font-semibold">
-                    Block size: {encryptOptions.blockSize === 0 ? "None" : encryptOptions.blockSize}
+                    Block size:{" "}
+                    {cipherMode.mode === "encrypt"
+                      ? cipherMode.options.blockSize === 0
+                        ? "None"
+                        : cipherMode.options.blockSize
+                      : "None"}
                   </span>
                 </label>
                 <div class="flex gap-2 items-center">
@@ -244,33 +276,49 @@ export default function CaesarShiftTool() {
                     type="range"
                     min="0"
                     max="10"
-                    value={encryptOptions.blockSize}
-                    onChange={(e) =>
-                      setEncryptOptions({
-                        ...encryptOptions,
-                        blockSize: parseInt((e.target as HTMLInputElement).value),
-                      })
-                    }
+                    value={cipherMode.mode === "encrypt" ? cipherMode.options.blockSize : 0}
+                    onChange={(e) => {
+                      if (cipherMode.mode === "encrypt") {
+                        const options = {
+                          ...cipherMode.options,
+                          blockSize: parseInt((e.target as HTMLInputElement).value),
+                        };
+                        setEncryptOptions(options);
+                        setCipherMode({
+                          ...cipherMode,
+                          options: options,
+                        });
+                      }
+                    }}
                     class="range range-sm flex-1"
                   />
                   <input
                     type="number"
                     min="0"
                     max="20"
-                    value={encryptOptions.blockSize}
-                    onChange={(e) =>
-                      setEncryptOptions({
-                        ...encryptOptions,
-                        blockSize: parseInt((e.target as HTMLInputElement).value) || 0,
-                      })
-                    }
+                    value={cipherMode.mode === "encrypt" ? cipherMode.options.blockSize : 0}
+                    onChange={(e) => {
+                      if (cipherMode.mode === "encrypt") {
+                        const options = {
+                          ...cipherMode.options,
+                          blockSize: parseInt((e.target as HTMLInputElement).value) || 0,
+                        };
+                        setEncryptOptions(options);
+                        setCipherMode({
+                          ...cipherMode,
+                          options: options,
+                        });
+                      }
+                    }}
                     class="input input-sm input-bordered w-20"
                   />
                 </div>
                 <span class="label-text-alt mt-1">
-                  {encryptOptions.blockSize === 0
+                  {cipherMode.mode === "encrypt" && cipherMode.options.blockSize === 0
                     ? "No spacing added"
-                    : `Add space every ${encryptOptions.blockSize} characters`}
+                    : cipherMode.mode === "encrypt"
+                      ? `Add space every ${cipherMode.options.blockSize} characters`
+                      : "No spacing added"}
                 </span>
               </div>
             </div>
@@ -279,7 +327,7 @@ export default function CaesarShiftTool() {
       )}
 
       {/* Decrypt Options */}
-      {mode === "decrypt" && (
+      {cipherMode.mode === "decrypt" && (
         <div class="collapse collapse-arrow bg-base-300 rounded-lg mb-4">
           <input
             type="checkbox"
@@ -293,13 +341,20 @@ export default function CaesarShiftTool() {
                 <input
                   type="checkbox"
                   class="checkbox checkbox-sm"
-                  checked={decryptOptions.stripSpaces}
-                  onChange={(e) =>
-                    setDecryptOptions({
-                      ...decryptOptions,
-                      stripSpaces: (e.target as HTMLInputElement).checked,
-                    })
-                  }
+                  checked={cipherMode.mode === "decrypt" ? cipherMode.options.stripSpaces : false}
+                  onChange={(e) => {
+                    if (cipherMode.mode === "decrypt") {
+                      const options = {
+                        ...cipherMode.options,
+                        stripSpaces: (e.target as HTMLInputElement).checked,
+                      };
+                      setDecryptOptions(options);
+                      setCipherMode({
+                        ...cipherMode,
+                        options: options,
+                      });
+                    }
+                  }}
                 />
                 <span class="label-text">Strip spaces</span>
               </label>
@@ -310,18 +365,38 @@ export default function CaesarShiftTool() {
                 </label>
                 <div class="flex gap-2">
                   <button
-                    class={`btn btn-sm ${decryptOptions.caseHandling === "leave" ? "btn-primary" : "btn-outline"}`}
-                    onClick={() =>
-                      setDecryptOptions({ ...decryptOptions, caseHandling: "leave" })
-                    }
+                    class={`btn btn-sm ${cipherMode.mode === "decrypt" && cipherMode.options.caseHandling === "leave" ? "btn-primary" : "btn-outline"}`}
+                    onClick={() => {
+                      if (cipherMode.mode === "decrypt") {
+                        const options = {
+                          ...cipherMode.options,
+                          caseHandling: "leave" as const,
+                        };
+                        setDecryptOptions(options);
+                        setCipherMode({
+                          ...cipherMode,
+                          options: options,
+                        });
+                      }
+                    }}
                   >
                     Leave case
                   </button>
                   <button
-                    class={`btn btn-sm ${decryptOptions.caseHandling === "lower" ? "btn-primary" : "btn-outline"}`}
-                    onClick={() =>
-                      setDecryptOptions({ ...decryptOptions, caseHandling: "lower" })
-                    }
+                    class={`btn btn-sm ${cipherMode.mode === "decrypt" && cipherMode.options.caseHandling === "lower" ? "btn-primary" : "btn-outline"}`}
+                    onClick={() => {
+                      if (cipherMode.mode === "decrypt") {
+                        const options = {
+                          ...cipherMode.options,
+                          caseHandling: "lower" as const,
+                        };
+                        setDecryptOptions(options);
+                        setCipherMode({
+                          ...cipherMode,
+                          options: options,
+                        });
+                      }
+                    }}
                   >
                     Lowercase
                   </button>
@@ -336,7 +411,7 @@ export default function CaesarShiftTool() {
       <div class="form-control mb-4">
         <textarea
           class="textarea textarea-bordered h-32 font-mono w-full"
-          placeholder={mode === "decrypt" ? "Enter cipher text" : "Enter plain text"}
+          placeholder={cipherMode.mode === "decrypt" ? "Enter cipher text" : "Enter plain text"}
           value={inputText}
           onInput={(e) => setInputText((e.target as HTMLTextAreaElement).value)}
         />
@@ -347,7 +422,9 @@ export default function CaesarShiftTool() {
         <textarea
           class="textarea textarea-bordered h-32 font-mono w-full"
           placeholder={
-            mode === "decrypt" ? "Plain text will appear here" : "Cipher text will appear here"
+            cipherMode.mode === "decrypt"
+              ? "Plain text will appear here"
+              : "Cipher text will appear here"
           }
           value={outputText}
           readOnly
