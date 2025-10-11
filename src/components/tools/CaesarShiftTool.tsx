@@ -3,10 +3,16 @@ import { useState } from "preact/hooks";
 
 type Mode = "encrypt" | "decrypt";
 
+interface BruteForceResult {
+  shift: number;
+  text: string;
+}
+
 export default function CaesarShiftTool() {
   const [inputText, setInputText] = useState("");
   const [shift, setShift] = useState(3);
   const [mode, setMode] = useState<Mode>("encrypt");
+  const [showBruteForce, setShowBruteForce] = useState(false);
 
   function caesarShift(text: string, shift: number, mode: Mode): string {
     function caesarShiftCharCode(charCode: number, shift: number) {
@@ -37,18 +43,16 @@ export default function CaesarShiftTool() {
       .join("");
   }
 
-  const outputText = caesarShift(inputText, shift, mode);
-
-  const handleBruteForce = () => {
-    const results: string[] = [];
+  function handleBruteForce(text: string, mode: Mode): BruteForceResult[] {
+    const results: BruteForceResult[] = [];
     for (let i = 0; i < 26; i++) {
-      results.push(`Shift ${i}: ${caesarShift(inputText, i, mode)}`);
+      results.push({ shift: i, text: caesarShift(text, i, mode) });
     }
     return results;
-  };
+  }
 
-  const [showBruteForce, setShowBruteForce] = useState(false);
-  const bruteForceResults = showBruteForce ? handleBruteForce() : [];
+  const outputText = caesarShift(inputText, shift, mode);
+  const bruteForceResults = showBruteForce ? handleBruteForce(inputText, mode) : [];
 
   return (
     <div class="not-prose my-8 p-6 bg-base-200 rounded-lg shadow-lg">
@@ -153,10 +157,11 @@ export default function CaesarShiftTool() {
 
       {showBruteForce && (
         <div class="bg-base-100 p-4 rounded-lg max-h-96 overflow-y-auto">
-          <div class="font-mono text-sm space-y-1">
-            {bruteForceResults.map((result, idx) => (
-              <div key={idx} class="hover:bg-base-200 p-1 rounded">
-                {result}
+          <div class="space-y-3">
+            {bruteForceResults.map((result) => (
+              <div key={result.shift} class="hover:bg-base-200 p-2 rounded">
+                <div class="font-bold text-sm mb-1">Shift {result.shift}</div>
+                <div class="font-mono text-sm">{result.text}</div>
               </div>
             ))}
           </div>
