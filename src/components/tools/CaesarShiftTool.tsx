@@ -33,9 +33,9 @@ export default function CaesarShiftTool() {
   const outputText = caesarShift(inputText, shift, mode === "decrypt");
 
   const handleBruteForce = () => {
-    // Generate all 25 possible shifts
+    // Generate all 26 possible shifts (0-25)
     const results: string[] = [];
-    for (let i = 1; i <= 25; i++) {
+    for (let i = 0; i <= 25; i++) {
       results.push(`Shift ${i}: ${caesarShift(inputText, i, false)}`);
     }
     return results;
@@ -69,21 +69,35 @@ export default function CaesarShiftTool() {
         <label class="label">
           <span class="label-text font-semibold">Shift Value: {shift}</span>
         </label>
-        <div class="flex gap-4 items-center">
+        <div class="flex gap-2 items-center">
+          <button
+            class="btn btn-sm btn-square"
+            onClick={() => setShift((prev) => (prev - 1 + 26) % 26)}
+            title="Rotate Left"
+          >
+            ←
+          </button>
           <input
             type="range"
-            min="1"
+            min="0"
             max="25"
             value={shift}
             onChange={(e) => setShift(parseInt((e.target as HTMLInputElement).value))}
-            class="range range-primary"
+            class="range range-primary flex-1"
           />
+          <button
+            class="btn btn-sm btn-square"
+            onClick={() => setShift((prev) => (prev + 1) % 26)}
+            title="Rotate Right"
+          >
+            →
+          </button>
           <input
             type="number"
-            min="1"
+            min="0"
             max="25"
             value={shift}
-            onChange={(e) => setShift(parseInt((e.target as HTMLInputElement).value) || 1)}
+            onChange={(e) => setShift(parseInt((e.target as HTMLInputElement).value) || 0)}
             class="input input-bordered w-20"
           />
         </div>
@@ -95,7 +109,7 @@ export default function CaesarShiftTool() {
           <span class="label-text font-semibold">Input Text</span>
         </label>
         <textarea
-          class="textarea textarea-bordered h-32"
+          class="textarea textarea-bordered h-32 font-mono"
           placeholder="Enter text to encrypt or decrypt..."
           value={inputText}
           onInput={(e) => setInputText((e.target as HTMLTextAreaElement).value)}
