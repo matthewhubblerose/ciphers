@@ -1,42 +1,48 @@
 import React from "preact/compat";
 import { useState } from "preact/hooks";
 
+type Mode = "encrypt" | "decrypt";
+
 export default function CaesarShiftTool() {
   const [inputText, setInputText] = useState("");
   const [shift, setShift] = useState(3);
-  const [mode, setMode] = useState<"encrypt" | "decrypt">("encrypt");
+  const [mode, setMode] = useState<Mode>("encrypt");
 
-  const caesarShift = (text: string, shiftAmount: number, isDecrypt: boolean): string => {
-    const actualShift = isDecrypt ? -shiftAmount : shiftAmount;
+  function caesarShift(text: string, shift: number, mode: Mode): string {
+    function caesarShiftCharCode(charCode: number, shift: number) {
+      return (charCode + shift) % 26;
+    }
 
+    function caesarShiftCharCodeFromBase(baseCharCode: number, charCode: number, shift: number) {
+      return caesarShiftCharCode(charCode - baseCharCode, shift) + baseCharCode;
+    }
+
+    shift = mode === "encrypt" ? shift : 26 - shift;
     return text
       .split("")
       .map((char) => {
-        // Handle uppercase letters
+        let charCode = char.charCodeAt(0);
         if (char >= "A" && char <= "Z") {
-          const charCode = char.charCodeAt(0) - 65;
-          const shifted = (charCode + actualShift + 26) % 26;
-          return String.fromCharCode(shifted + 65);
+          return String.fromCharCode(
+            caesarShiftCharCodeFromBase("A".charCodeAt(0), charCode, shift),
+          );
+        } else if (char >= "a" && char <= "z") {
+          return String.fromCharCode(
+            caesarShiftCharCodeFromBase("a".charCodeAt(0), charCode, shift),
+          );
+        } else {
+          return char;
         }
-        // Handle lowercase letters
-        if (char >= "a" && char <= "z") {
-          const charCode = char.charCodeAt(0) - 97;
-          const shifted = (charCode + actualShift + 26) % 26;
-          return String.fromCharCode(shifted + 97);
-        }
-        // Leave non-alphabetic characters unchanged
-        return char;
       })
       .join("");
-  };
+  }
 
-  const outputText = caesarShift(inputText, shift, mode === "decrypt");
+  const outputText = caesarShift(inputText, shift, mode);
 
   const handleBruteForce = () => {
-    // Generate all 26 possible shifts (0-25)
     const results: string[] = [];
-    for (let i = 0; i <= 25; i++) {
-      results.push(`Shift ${i}: ${caesarShift(inputText, i, false)}`);
+    for (let i = 0; i < 26; i++) {
+      results.push(`Shift ${i}: ${caesarShift(inputText, i, mode)}`);
     }
     return results;
   };
@@ -106,7 +112,7 @@ export default function CaesarShiftTool() {
       {/* Input Text */}
       <div class="form-control mb-4">
         <textarea
-          class="textarea textarea-bordered h-32 font-mono"
+          class="textarea textarea-bordered h-32 font-mono w-full"
           placeholder={mode === "decrypt" ? "Enter cipher text" : "Enter plain text"}
           value={inputText}
           onInput={(e) => setInputText((e.target as HTMLTextAreaElement).value)}
@@ -116,7 +122,7 @@ export default function CaesarShiftTool() {
       {/* Output Text */}
       <div class="form-control mb-4">
         <textarea
-          class="textarea textarea-bordered h-32 font-mono"
+          class="textarea textarea-bordered h-32 font-mono w-full"
           placeholder={
             mode === "decrypt" ? "Plain text will appear here" : "Cipher text will appear here"
           }
@@ -156,14 +162,6 @@ export default function CaesarShiftTool() {
           </div>
         </div>
       )}
-
-      {/* Quick Examples */}
-      <div class="mt-4">
-        <p class="text-sm text-base-content/70">
-          <strong>Quick examples:</strong> Try "HELLO WORLD" with shift 3, or paste in some
-          ciphertext and use brute force to find the right shift!
-        </p>
-      </div>
     </div>
   );
 }
