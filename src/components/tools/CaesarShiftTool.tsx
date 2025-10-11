@@ -13,6 +13,16 @@ export default function CaesarShiftTool() {
   const [shift, setShift] = useState(3);
   const [mode, setMode] = useState<Mode>("encrypt");
   const [showBruteForce, setShowBruteForce] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+
+  // Encrypt options
+  const [stripNonAlpha, setStripNonAlpha] = useState(false);
+  const [encryptCase, setEncryptCase] = useState<"leave" | "upper">("leave");
+  const [blockSize, setBlockSize] = useState(0); // 0 means no blocking
+
+  // Decrypt options
+  const [decryptCase, setDecryptCase] = useState<"leave" | "lower">("leave");
+  const [stripSpaces, setStripSpaces] = useState(false);
 
   function caesarShift(text: string, shift: number, mode: Mode): string {
     function caesarShiftCharCode(charCode: number, shift: number) {
@@ -23,8 +33,31 @@ export default function CaesarShiftTool() {
       return caesarShiftCharCode(charCode - baseCharCode, shift) + baseCharCode;
     }
 
+    // Pre-process based on mode
+    let processedText = text;
+
+    if (mode === "encrypt" && stripNonAlpha) {
+      // Strip non-alphabetic characters
+      processedText = processedText.replace(/[^a-zA-Z]/g, "");
+    }
+
+    if (mode === "decrypt" && stripSpaces) {
+      // Strip spaces
+      processedText = processedText.replace(/\s/g, "");
+    }
+
+    // Apply case transformation based on mode
+    if (mode === "encrypt" && encryptCase === "upper") {
+      processedText = processedText.toUpperCase();
+    }
+
+    if (mode === "decrypt" && decryptCase === "lower") {
+      processedText = processedText.toLowerCase();
+    }
+
+    // Apply Caesar shift
     shift = mode === "encrypt" ? shift : 26 - shift;
-    return text
+    let result = processedText
       .split("")
       .map((char) => {
         let charCode = char.charCodeAt(0);
@@ -41,6 +74,17 @@ export default function CaesarShiftTool() {
         }
       })
       .join("");
+
+    // Post-process: Apply block size for encrypt mode
+    if (mode === "encrypt" && blockSize > 0) {
+      const blocks: string[] = [];
+      for (let i = 0; i < result.length; i += blockSize) {
+        blocks.push(result.slice(i, i + blockSize));
+      }
+      result = blocks.join(" ");
+    }
+
+    return result;
   }
 
   function handleBruteForce(text: string, mode: Mode): BruteForceResult[] {
@@ -112,6 +156,127 @@ export default function CaesarShiftTool() {
           />
         </div>
       </div>
+
+      {/* Encrypt Options */}
+      {mode === "encrypt" && (
+        <div class="collapse collapse-arrow bg-base-300 rounded-lg mb-4">
+          <input
+            type="checkbox"
+            checked={showOptions}
+            onChange={(e) => setShowOptions((e.target as HTMLInputElement).checked)}
+          />
+          <div class="collapse-title font-semibold">Options</div>
+          <div class="collapse-content">
+            <div class="space-y-2">
+              <label class="label cursor-pointer justify-start gap-2">
+                <input
+                  type="checkbox"
+                  class="checkbox checkbox-sm"
+                  checked={stripNonAlpha}
+                  onChange={(e) => setStripNonAlpha((e.target as HTMLInputElement).checked)}
+                />
+                <span class="label-text">Strip non-alphabetic characters</span>
+              </label>
+
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text font-semibold">Case handling:</span>
+                </label>
+                <div class="flex gap-2">
+                  <button
+                    class={`btn btn-sm ${encryptCase === "leave" ? "btn-primary" : "btn-outline"}`}
+                    onClick={() => setEncryptCase("leave")}
+                  >
+                    Leave case
+                  </button>
+                  <button
+                    class={`btn btn-sm ${encryptCase === "upper" ? "btn-primary" : "btn-outline"}`}
+                    onClick={() => setEncryptCase("upper")}
+                  >
+                    Uppercase
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text font-semibold">
+                    Block size: {blockSize === 0 ? "None" : blockSize}
+                  </span>
+                </label>
+                <div class="flex gap-2 items-center">
+                  <input
+                    type="range"
+                    min="0"
+                    max="10"
+                    value={blockSize}
+                    onChange={(e) => setBlockSize(parseInt((e.target as HTMLInputElement).value))}
+                    class="range range-sm flex-1"
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    max="20"
+                    value={blockSize}
+                    onChange={(e) =>
+                      setBlockSize(parseInt((e.target as HTMLInputElement).value) || 0)
+                    }
+                    class="input input-sm input-bordered w-20"
+                  />
+                </div>
+                <span class="label-text-alt mt-1">
+                  {blockSize === 0 ? "No spacing added" : `Add space every ${blockSize} characters`}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Decrypt Options */}
+      {mode === "decrypt" && (
+        <div class="collapse collapse-arrow bg-base-300 rounded-lg mb-4">
+          <input
+            type="checkbox"
+            checked={showOptions}
+            onChange={(e) => setShowOptions((e.target as HTMLInputElement).checked)}
+          />
+          <div class="collapse-title font-semibold">Options</div>
+          <div class="collapse-content">
+            <div class="space-y-2">
+              <label class="label cursor-pointer justify-start gap-2">
+                <input
+                  type="checkbox"
+                  class="checkbox checkbox-sm"
+                  checked={stripSpaces}
+                  onChange={(e) => setStripSpaces((e.target as HTMLInputElement).checked)}
+                />
+                <span class="label-text">Strip spaces</span>
+              </label>
+
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text font-semibold">Case handling:</span>
+                </label>
+                <div class="flex gap-2">
+                  <button
+                    class={`btn btn-sm ${decryptCase === "leave" ? "btn-primary" : "btn-outline"}`}
+                    onClick={() => setDecryptCase("leave")}
+                  >
+                    Leave case
+                  </button>
+                  <button
+                    class={`btn btn-sm ${decryptCase === "lower" ? "btn-primary" : "btn-outline"}`}
+                    onClick={() => setDecryptCase("lower")}
+                  >
+                    Lowercase
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Input Text */}
       <div class="form-control mb-4">
