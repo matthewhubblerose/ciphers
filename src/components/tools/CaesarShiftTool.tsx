@@ -123,17 +123,17 @@ export default function CaesarShiftTool() {
           value={outputText}
           readOnly
         />
-        {outputText && (
-          <button
-            class="btn btn-sm btn-outline mt-2"
-            onClick={() => {
-              navigator.clipboard.writeText(outputText);
-            }}
-          >
-            Copy to Clipboard
-          </button>
-        )}
       </div>
+      {outputText && (
+        <button
+          class="btn btn-sm btn-outline mb-4"
+          onClick={() => {
+            navigator.clipboard.writeText(outputText);
+          }}
+        >
+          Copy to Clipboard
+        </button>
+      )}
 
       {/* Brute Force Section */}
       <div class="divider">Brute Force Attack</div>
