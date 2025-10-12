@@ -5,7 +5,7 @@ import ArticleLayout from "../../layouts/ArticleLayout.astro";
 export async function getStaticPaths() {
   const cipherEntries = await getCollection("ciphers");
   return cipherEntries.map((entry) => ({
-    params: { slug: entry.id },
+    params: { slug: entry.slug },
     props: { entry },
   }));
 }

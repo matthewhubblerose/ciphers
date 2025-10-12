@@ -5,7 +5,7 @@ import ArticleLayout from "../../layouts/ArticleLayout.astro";
 export async function getStaticPaths() {
   const analysisEntries = await getCollection("analysis");
   return analysisEntries.map((entry) => ({
-    params: { slug: entry.id },
+    params: { slug: entry.slug },
     props: { entry },
   }));
 }

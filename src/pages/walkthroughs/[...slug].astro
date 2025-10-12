@@ -7,7 +7,7 @@ export async function getStaticPaths() {
     return !data.draft;
   });
   return walkthroughEntries.map((entry) => ({
-    params: { slug: entry.id },
+    params: { slug: entry.slug },
     props: { entry },
   }));
 }
