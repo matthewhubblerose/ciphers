@@ -1,0 +1,8 @@
+"*":
+  - prettier --write
+
+"*.{js,jsx,ts,tsx,mjs,cjs,astro}":
+  - eslint --fix
+
+"*.{js,jsx,ts,tsx}":
+  - vitest related --run --reporter=verbose
