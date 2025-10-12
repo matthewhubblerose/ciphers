@@ -49,15 +49,11 @@ export function caesarShift(text: string, shift: number, cipherMode: CipherMode)
   let result = processedText
     .split("")
     .map((char) => {
-      let charCode = char.charCodeAt(0);
+      const charCode = char.charCodeAt(0);
       if (char >= "A" && char <= "Z") {
-        return String.fromCharCode(
-          caesarShiftCharCodeFromBase("A".charCodeAt(0), charCode, shift),
-        );
+        return String.fromCharCode(caesarShiftCharCodeFromBase("A".charCodeAt(0), charCode, shift));
       } else if (char >= "a" && char <= "z") {
-        return String.fromCharCode(
-          caesarShiftCharCodeFromBase("a".charCodeAt(0), charCode, shift),
-        );
+        return String.fromCharCode(caesarShiftCharCodeFromBase("a".charCodeAt(0), charCode, shift));
       } else {
         return char;
       }
