@@ -18,20 +18,19 @@ const difficultyColors = {
 
 <BaseLayout
   title="Walkthroughs"
-  description="Step-by-step walkthroughs of Cipher Challenge problems"
+  description="Step-by-step walkthroughs of cipher problems"
 >
   <div class="container mx-auto px-4 py-8 max-w-6xl">
-    <h1 class="text-4xl font-bold mb-4">Challenge Walkthroughs</h1>
+    <h1 class="text-4xl font-bold mb-4">Walkthroughs</h1>
     <p class="text-lg text-base-content/80 mb-8">
-      Detailed walkthroughs published weekly after submissions close. Learn how to approach and
-      solve each challenge.
+      Step-by-step guides for solving cipher challenges. Learn techniques for approaching different types of encrypted messages.
     </p>
 
     <div class="space-y-4">
       {
         sortedWalkthroughs.map((walkthrough) => (
           <a
-            href={`/cipher-challenge/walkthroughs/${walkthrough.slug}`}
+            href={`/ciphers/walkthroughs/${walkthrough.slug}`}
             class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow block"
           >
             <div class="card-body">

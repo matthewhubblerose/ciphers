@@ -6,7 +6,7 @@ import tailwindcss from "@tailwindcss/vite";
 // https://astro.build/config
 export default defineConfig({
   site: "https://matthewhubblerose.github.io",
-  base: "/cipher-challenge",
+  base: "/ciphers",
   integrations: [mdx(), preact()],
   vite: {
     plugins: [tailwindcss()],

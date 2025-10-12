@@ -16,18 +16,18 @@ const difficultyColors = {
 };
 ---
 
-<BaseLayout title="Ciphers" description="Learn about different types of ciphers">
+<BaseLayout title="Cipher Types" description="Learn about different types of ciphers">
   <div class="container mx-auto px-4 py-8 max-w-6xl">
-    <h1 class="text-4xl font-bold mb-4">Cipher Reference</h1>
+    <h1 class="text-4xl font-bold mb-4">Cipher Types</h1>
     <p class="text-lg text-base-content/80 mb-8">
-      Detailed guides on various cipher types used in the National Cipher Challenge.
+      Detailed guides on various cipher types, from classic substitution ciphers to more complex polyalphabetic systems.
     </p>
 
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
       {
         sortedCiphers.map((cipher) => (
           <a
-            href={`/cipher-challenge/ciphers/${cipher.slug}`}
+            href={`/ciphers/types/${cipher.slug}`}
             class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow"
           >
             <div class="card-body">

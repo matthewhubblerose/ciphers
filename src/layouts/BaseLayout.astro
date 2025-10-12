@@ -9,12 +9,12 @@ interface Props {
 }
 
 const {
-  title = "Cipher Challenge Tutorials",
-  description = "Educational resources and walkthroughs for the National Cipher Challenge",
+  title = "Learn About Ciphers",
+  description = "Learn cryptography through detailed guides, walkthroughs, and interactive tools",
 } = Astro.props;
 
 const fullTitle =
-  title === "Cipher Challenge Tutorials" ? title : `${title} | Cipher Challenge Tutorials`;
+  title === "Learn About Ciphers" ? title : `${title} | Ciphers`;
 ---
 
 <!doctype html>
@@ -23,7 +23,7 @@ const fullTitle =
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/cipher-challenge/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/ciphers/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{fullTitle}</title>
   </head>

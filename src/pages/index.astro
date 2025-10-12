@@ -6,17 +6,17 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <div class="hero min-h-[60vh] bg-base-200">
     <div class="hero-content text-center">
       <div class="max-w-2xl">
-        <h1 class="text-5xl font-bold mb-6">Cipher Challenge Tutorials</h1>
+        <h1 class="text-5xl font-bold mb-6">Learn About Ciphers</h1>
         <p class="text-xl mb-8">
-          Educational resources and walkthroughs for the National Cipher Challenge. Learn
-          cryptography through hands-on examples and interactive tools.
+          Learn cryptography through hands-on examples, detailed guides, and interactive tools.
+          Perfect for anyone interested in codes and codebreaking.
         </p>
         <div class="flex gap-4 justify-center flex-wrap">
-          <a href="/cipher-challenge/walkthroughs" class="btn btn-primary btn-lg">
+          <a href="/ciphers/walkthroughs" class="btn btn-primary btn-lg">
             View Walkthroughs
           </a>
-          <a href="/cipher-challenge/ciphers" class="btn btn-outline btn-lg"> Learn Ciphers </a>
-          <a href="/cipher-challenge/tools" class="btn btn-outline btn-lg"> Try Tools </a>
+          <a href="/ciphers/types" class="btn btn-outline btn-lg"> Learn Ciphers </a>
+          <a href="/ciphers/tools" class="btn btn-outline btn-lg"> Try Tools </a>
         </div>
       </div>
     </div>
@@ -32,7 +32,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             solve each challenge.
           </p>
           <div class="card-actions justify-end">
-            <a href="/cipher-challenge/walkthroughs" class="btn btn-primary"> Read Walkthroughs </a>
+            <a href="/ciphers/walkthroughs" class="btn btn-primary"> Read Walkthroughs </a>
           </div>
         </div>
       </div>
@@ -45,7 +45,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             and more.
           </p>
           <div class="card-actions justify-end">
-            <a href="/cipher-challenge/ciphers" class="btn btn-primary"> Explore Ciphers </a>
+            <a href="/ciphers/types" class="btn btn-primary"> Explore Ciphers </a>
           </div>
         </div>
       </div>
@@ -58,28 +58,26 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             cryptographic techniques.
           </p>
           <div class="card-actions justify-end">
-            <a href="/cipher-challenge/tools" class="btn btn-primary"> Use Tools </a>
+            <a href="/ciphers/tools" class="btn btn-primary"> Use Tools </a>
           </div>
         </div>
       </div>
     </div>
 
     <div class="mt-16 text-center">
-      <h2 class="text-3xl font-bold mb-6">About the National Cipher Challenge</h2>
       <div class="max-w-3xl mx-auto">
         <p class="text-lg mb-4">
-          The National Cipher Challenge is an annual cryptography competition run by the University
-          of Southampton. It's free to enter and perfect for students interested in mathematics,
-          problem-solving, and codes.
+          These resources can also help with the{" "}
+          <a
+            href="https://www.cipherchallenge.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="link link-primary"
+          >
+            National Cipher Challenge
+          </a>
+          , an annual cryptography competition run by the University of Southampton.
         </p>
-        <a
-          href="https://www.cipherchallenge.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn btn-secondary"
-        >
-          Visit Official Challenge
-        </a>
       </div>
     </div>
   </div>
