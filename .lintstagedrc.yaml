@@ -1,9 +1,8 @@
-"*.{js,jsx,ts,tsx,mjs,cjs,astro}":
-  - eslint --fix
+"*":
   - prettier --write
 
-"*.{json,md,mdx,css,html}":
-  - prettier --write
+"*.{js,jsx,ts,tsx,mjs,cjs,astro}":
+  - eslint --fix
 
 "*.{js,jsx,ts,tsx}":
   - vitest related --run --reporter=verbose
