@@ -8,4 +8,4 @@
   - vitest related --run --reporter=verbose
 
 "package.json":
-  - scripts/checkLockFile.js
+  - node scripts/checkLockFile.js
