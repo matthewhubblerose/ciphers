@@ -6,3 +6,6 @@
 
 "*.{js,jsx,ts,tsx}":
   - vitest related --run --reporter=verbose
+
+"package.json":
+  - scripts/checkLockFile.js
