@@ -1,4 +1,3 @@
-import React from "preact/compat";
 import { useState } from "preact/hooks";
 import {
   caesarShift,
@@ -105,7 +104,7 @@ export default function CaesarShiftTool() {
             min="0"
             max="25"
             value={shift}
-            onChange={(e) => setShift(parseInt((e.target as HTMLInputElement).value) || 0)}
+            onInput={(e) => setShift(parseInt((e.target as HTMLInputElement).value) || 0)}
             class="input input-bordered w-20"
           />
         </div>
