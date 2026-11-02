@@ -9,11 +9,18 @@ export default [
   ...eslintPluginAstro.configs.recommended,
 
   {
-    ignores: ["dist/**", "node_modules/**", ".astro/**"],
+    ignores: [
+      "dist/**",
+      "node_modules/**",
+      ".astro/**",
+      "test-results/**",
+      "playwright-report/**",
+      "artifacts/**",
+    ],
   },
 
   {
-    files: ["scripts/**/*.js"],
+    files: ["scripts/**/*.js", "playwright.config.ts"],
     languageOptions: {
       globals: {
         ...globals.node,

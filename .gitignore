@@ -13,3 +13,8 @@ node_modules/
 
 # Claude
 .claude/
+
+# Browser test output
+test-results/
+playwright-report/
+artifacts/

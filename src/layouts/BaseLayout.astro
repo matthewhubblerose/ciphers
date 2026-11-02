@@ -9,11 +9,11 @@ interface Props {
 }
 
 const {
-  title = "Learn About Ciphers",
-  description = "Learn cryptography through detailed guides, walkthroughs, and interactive tools",
+  title = "Ciphers — a codebreaker’s field kit",
+  description = "A practical cipher workbench, step-by-step guides and classroom slide decks for young codebreakers.",
 } = Astro.props;
 
-const fullTitle = title === "Learn About Ciphers" ? title : `${title} | Ciphers`;
+const fullTitle = title.includes("field kit") ? title : `${title} | Ciphers`;
 ---
 
 <!doctype html>
@@ -22,13 +22,20 @@ const fullTitle = title === "Learn About Ciphers" ? title : `${title} | Ciphers`
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/ciphers/favicon.svg" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href={`${import.meta.env.BASE_URL.replace(/\/$/, "")}/favicon.svg`}
+    />
     <meta name="generator" content={Astro.generator} />
     <title>{fullTitle}</title>
   </head>
-  <body class="flex flex-col min-h-screen">
+  <body>
+    <a class="skip-link" href="#main">
+      Skip to content
+    </a>
     <Navigation />
-    <main class="flex-grow">
+    <main id="main">
       <slot />
     </main>
     <Footer />

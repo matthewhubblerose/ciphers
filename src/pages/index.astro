@@ -1,82 +1,98 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 
 <BaseLayout>
-  <div class="hero min-h-[60vh] bg-base-200">
-    <div class="hero-content text-center">
-      <div class="max-w-2xl">
-        <h1 class="text-5xl font-bold mb-6">Learn About Ciphers</h1>
-        <p class="text-xl mb-8">
-          Learn cryptography through hands-on examples, detailed guides, and interactive tools.
-          Perfect for anyone interested in codes and codebreaking.
-        </p>
-        <div class="flex gap-4 justify-center flex-wrap">
-          <a href="/ciphers/walkthroughs" class="btn btn-primary btn-lg"> View Walkthroughs </a>
-          <a href="/ciphers/types" class="btn btn-outline btn-lg"> Learn Ciphers </a>
-          <a href="/ciphers/tools" class="btn btn-outline btn-lg"> Try Tools </a>
-        </div>
+  <section class="hero wrap">
+    <div>
+      <p class="eyebrow">THE CODEBREAKER’S FIELD KIT</p>
+      <h1>
+        Every cipher
+        <br />
+        leaves a <em>clue.</em>
+      </h1>
+      <p class="hero-copy">
+        Find the patterns. Follow your hunches. Turn a jumble of letters into your next discovery.
+      </p>
+      <div class="actions">
+        <a class="button primary" href={`${base}/tools/`}>
+          Open the workbench <span>↗</span>
+        </a>
+        <a class="text-link" href={`${base}/guides/`}>
+          Learn where to start →
+        </a>
       </div>
+      <p class="small muted">No accounts. No uploads. Just you and the puzzle.</p>
     </div>
-  </div>
-
-  <div class="container mx-auto px-4 py-16">
-    <div class="grid md:grid-cols-3 gap-8">
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title text-2xl">📖 Walkthroughs</h2>
-          <p>
-            Step-by-step guides published weekly after submissions close. Learn how to approach and
-            solve each challenge.
-          </p>
-          <div class="card-actions justify-end">
-            <a href="/ciphers/walkthroughs" class="btn btn-primary"> Read Walkthroughs </a>
-          </div>
-        </div>
+    <div class="hero-art" aria-label="An encrypted message becomes a discovery">
+      <div class="art-top">
+        <span>FIELD NOTE 001</span>
+        <span class="status-dot">PATTERN FOUND</span>
       </div>
-
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title text-2xl">🔐 Ciphers</h2>
-          <p>
-            Detailed explanations of cipher types including Caesar shift, substitution, Vigenère,
-            and more.
-          </p>
-          <div class="card-actions justify-end">
-            <a href="/ciphers/types" class="btn btn-primary"> Explore Ciphers </a>
-          </div>
-        </div>
+      <div class="cipher-lines">
+        AOL V A O L Y<br />
+        LEWSVYLYZ
+        <br />
+        <span class="highlight">A O L</span> ZLJYLA
+        <br />
+        PZ OPKKLU
       </div>
-
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title text-2xl">🔧 Tools</h2>
-          <p>
-            Interactive tools for frequency analysis, Caesar shifts, substitution, and more
-            cryptographic techniques.
-          </p>
-          <div class="card-actions justify-end">
-            <a href="/ciphers/tools" class="btn btn-primary"> Use Tools </a>
-          </div>
-        </div>
+      <div class="art-rule"></div>
+      <div class="art-answer">
+        <span>SHIFT −7</span>
+        <strong>
+          THE SECRET
+          <br />
+          IS HIDDEN<span class="cursor">▏</span>
+        </strong>
       </div>
+      <span class="art-coordinate">51° N / 001° W</span>
     </div>
-
-    <div class="mt-16 text-center">
-      <div class="max-w-3xl mx-auto">
-        <p class="text-lg mb-4">
-          These resources can also help with the{" "}
-          <a
-            href="https://www.cipherchallenge.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="link link-primary"
-          >
-            National Cipher Challenge
-          </a>
-          , an annual cryptography competition run by the University of Southampton.
-        </p>
-      </div>
+  </section>
+  <section class="wrap explore">
+    <div class="section-heading">
+      <h2>Your next move</h2>
+      <span>THREE WAYS IN</span>
     </div>
-  </div>
+    <div class="card-grid">
+      <a class="resource-card" href={`${base}/tools/`}>
+        <span class="card-number">01 / EXPERIMENT</span>
+        <span class="card-icon">⌁</span>
+        <h3>Tools</h3>
+        <p>Count letters, test a shift, rearrange columns. Your ideas, put to the test.</p>
+        <span class="card-bottom">
+          Six tools. One workbench. <b>↗</b>
+        </span>
+      </a>
+      <a class="resource-card" href={`${base}/guides/`}>
+        <span class="card-number">02 / UNDERSTAND</span>
+        <span class="card-icon">≋</span>
+        <h3>Guides</h3>
+        <p>Learn to see the clues hiding in plain sight, with examples you can work through.</p>
+        <span class="card-bottom">
+          Build your codebreaking instincts. <b>↗</b>
+        </span>
+      </a>
+      <a class="resource-card" href={`${base}/decks/`}>
+        <span class="card-number">03 / SHARE</span>
+        <span class="card-icon">▤</span>
+        <h3>Decks</h3>
+        <p>Take the investigation to the classroom with ready-to-present lessons.</p>
+        <span class="card-bottom">
+          Big ideas for the big screen. <b>↗</b>
+        </span>
+      </a>
+    </div>
+  </section>
+  <section class="wrap field-tip">
+    <span class="eyebrow">A FIRST CLUE</span>
+    <p>
+      The most common letter in English is <strong>E</strong>.<br />
+      But the most common letter in your cipher? That’s where the investigation begins.
+    </p>
+    <a class="text-link" href={`${base}/tools/#frequency`}>
+      Investigate a frequency plot →
+    </a>
+  </section>
 </BaseLayout>

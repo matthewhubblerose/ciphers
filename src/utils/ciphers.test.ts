@@ -17,6 +17,7 @@ import {
   vigenere,
 } from "./ciphers";
 import { PRACTICE, SAMPLES } from "./samples";
+import { challenge3 } from "../../tests/fixtures/challenge3";
 
 describe("classical ciphers", () => {
   it("matches known Caesar and Vigenère vectors", () => {
@@ -41,6 +42,7 @@ describe("classical ciphers", () => {
   });
   it("interprets numeric read orders, words and repeated letters consistently", () => {
     expect(parseOrder("53124", 5)).toEqual([4, 2, 0, 1, 3]);
+    expect(parseOrder(" 53124 ", 5)).toEqual([4, 2, 0, 1, 3]);
     expect(parseOrder("HOTEL", 5)).toEqual([3, 0, 4, 1, 2]);
     expect(parseOrder("BALLOON", 7)).toEqual([1, 0, 2, 3, 6, 4, 5]);
     expect(parseOrder("10,9,8,7,6,5,4,3,2,1", 10)[0]).toBe(9);
@@ -71,6 +73,16 @@ describe("classical ciphers", () => {
   });
 });
 describe("analysis", () => {
+  it("handles a real grouped Challenge 3 Part B excerpt without losing letters", () => {
+    expect(letters(challenge3)).toHaveLength(200);
+    expect(frequencies(challenge3).reduce((sum, f) => sum + f.count, 0)).toBe(200);
+    const order = parseOrder("HOTEL", 5);
+    for (const columnar of [true, false]) {
+      const rearranged = transpose(challenge3, order, true, columnar);
+      expect(frequencies(rearranged)).toEqual(frequencies(challenge3));
+      expect(transpose(rearranged, order, false, columnar)).toBe(letters(challenge3));
+    }
+  });
   it("counts overlapping groups across presentation spaces", () => {
     expect(ngrams("AA AAA", 2)).toEqual([{ gram: "AA", count: 4, percent: 100 }]);
     expect(ngrams("AAAAA", 3)[0].count).toBe(3);

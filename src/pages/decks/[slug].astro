@@ -1,0 +1,40 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import DeckPlayer from "../../components/DeckPlayer";
+import { decks } from "../../data/decks";
+export function getStaticPaths() {
+  return decks.map((deck) => ({ params: { slug: deck.slug }, props: { deck } }));
+}
+const { deck } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<BaseLayout title={deck.title + " — classroom deck"}>
+  <header class="wrap page-intro">
+    <p class="eyebrow">CLASSROOM DECK / {deck.duration}</p>
+    <h1>
+      {deck.title}
+      <span class="accent">.</span>
+    </h1>
+    <p>{deck.description}</p>
+  </header>
+  <div class="wrap">
+    <nav class="deck-select" aria-label="Lesson decks">
+      {decks.map((d) => (
+        <a
+          href={`${base}/decks/${d.slug}/`}
+          aria-current={deck.slug === d.slug ? "page" : undefined}
+        >
+          {d.title}
+        </a>
+      ))}
+      <a href={`${base}/guides/${deck.slug}/`}>Read the guide ↗</a>
+    </nav>
+    <DeckPlayer deck={deck} client:load />
+    <noscript>
+      <p class="notice">
+        Enable JavaScript to navigate the slides. Use the guide link above for the full lesson text.
+      </p>
+    </noscript>
+  </div>
+</BaseLayout>

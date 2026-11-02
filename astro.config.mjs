@@ -6,4 +6,5 @@ export default defineConfig({
   site: "https://matthewhubblerose.github.io",
   base: "/ciphers",
   integrations: [preact()],
+  devToolbar: { enabled: false },
 });

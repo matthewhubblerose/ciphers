@@ -1,0 +1,42 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<BaseLayout title="Guides">
+  <header class="wrap page-intro">
+    <p class="eyebrow">02 / UNDERSTAND</p>
+    <h1>
+      Follow the clues<span class="accent">.</span>
+    </h1>
+    <p>Practical methods, worked examples, and a few useful hunches.</p>
+  </header>
+  <section class="wrap guide-cards">
+    <div class="card-grid">
+      <a class="resource-card" href={`${base}/guides/frequency/`}>
+        <span class="card-number">GUIDE 01 / PATTERNS</span>
+        <span class="card-icon mono">THE → ?</span>
+        <h3>Frequency, bigrams & trigrams</h3>
+        <p>
+          Recognise cipher families, spot a Caesar shift, and build a substitution alphabet from THE
+          to THERE.
+        </p>
+        <span class="card-bottom">
+          15 minutes · Worked substitution example <b>↗</b>
+        </span>
+      </a>
+      <a class="resource-card" href={`${base}/guides/transposition/`}>
+        <span class="card-number">GUIDE 02 / ARRANGEMENT</span>
+        <span class="card-icon mono">5 3 1 2 4</span>
+        <h3>Transposition in Excel</h3>
+        <p>
+          Build a grid, fix the values, rearrange columns or rows, and automate the order with a
+          key.
+        </p>
+        <span class="card-bottom">
+          20 minutes · Copyable Excel formulas <b>↗</b>
+        </span>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

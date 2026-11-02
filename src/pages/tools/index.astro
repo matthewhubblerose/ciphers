@@ -1,19 +1,23 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import Workbench from "../../components/tools/Workbench";
 ---
 
-<BaseLayout title="Tools" description="Interactive cipher tools">
-  <div class="container mx-auto px-4 py-8 max-w-6xl">
-    <h1 class="text-4xl font-bold mb-4">Cipher Tools</h1>
-    <p class="text-lg text-base-content/80 mb-8">
-      Interactive tools to help you analyze and decode ciphers.
-    </p>
-
-    <div class="alert alert-info">
-      <span
-        >Interactive tools coming soon! We're building a suite of tools for cipher analysis and
-        decoding.</span
-      >
-    </div>
+<BaseLayout
+  title="Tools"
+  description="Analyse, decipher and generate classical ciphers in one shared workbench."
+>
+  <div class="wrap page-intro">
+    <p class="eyebrow">01 / EXPERIMENT</p>
+    <h1>
+      The workbench<span class="accent">.</span>
+    </h1>
+    <p>One message. A whole set of ways to find the pattern.</p>
   </div>
+  <Workbench client:load />
+  <noscript>
+    <p class="wrap notice">
+      Enable JavaScript to use the interactive cipher tools. The guides are available without it.
+    </p>
+  </noscript>
 </BaseLayout>

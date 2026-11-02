@@ -125,7 +125,7 @@ export function parseOrder(key: string, size: number): number[] {
     throw new Error("Choose a block size from 2 to 30.");
   let order: number[];
   if (/^[\d\s,]+$/.test(key.trim())) {
-    const tokens = /[\s,]/.test(key.trim()) ? key.trim().split(/[\s,]+/) : key.split("");
+    const tokens = /[\s,]/.test(key.trim()) ? key.trim().split(/[\s,]+/) : key.trim().split("");
     order = tokens.map((n) => Number(n) - 1);
   } else {
     const word = letters(key);
@@ -148,7 +148,7 @@ export function parseOrder(key: string, size: number): number[] {
 export function transpose(text: string, order: number[], decrypt = false, columnar = false) {
   const clean = letters(text),
     n = order.length;
-  if (!n || new Set(order).size !== n || order.some((i) => i < 0 || i >= n))
+  if (!n || new Set(order).size !== n || order.some((i) => !Number.isInteger(i) || i < 0 || i >= n))
     throw new Error("Invalid column order.");
   const rows = Math.ceil(clean.length / n);
   if (columnar) {

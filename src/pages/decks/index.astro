@@ -1,0 +1,42 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { decks } from "../../data/decks";
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<BaseLayout title="Classroom decks">
+  <header class="wrap page-intro">
+    <p class="eyebrow">03 / SHARE</p>
+    <h1>
+      A lesson in discovery<span class="accent">.</span>
+    </h1>
+    <p>
+      Ready-to-present slide decks, built around the guides. Open, go fullscreen, and investigate
+      together.
+    </p>
+  </header>
+  <section class="wrap guide-cards">
+    <div class="card-grid">
+      {decks.map((deck, i) => (
+        <a class="resource-card" href={`${base}/decks/${deck.slug}/`}>
+          <span class="card-number">
+            LESSON 0{i + 1} / {deck.slides.length} SLIDES
+          </span>
+          <span class="card-icon">▤</span>
+          <h3>{deck.title}</h3>
+          <p>{deck.description}</p>
+          <span class="card-bottom">
+            {deck.duration} · Teacher notes included <b>↗</b>
+          </span>
+        </a>
+      ))}
+    </div>
+    <div class="callout">
+      <p>
+        <strong>Present right in your browser.</strong> Use arrow keys or Space, open fullscreen,
+        and toggle teacher notes as you prepare. Print / Save PDF creates a landscape handout of
+        every slide. No account or presentation software needed.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

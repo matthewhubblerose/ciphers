@@ -1,0 +1,14 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Page not found">
+  <div class="wrap not-found">
+    <p class="eyebrow">404 / A MISSING CLUE</p>
+    <h1>This trail ends here.</h1>
+    <p>The page may have moved. Pick up the investigation in the workbench.</p>
+    <a class="button primary" href={`${import.meta.env.BASE_URL.replace(/\/$/, "")}/tools/`}>
+      Open the workbench →
+    </a>
+  </div>
+</BaseLayout>
