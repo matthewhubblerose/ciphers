@@ -1,7 +1,6 @@
 # build output
 dist/
 .astro/
-pnpm-lock.yaml
 
 # dependencies
 node_modules/
