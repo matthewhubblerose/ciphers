@@ -6,7 +6,8 @@
   "packageManager": "pnpm@10.18.3",
   "pnpm": {
     "overrides": {
-      "rollup": "^4.67.4"
+      "rollup": "^4.67.4",
+      "minimatch": "^11.0.4"
     }
   },
   "scripts": {

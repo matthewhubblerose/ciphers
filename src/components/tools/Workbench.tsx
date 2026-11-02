@@ -1,4 +1,4 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import {
   ABC,
   caesar,
@@ -60,6 +60,17 @@ export default function Workbench() {
   const [message, setMessage] = useState("");
   const [sample, setSample] = useState(-1);
   const [ready, setReady] = useState(false);
+  const toolNav = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const nav = toolNav.current;
+    const selected = nav?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (nav && selected && nav.scrollWidth > nav.clientWidth) {
+      nav.scrollLeft +=
+        selected.getBoundingClientRect().left -
+        nav.getBoundingClientRect().left -
+        (nav.clientWidth - selected.clientWidth) / 2;
+    }
+  }, [tool]);
   useEffect(() => {
     const sync = () => {
       const hash = location.hash.slice(1);
@@ -162,7 +173,7 @@ export default function Workbench() {
     <div class="wrap workbench" aria-busy={!ready}>
       <aside class="tool-sidebar">
         <p class="eyebrow">YOUR TOOLKIT</p>
-        <nav aria-label="Cipher tools">
+        <nav ref={toolNav} aria-label="Cipher tools">
           {TOOLS.map(([id, label, num]) => (
             <button
               type="button"

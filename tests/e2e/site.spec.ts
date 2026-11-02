@@ -164,6 +164,10 @@ test("classroom decks support navigation, notes, deep links and print layouts", 
     await expect(page.getByRole("button", { name: "Previous", exact: false })).toBeDisabled();
     await page.getByRole("button", { name: "Next", exact: false }).click();
     await expect(page).toHaveURL(/#slide-2$/);
+    await page.keyboard.press("ArrowRight");
+    await expect(page).toHaveURL(/#slide-3$/);
+    await page.keyboard.press("ArrowLeft");
+    await expect(page).toHaveURL(/#slide-2$/);
     await page.getByRole("button", { name: "Teacher notes" }).click();
     await expect(page.locator(".deck-notes")).toBeVisible();
     await page.locator("main h1").click();

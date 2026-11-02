@@ -35,6 +35,7 @@ export default function DeckPlayer({ deck }: { deck: Deck }) {
   const [index, setIndex] = useState(0),
     [notes, setNotes] = useState(false),
     [status, setStatus] = useState("");
+  const [ready, setReady] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const sync = () => {
@@ -42,6 +43,7 @@ export default function DeckPlayer({ deck }: { deck: Deck }) {
       if (Number.isInteger(value) && value >= 1 && value <= deck.slides.length) setIndex(value - 1);
     };
     sync();
+    setReady(true);
     window.addEventListener("hashchange", sync);
     return () => window.removeEventListener("hashchange", sync);
   }, [deck.slides.length]);
@@ -53,12 +55,13 @@ export default function DeckPlayer({ deck }: { deck: Deck }) {
   useEffect(() => {
     function key(e: KeyboardEvent) {
       if (
-        (e.target as HTMLElement)?.closest("input,select,textarea,button") ||
+        (e.target as HTMLElement)?.closest("input,select,textarea") ||
         e.altKey ||
         e.ctrlKey ||
         e.metaKey
       )
         return;
+      if (e.key === " " && (e.target as HTMLElement)?.closest("button,a")) return;
       if (["ArrowRight", "PageDown", " "].includes(e.key)) {
         e.preventDefault();
         go(index + 1);
@@ -90,7 +93,7 @@ export default function DeckPlayer({ deck }: { deck: Deck }) {
     }
   }
   return (
-    <div class="deck-root" ref={root}>
+    <div class="deck-root" ref={root} aria-busy={!ready}>
       <SlideView
         slide={deck.slides[index]}
         index={index}
@@ -101,17 +104,21 @@ export default function DeckPlayer({ deck }: { deck: Deck }) {
         <span aria-live="polite">
           SLIDE {index + 1} / {deck.slides.length}
         </span>
-        <button disabled={index === 0} onClick={() => go(index - 1)}>
+        <button disabled={!ready || index === 0} onClick={() => go(index - 1)}>
           ← Previous
         </button>
-        <button disabled={index === deck.slides.length - 1} onClick={() => go(index + 1)}>
+        <button disabled={!ready || index === deck.slides.length - 1} onClick={() => go(index + 1)}>
           Next →
         </button>
-        <button onClick={fullscreen}>Fullscreen</button>
-        <button aria-pressed={notes} onClick={() => setNotes(!notes)}>
+        <button disabled={!ready} onClick={fullscreen}>
+          Fullscreen
+        </button>
+        <button disabled={!ready} aria-pressed={notes} onClick={() => setNotes(!notes)}>
           Teacher notes
         </button>
-        <button onClick={() => window.print()}>Print / Save PDF</button>
+        <button disabled={!ready} onClick={() => window.print()}>
+          Print / Save PDF
+        </button>
       </div>
       <p class="small muted">
         Use ← / → or Space to present. Home / End jump to the first / last slide. Escape leaves
