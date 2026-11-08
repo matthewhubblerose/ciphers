@@ -1,6 +1,6 @@
 # Ciphers
 
-A classroom field kit for classical cipher challenges: a shared interactive workbench, two practical guides, and two browser-based lesson decks.
+Tools, guides and slide decks for an afterschool cipher club.
 
 ## Run locally
 
@@ -15,26 +15,26 @@ Open <http://localhost:4321/ciphers/>. The `/ciphers` base path preserves the ex
 
 ## What's included
 
-- **Frequency:** alphabetic or frequency ordering, English overlay, exact counts, percentages and index of coincidence.
-- **Bigrams and trigrams:** overlapping groups across cipher display spaces, counts and percentages.
-- **Caesar:** generation and deciphering, all 26 candidates, shift controls.
+- **Frequency:** alphabetic or independent frequency ordering for ciphertext and English, both letter labels, exact counts, percentages and an Index of Coincidence explanation.
+- **Bigrams and trigrams:** overlapping counts and percentages alongside top-30 English reference tables, with frequency or alphabetical ordering.
+- **Caesar:** one left-shift operation, all 26 candidates, and independent formatting controls.
 - **Substitution:** manual cipher-to-plain guesses, duplicate checks, keyphrase generation and editable cipher alphabets.
 - **Transposition:** block reordering and columnar routes, numeric and word keys, draggable columns and accessible arrow alternatives. Incomplete final rows need no padding.
-- **Vigenère:** generation and deciphering, adjustable key length and each key character, IC length candidates, Kasiski repeats and per-column chi-squared suggestions.
+- **Vigenère:** adjustable keys and individual shifts, a live histogram for the selected key position, copyable column ciphertext, key-length candidates and a compact repeated-group gap table.
 - **Guides:** frequency/bigram/trigram analysis with an original worked substitution example; transposition in Excel with copyable formulas, fixed-value dragging, numeric keys and word keys.
-- **Decks:** the same lessons in 12 and 13 slides, keyboard navigation, shareable slide hashes, fullscreen, teacher notes and Print / Save PDF.
+- **Decks:** the same sessions in 12 and 13 slides, keyboard navigation, shareable slide hashes, fullscreen, presenter notes and Print / Save PDF.
 
 ### Conventions
 
-Tools operate on English A–Z letters. Analysis always ignores spaces and punctuation. Cipher output can be continuous, in groups of 5 or 10, or lowercase. Letter-replacement ciphers can preserve original spacing and punctuation instead. Nonletters never advance the Vigenère key. These classical ciphers are learning tools.
+Tools operate on English A–Z letters. Analysis ignores spaces and punctuation. Every output tool offers Preserve / Blocks of 5 / No spacing, an independent Keep punctuation toggle, and an Uppercase toggle (off preserves the original letter case). Nonletters never advance the Vigenère key. Copy buttons are available for results; there are no text-download or output-to-input actions.
 
-- **Caesar:** encryption adds the shift; deciphering subtracts it.
+- **Caesar:** the selected shift is subtracted. Shift 3 maps D to A; shift 23 applies the opposite direction, mapping A to D.
 - **Vigenère:** A=0, so BOT means shifts 1, 14, 19.
 - **Substitution:** a keyphrase is deduplicated then followed by unused A–Z. The cipher alphabet maps plaintext A–Z to cipher letters. Manual solving maps in the opposite direction.
-- **Transposition:** 53124 means read original columns 5, 3, 1, 2, 4. HOTEL sorts E, H, L, O, T, giving read order 41523. Repeated letters sort left to right. This is a read-order convention, not the alphabetical ranks written beneath a word. Decipher reverses the encryption order. Dragging edits that order; the grid is a preview of the input, not a second independent key. Use comma-separated numbers for sizes above 9. Block sizes are 2–30.
+- **Transposition:** the default reads across the grid exactly as displayed. 52413 reads original columns 5, 2, 4, 1, 3; dragging changes this order directly. HOTEL gives 41523. Repeated letters sort left to right. The separate Reverse a known block key / Restore a columnar cipher methods reconstruct an encryption route and display the restored result grid. Use comma-separated numbers above 9; block sizes are 2–30.
 - **Routes:** block transposition reads reordered rows; columnar transposition reads selected columns top to bottom. Columnar decoding accounts for unequal original column lengths.
 
-The original practice samples are generated from one known plaintext. A short, attributed excerpt from [National Cipher Challenge 2026, Challenge 3 Part B](https://www.cipherchallenge.org/challenge/challenge-3/) is also used in regression tests; it includes no solution or guessed key.
+The original practice samples are generated from one known plaintext. An attributed excerpt from [National Cipher Challenge 2026, Challenge 3 Part B](https://www.cipherchallenge.org/challenge/challenge-3/) verifies that order 52413 reads MEETZINTHEDINER in both the grid and output. English group reference ranks come from [Peter Norvig’s Google Books analysis](https://www.norvig.com/mayzner.html); they count within words, whereas ciphertext groups can cross removed word boundaries.
 
 ## Verify changes
 
@@ -61,8 +61,8 @@ Dependency overrides select patched Rollup and minimatch versions while upstream
 
 - `src/utils/ciphers.ts`: pure cipher and analysis functions.
 - `src/components/tools/Workbench.tsx`: shared input and tool UI.
-- `src/pages/guides/`: readable lessons.
-- `src/data/decks.ts`: slide content and teacher notes.
+- `src/pages/guides/`: written guides.
+- `src/data/decks.ts`: slide content and presenter notes.
 - `src/components/DeckPlayer.tsx`: presentation controls and print rendering.
 - `tests/e2e/`: isolated browser workflows.
 

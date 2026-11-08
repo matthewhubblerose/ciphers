@@ -30,10 +30,10 @@ export const decks: Deck[] = [
     slides: [
       {
         title: "Every cipher leaves a clue",
-        body: "A lesson in frequency analysis, bigrams and trigrams",
+        body: "Frequency analysis, bigrams and trigrams",
         code: "COUNT → GUESS → TEST → REVISE",
         notes:
-          "Ask students what can survive encryption. Aim: distinguish Caesar, substitution and transposition, then use neighbouring letters to test a mapping. Allow about 30 minutes including the activity.",
+          "Ask club members what can survive encryption. Aim: distinguish Caesar, substitution and transposition, then use neighbouring letters to test a mapping. Allow about 30 minutes including the activity.",
       },
       {
         title: "The first inspection",
@@ -44,7 +44,7 @@ export const decks: Deck[] = [
         ],
         code: "AAAAA BBBBB ≠ two five-letter words",
         notes:
-          "Open the frequency tool alongside the lesson. Five-letter groups are usually transmission formatting, not word boundaries. Punctuation is ignored by analysis.",
+          "Open the frequency tool alongside the session. Five-letter groups are usually transmission formatting, not word boundaries. Punctuation is ignored by analysis.",
       },
       {
         title: "English has an uneven fingerprint",
@@ -96,7 +96,7 @@ export const decks: Deck[] = [
         title: "Worked example: test THE",
         body: `In our ORANGE sample, ${enc("THE")} is the most common trigram. Guess ${enc("THE")} → THE.`,
         code: `${enc("THE OTHER EXPLORERS WERE THERE")}\n${reveal("THE OTHER EXPLORERS WERE THERE", "THE")}`,
-        notes: `Load the Substitution · ORANGE practice sample. In manual substitution, set ${enc("T")} → T, ${enc("H")} → H, ${enc("E")} → E. Ask students which fragments might become words. All practice text is original.`,
+        notes: `Load the Substitution · ORANGE practice sample. In manual substitution, set ${enc("T")} → T, ${enc("H")} → H, ${enc("E")} → E. Ask club members which fragments might become words. All practice text is original.`,
       },
       {
         title: "Use HER to discover R",
@@ -125,10 +125,10 @@ export const decks: Deck[] = [
           "Generate a new keyphrase cipher for a partner.",
         ],
         notes:
-          "Allow 8–10 minutes. Students can switch tools without losing their input. Have them explain why a guess is plausible, and what would make them reject it. For generating, select Generate ciphertext and enter a keyphrase.",
+          "Allow 8–10 minutes. Club members can switch tools without losing their input. Have them explain why a guess is plausible, and what would make them reject it. For generating, select Generate ciphertext and enter a keyphrase.",
       },
       {
-        title: "Exit ticket",
+        title: "Questions to discuss",
         bullets: [
           "How does a Caesar chart differ from an arbitrary substitution?",
           "Why might an English-like chart suggest transposition?",
@@ -159,7 +159,7 @@ export const decks: Deck[] = [
         code: "1 2 3 4 5\nW E A R E\nD I S C O\nV E R E D",
         body: "Letter identities and counts stay unchanged.",
         notes:
-          "Ask students which information a frequency analyser can still recover. Writing across rows is the convention in this lesson; other puzzles may use different routes.",
+          "Ask club members which information a frequency analyser can still recover. Writing across rows is the convention in this session; other puzzles may use different routes.",
       },
       {
         title: "A numeric key is a read order",
@@ -183,7 +183,7 @@ export const decks: Deck[] = [
           "Grid!A1:E1: original column numbers 1–5",
         ],
         notes:
-          'For the classroom sample B3 can be =UPPER(SUBSTITUTE(B1," ","")); the full guide also removes tabs and line breaks. Use letters and whitespace only. Set up three sheets: Setup, Grid and Output.',
+          'For the club sample B3 can be =UPPER(SUBSTITUTE(B1," ","")); the full guide also removes tabs and line breaks. Use letters and whitespace only. Set up three sheets: Setup, Grid and Output.',
       },
       {
         title: "Extract one character per cell",
@@ -256,7 +256,7 @@ export const decks: Deck[] = [
           "Try a word key, then an incomplete final block.",
         ],
         notes:
-          "Allow 10 minutes. Ask students to explain the route to a partner. Verify with the transposition tool. The guide contains detailed formulas and the handling of short final rows.",
+          "Allow 10 minutes. Ask club members to explain the route to a partner. Verify with the transposition tool. The guide contains detailed formulas and the handling of short final rows.",
       },
     ],
   },

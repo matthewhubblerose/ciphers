@@ -17,9 +17,15 @@ test("pages and slides fit their viewports and produce review screenshots", asyn
     path: `artifacts/${testInfo.project.name}-frequency.png`,
     fullPage: true,
   });
-  for (const tool of ["substitution", "transposition", "vigenere"]) {
+  for (const tool of ["ngrams", "caesar", "substitution", "transposition", "vigenere"]) {
     await page.goto(`/ciphers/tools/#${tool}`);
     await expect(page.locator(".workbench")).toHaveAttribute("aria-busy", "false");
+    if (tool === "substitution")
+      await page.getByLabel("Substitution operation", { exact: true }).selectOption("encode");
+    if (tool === "transposition") {
+      await page.getByLabel("Your message", { exact: true }).fill("TEZEM HNETI EIRND");
+      await page.getByLabel("Column order or word key").fill("52413");
+    }
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,

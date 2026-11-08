@@ -589,7 +589,7 @@ input[type="range"] {
 }
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr 1fr 1.6fr;
   padding: 18px 0;
   margin-bottom: 22px;
   border-top: 1px solid var(--line);
@@ -612,6 +612,141 @@ input[type="range"] {
 .stats span {
   font-size: 10px;
   color: var(--muted);
+}
+.message-input {
+  min-height: 225px;
+}
+.stats > div > span {
+  min-height: 30px;
+  line-height: 1.5;
+}
+.stats > div {
+  justify-content: flex-start;
+}
+.info-tooltip {
+  display: inline-block;
+  position: relative;
+}
+.info-button {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 11px;
+  vertical-align: middle;
+}
+.info-tooltip [role="tooltip"] {
+  pointer-events: none;
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 27px;
+  width: min(280px, 65vw);
+  padding: 14px;
+  background: var(--ink);
+  color: white;
+  font-size: 12px;
+  line-height: 1.7;
+  border-radius: 5px;
+  z-index: 5;
+  box-shadow: 0 4px 15px #0002;
+}
+.info-tooltip:hover [role="tooltip"],
+.info-tooltip:focus-within [role="tooltip"] {
+  display: block;
+}
+.comparison-chart {
+  height: 230px;
+  background-position: 0 -25px;
+}
+.comparison-chart .bar-track {
+  height: 190px;
+}
+.bar-labels {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  gap: 2px;
+  padding-top: 8px;
+  background: var(--white);
+  font: 10px var(--mono);
+  min-height: 29px;
+}
+.bar-labels span {
+  flex: 1;
+  text-align: center;
+}
+.cipher-label {
+  color: var(--green);
+  font-weight: 700;
+}
+.english-label {
+  color: #526c2a;
+  background: #e7eedc;
+  border-radius: 2px;
+}
+.frequency-plot {
+  min-width: 0;
+}
+.frequency-plot .legend {
+  margin-bottom: 8px;
+}
+.chart-scale {
+  margin-bottom: 10px;
+}
+.ngram-panel {
+  margin: 26px 0;
+}
+.ngram-table {
+  max-height: 460px;
+}
+.ngram-table table {
+  min-width: 480px;
+}
+.ngram-table thead {
+  position: sticky;
+  top: 0;
+}
+.ngram-table .english-reference {
+  background: #f0f4e8;
+}
+.alphabet-scroll {
+  overflow-x: auto;
+  margin: 20px 0;
+}
+table.alphabet-reference {
+  table-layout: fixed;
+  min-width: 650px;
+  width: 100%;
+  padding: 0;
+  font: 13px var(--mono);
+}
+table.alphabet-reference th {
+  width: 65px;
+  text-align: left;
+}
+table.alphabet-reference td {
+  text-align: center;
+  padding: 10px 0;
+  width: 20px;
+}
+table.alphabet-reference tr:nth-child(2) {
+  color: var(--green);
+  background: #e5eed7;
+}
+.column-analysis {
+  border-top: 1px solid var(--line);
+  padding-top: 22px;
+  margin-top: 20px;
+}
+.column-analysis h3 {
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+.column-ciphertext {
+  min-height: 65px;
 }
 .controls {
   display: flex;

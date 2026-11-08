@@ -37,10 +37,14 @@ export default function DeckPlayer({ deck }: { deck: Deck }) {
     [status, setStatus] = useState("");
   const [ready, setReady] = useState(false);
   const root = useRef<HTMLDivElement>(null);
+  const activeIndex = useRef(0);
   useEffect(() => {
     const sync = () => {
       const value = Number(location.hash.replace("#slide-", ""));
-      if (Number.isInteger(value) && value >= 1 && value <= deck.slides.length) setIndex(value - 1);
+      if (Number.isInteger(value) && value >= 1 && value <= deck.slides.length) {
+        activeIndex.current = value - 1;
+        setIndex(value - 1);
+      }
     };
     sync();
     setReady(true);
@@ -49,6 +53,7 @@ export default function DeckPlayer({ deck }: { deck: Deck }) {
   }, [deck.slides.length]);
   function go(value: number) {
     const next = Math.max(0, Math.min(deck.slides.length - 1, value));
+    activeIndex.current = next;
     setIndex(next);
     history.replaceState(null, "", `#slide-${next + 1}`);
   }
@@ -64,11 +69,11 @@ export default function DeckPlayer({ deck }: { deck: Deck }) {
       if (e.key === " " && (e.target as HTMLElement)?.closest("button,a")) return;
       if (["ArrowRight", "PageDown", " "].includes(e.key)) {
         e.preventDefault();
-        go(index + 1);
+        go(activeIndex.current + 1);
       }
       if (["ArrowLeft", "PageUp"].includes(e.key)) {
         e.preventDefault();
-        go(index - 1);
+        go(activeIndex.current - 1);
       }
       if (e.key === "Home") {
         e.preventDefault();
@@ -81,7 +86,7 @@ export default function DeckPlayer({ deck }: { deck: Deck }) {
     }
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [index, deck.slides.length]);
+  }, [deck.slides.length]);
   async function fullscreen() {
     try {
       if (document.fullscreenElement) await document.exitFullscreen();
@@ -104,17 +109,20 @@ export default function DeckPlayer({ deck }: { deck: Deck }) {
         <span aria-live="polite">
           SLIDE {index + 1} / {deck.slides.length}
         </span>
-        <button disabled={!ready || index === 0} onClick={() => go(index - 1)}>
+        <button disabled={!ready || index === 0} onClick={() => go(activeIndex.current - 1)}>
           ← Previous
         </button>
-        <button disabled={!ready || index === deck.slides.length - 1} onClick={() => go(index + 1)}>
+        <button
+          disabled={!ready || index === deck.slides.length - 1}
+          onClick={() => go(activeIndex.current + 1)}
+        >
           Next →
         </button>
         <button disabled={!ready} onClick={fullscreen}>
           Fullscreen
         </button>
         <button disabled={!ready} aria-pressed={notes} onClick={() => setNotes(!notes)}>
-          Teacher notes
+          Presenter notes
         </button>
         <button disabled={!ready} onClick={() => window.print()}>
           Print / Save PDF
@@ -126,7 +134,7 @@ export default function DeckPlayer({ deck }: { deck: Deck }) {
       </p>
       {notes && (
         <aside class="deck-notes">
-          <p class="eyebrow">TEACHER NOTES</p>
+          <p class="eyebrow">PRESENTER NOTES</p>
           <p>{deck.slides[index].notes}</p>
         </aside>
       )}

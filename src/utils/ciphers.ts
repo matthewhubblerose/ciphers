@@ -145,8 +145,14 @@ export function parseOrder(key: string, size: number): number[] {
     );
   return order;
 }
-export function transpose(text: string, order: number[], decrypt = false, columnar = false) {
-  const clean = letters(text),
+export function transpose(
+  text: string,
+  order: number[],
+  decrypt = false,
+  columnar = false,
+  preserveCase = false,
+) {
+  const clean = preserveCase ? text.replace(/[^A-Za-z]/g, "") : letters(text),
     n = order.length;
   if (!n || new Set(order).size !== n || order.some((i) => !Number.isInteger(i) || i < 0 || i >= n))
     throw new Error("Invalid column order.");

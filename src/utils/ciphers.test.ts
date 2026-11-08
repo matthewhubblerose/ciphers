@@ -113,6 +113,9 @@ describe("analysis", () => {
     }
   });
   it("uses THE as the leading trigram in the guide example", () => {
+    expect(letters(PRACTICE).length).toBeGreaterThan(2500);
+    expect(coincidence(PRACTICE)).toBeGreaterThan(0.06);
+    expect(coincidence(PRACTICE)).toBeLessThan(0.075);
     expect(ngrams(PRACTICE, 3)[0].gram).toBe("THE");
     expect(SAMPLES.map((s) => s.text.length).every((n) => n === letters(PRACTICE).length)).toBe(
       true,
