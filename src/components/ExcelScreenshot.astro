@@ -1,0 +1,21 @@
+---
+interface Props {
+  name: string;
+  alt: string;
+  caption: string;
+}
+const { name, alt, caption } = Astro.props;
+const src = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/images/excel/window-${name}.png`;
+---
+
+<figure class="excel-figure">
+  <a href={src} target="_blank" rel="noreferrer" aria-label={`Open full-size screenshot: ${alt}`}>
+    <img src={src} alt={alt} width="914" height="463" loading="eager" decoding="async" />
+  </a>
+  <figcaption>
+    {caption}{" "}
+    <a href={src} target="_blank" rel="noreferrer">
+      Open full size ↗
+    </a>
+  </figcaption>
+</figure>

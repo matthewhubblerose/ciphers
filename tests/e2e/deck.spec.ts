@@ -152,12 +152,20 @@ test("guide screenshots load and only one guide and deck are listed", async ({
   await expect(page.locator(".resource-card")).toHaveCount(1);
   await page.locator(".resource-card").click();
   const images = page.locator(".excel-figure img");
-  await expect(images).toHaveCount(6);
+  await expect(images).toHaveCount(9);
+  await expect(page.locator(".guide-content")).not.toContainText(/Challenge 3|TEZEM|MEETZ/i);
+  await expect(page.locator(".guide-content")).toContainText("TSEML ELVEO ERTST");
   for (const img of await images.all()) {
     await img.scrollIntoViewIfNeeded();
     await expect
-      .poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 100))
+      .poll(() =>
+        img.evaluate(
+          (el: HTMLImageElement) =>
+            el.complete && el.naturalWidth === 914 && el.naturalHeight === 463,
+        ),
+      )
       .toBe(true);
+    await expect(img.locator("..")).toHaveAttribute("href", /window-.*\.png$/);
   }
   expect(
     await page.evaluate(
