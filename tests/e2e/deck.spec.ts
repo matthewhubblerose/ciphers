@@ -2,9 +2,11 @@ import { test, expect } from "@playwright/test";
 
 const url = "/ciphers/decks/cipher-analysis/";
 test("typing charts update, pause, scrub and replay", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto(url);
   const live = page.locator(".deck-root>.slide-stage");
   const typing = live.locator(".typing-demo");
+  await live.getByRole("button", { name: "Replay", exact: true }).click();
   await expect(typing).toHaveAttribute("data-position", "0");
   await live.getByRole("button", { name: "Step", exact: true }).click();
   await expect(typing).toHaveAttribute("data-position", "1");
@@ -29,6 +31,56 @@ test("typing charts update, pause, scrub and replay", async ({ page }) => {
   await live.getByRole("button", { name: "Show full text" }).click();
   await expect(live.getByText(/counts within words/)).toBeVisible();
   expect(await live.locator('[data-group="TH"]').getAttribute("data-value")).not.toBe("0.0000");
+});
+
+test("demonstrations run on entry and connect the graphs to real text", async ({ page }) => {
+  await page.goto(url);
+  const live = page.locator(".deck-root>.slide-stage");
+  await expect
+    .poll(async () => Number(await live.locator(".typing-demo").getAttribute("data-position")))
+    .toBeGreaterThan(15);
+  await expect(live.getByLabel("Text entered so far")).toContainText("THE OTHER");
+  await expect(live.locator(".count-explanation")).toContainText("English reference");
+  await page.goto(url + "#slide-3");
+  await expect
+    .poll(async () => Number(await live.locator(".caesar-demo").getAttribute("data-shift")))
+    .toBeGreaterThan(0);
+  await expect(live.locator(".caesar-working")).toContainText("L →");
+  await page.goto(url + "#slide-5");
+  await expect(live.locator(".example-text-pair")).toContainText("THE OTHER");
+  await expect(live.locator(".substitution-example")).toHaveAttribute("data-ranked", "true", {
+    timeout: 5000,
+  });
+  await page.goto(url + "#slide-7");
+  const before = await live
+    .locator("[data-value]")
+    .evaluateAll((els) => els.map((el) => el.getAttribute("data-value")));
+  await live.getByRole("button", { name: "Restore order · watch the bars" }).click();
+  const after = await live
+    .locator("[data-value]")
+    .evaluateAll((els) => els.map((el) => el.getAttribute("data-value")));
+  expect(after).toEqual(before);
+  await page.goto(url + "#slide-8");
+  await live.getByRole("button", { name: "Show scrambled groups" }).click();
+  const scrambled = await live
+    .locator("[data-value]")
+    .evaluateAll((els) => els.map((el) => el.getAttribute("data-value")));
+  await live.getByRole("button", { name: "Restore the column order" }).click();
+  expect(
+    await live
+      .locator("[data-value]")
+      .evaluateAll((els) => els.map((el) => el.getAttribute("data-value"))),
+  ).not.toEqual(scrambled);
+  await page.goto(url + "#slide-9");
+  await expect(live.getByLabel("Block transposition output")).toHaveText("MEETZ INTHE DINER", {
+    timeout: 8000,
+  });
+  await page.goto(url + "#slide-10");
+  await live.getByRole("button", { name: "Show complete route" }).click();
+  await expect(live.getByLabel("Reading route output")).toHaveText("EAWEROSDICDRVEE");
+  await live.getByRole("button", { name: "Down columns" }).click();
+  await live.getByRole("button", { name: "Show complete route" }).click();
+  await expect(live.getByLabel("Reading route output")).toHaveText("EODASRWDVEIERCE");
 });
 
 test("Caesar alignment, ranked substitution and block movement recover their examples", async ({
@@ -92,6 +144,7 @@ test("reduced motion supports manual steps and print contains completed examples
   await page.goto(url);
   const live = page.locator(".deck-root>.slide-stage");
   await expect(live.getByText(/Reduced motion is enabled/)).toBeVisible();
+  await live.getByRole("button", { name: "Replay", exact: true }).click();
   await live.getByRole("button", { name: "Step", exact: true }).click();
   await expect(live.locator(".typing-demo")).toHaveAttribute("data-position", "1");
   await page.emulateMedia({ media: "print" });

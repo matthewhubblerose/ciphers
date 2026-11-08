@@ -55,14 +55,9 @@ export const decks: Deck[] = [
           "Start at shift zero. Animate the correction one position at a time, or use the slider. The central region is A–Z; each side repeats thirteen letters. The original English passage is the reference so the correct shift lines up exactly. A generic English reference would only be approximate. At shift seven, read the recovered opening.",
       },
       {
-        title: "Look for one shared rotation",
-        body: "A recognisable English shape, moved around the alphabet, suggests a Caesar shift.",
+        title: "One shift restores the shape and the message",
+        body: "The tall L bar has moved back to E. Every smaller peak moved by exactly the same amount.",
         visual: "caesar-clue",
-        bullets: [
-          "The bar heights stay the same.",
-          "All letters move by the same amount.",
-          "Test the alignment by reading the output.",
-        ],
         notes:
           "This is a practical clue, not a proof from one peak. Short messages and unusual vocabulary can produce misleading graphs. Test all shifts if needed.",
       },
