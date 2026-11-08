@@ -95,3 +95,27 @@ export function transpositionGroups(n: number): PlotPair[] {
 export const repeatedAlphabet = Array.from({ length: 52 }, (_, i) => ABC[mod(i - 13)]);
 export const decodedCaesar = (shift: number) => caesar(CAESAR_TEXT, shift, true, true);
 export const shortChallenge = letters(CHALLENGE_TEXT).slice(0, 15);
+
+export const ROUTE_MESSAGE = "LETSMOVELETTERS";
+export const ROUTE_ORDER = [4, 2, 0, 1, 3];
+
+export function typingWindow(text: string, position: number, columns: number) {
+  const width = Math.max(1, Math.floor(columns));
+  const cursor = Math.max(0, Math.min(position, text.length));
+  const activeLine = Math.floor(cursor / width);
+  const firstLine = Math.max(0, activeLine - 2);
+  return {
+    firstLine,
+    columns: width,
+    lines: Array.from({ length: 3 }, (_, i) => {
+      const index = firstLine + i,
+        start = index * width;
+      return {
+        index,
+        start,
+        text: text.slice(Math.min(start, cursor), Math.min(start + width, cursor)),
+        active: index === activeLine,
+      };
+    }),
+  };
+}

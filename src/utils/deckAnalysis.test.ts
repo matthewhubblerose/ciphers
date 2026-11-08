@@ -13,10 +13,27 @@ import {
   substitutionGroups,
   transpositionGroups,
   wordBigramPairs,
+  typingWindow,
+  ROUTE_MESSAGE,
+  ROUTE_ORDER,
 } from "./deckAnalysis";
 import { CHALLENGE_ORDER, CHALLENGE_TEXT } from "../data/challenge";
 
 describe("analysis deck examples", () => {
+  it("keeps characters fixed until a whole third line is complete", () => {
+    const text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    expect(typingWindow(text, 14, 5).lines.map((l) => l.text)).toEqual(["ABCDE", "FGHIJ", "KLMN"]);
+    const next = typingWindow(text, 15, 5);
+    expect(next.firstLine).toBe(1);
+    expect(next.lines.map((l) => l.text)).toEqual(["FGHIJ", "KLMNO", ""]);
+    expect(typingWindow(text, 16, 5).lines.map((l) => l.text)).toEqual(["FGHIJ", "KLMNO", "P"]);
+  });
+  it("starts the route example with fifteen readable letters", () => {
+    expect(ROUTE_MESSAGE).toHaveLength(15);
+    expect(ROUTE_MESSAGE).toBe("LETSMOVELETTERS");
+    expect(transpose(ROUTE_MESSAGE, ROUTE_ORDER)).toBe("MTLESEEOVLSETTR");
+    expect(transpose(ROUTE_MESSAGE, ROUTE_ORDER, false, true)).toBe("MESTEELOTEVTSLR");
+  });
   it("shows a steadier English fingerprint with the full sample", () => {
     const error = (rows: ReturnType<typeof letterPairs>) =>
       rows.reduce((sum, r) => sum + Math.abs(r.value - r.reference), 0);

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "preact/hooks";
+import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks";
 import { ComparisonChart } from "./ComparisonChart";
 import { ABC, frequencies, letters, ngrams, transpose } from "../../utils/ciphers";
 import {
@@ -12,6 +12,9 @@ import {
   substitutionGroups,
   transpositionGroups,
   wordBigramPairs,
+  typingWindow,
+  ROUTE_MESSAGE,
+  ROUTE_ORDER,
 } from "../../utils/deckAnalysis";
 import { CHALLENGE_ORDER, CHALLENGE_SOURCE, CHALLENGE_TEXT } from "../../data/challenge";
 
@@ -51,6 +54,25 @@ export function TypingExample({
 }) {
   const motion = useMotion();
   const textPanel = useRef<HTMLParagraphElement>(null);
+  const [columns, setColumns] = useState(72);
+  useLayoutEffect(() => {
+    const panel = textPanel.current;
+    if (!panel) return;
+    const canvas = document.createElement("canvas"),
+      ctx = canvas.getContext("2d");
+    const measure = () => {
+      if (!ctx) return;
+      const style = getComputedStyle(panel);
+      ctx.font = `${style.fontSize} ${style.fontFamily}`;
+      const width = ctx.measureText("M").width;
+      setColumns(Math.max(8, Math.floor((panel.clientWidth - width) / width)));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(panel);
+    void document.fonts.ready.then(measure);
+    return () => observer.disconnect();
+  }, []);
   const [position, setPosition] = useState(staticView ? ANALYSIS_TEXT.length : 0);
   const [playing, setPlaying] = useState(false),
     [speed, setSpeed] = useState(160);
@@ -77,9 +99,6 @@ export function TypingExample({
   const last = bigrams
     ? (current.match(/[A-Za-z]{2}$/)?.[0] ?? "")
     : (current.match(/[A-Za-z]$/)?.[0] ?? "");
-  useEffect(() => {
-    if (textPanel.current) textPanel.current.scrollTop = textPanel.current.scrollHeight;
-  }, [position]);
   const rows = bigrams ? wordBigramPairs(current) : letterPairs(current);
   const focus = bigrams ? "TH" : "E",
     pair = rows.find((r) => r.label === focus)!;
@@ -92,8 +111,7 @@ export function TypingExample({
       : position < 500
         ? "More words: familiar peaks begin to appear."
         : "A longer passage: the overall English pattern becomes clearer.";
-  const tail = current.slice(-220);
-  const preview = current.length > 220 ? "… " + tail.slice(tail.indexOf(" ") + 1) : tail;
+  const textWindow = typingWindow(ANALYSIS_TEXT, position, columns);
   return (
     <div class="analysis-visual typing-demo" data-position={position} data-playing={playing}>
       <div class="live-reading">
@@ -101,13 +119,32 @@ export function TypingExample({
           <span class="demo-label">
             English text arriving · {clean.length.toLocaleString()} letters
           </span>
-          <p aria-label="Text entered so far" ref={textPanel}>
-            {last ? preview.slice(0, -last.length) : preview}
-            <mark>{last ? preview.slice(-last.length) : ""}</mark>
-            {!current && "THE OTHER EXPLORERS…"}
-            <b class="typing-cursor" aria-hidden="true">
-              ▍
-            </b>
+          <p
+            aria-label="Text entered so far"
+            ref={textPanel}
+            data-columns={columns}
+            data-first-line={textWindow.firstLine}
+          >
+            {textWindow.lines.map((line) => {
+              const highlight = Math.max(0, position - last.length - line.start);
+              return (
+                <span class="typing-line" data-line={line.index} key={line.index}>
+                  {last && highlight < line.text.length ? (
+                    <>
+                      {line.text.slice(0, highlight)}
+                      <mark>{line.text.slice(highlight)}</mark>
+                    </>
+                  ) : (
+                    line.text
+                  )}
+                  {line.active && (
+                    <b class="typing-cursor" aria-hidden="true">
+                      ▍
+                    </b>
+                  )}
+                </span>
+              );
+            })}
           </p>
         </div>
         <div class="count-explanation">
@@ -281,6 +318,7 @@ export function GroupExample({
   const motion = useMotion();
   const [restored, setRestored] = useState(false),
     [reveal, setReveal] = useState(staticView);
+  const [explained, setExplained] = useState(staticView);
   useEffect(() => {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) setReveal(true);
   }, []);
@@ -307,7 +345,7 @@ export function GroupExample({
     <div class="analysis-visual group-example" data-restored={restored}>
       {transposition ? (
         <div class="challenge-strip">
-          <span>Challenge 3 B · same letters, different neighbours</span>
+          <span>Challenge 3 B · compare the common English groups</span>
           <p>{restored ? "MEETZ INTHE DINER ATBRE AKFAS…" : "TEZEM HNETI EIRND RTEBA AKSFA…"}</p>
         </div>
       ) : (
@@ -350,7 +388,9 @@ export function GroupExample({
         </strong>
         <span>
           {transposition
-            ? "Individual letters survived. Their neighbours changed. This is the clue to try rearranging letters."
+            ? explained
+              ? "The letters have been moved instead of replaced. This is called transposition."
+              : "The letter counts looked English, but these group counts do not. What could explain that?"
             : "Substitution keeps neighbours together. Their names change, but their counts survive."}
         </span>
       </div>
@@ -358,6 +398,7 @@ export function GroupExample({
         <div class="animation-controls" data-animation-controls>
           {transposition ? (
             <>
+              <button onClick={() => setExplained(true)}>Reveal explanation</button>
               <button
                 onClick={() => {
                   setReveal(true);
@@ -366,14 +407,16 @@ export function GroupExample({
               >
                 Show scrambled groups
               </button>
-              <button
-                onClick={() => {
-                  setReveal(true);
-                  setRestored(true);
-                }}
-              >
-                Restore the column order
-              </button>
+              {explained && (
+                <button
+                  onClick={() => {
+                    setReveal(true);
+                    setRestored(true);
+                  }}
+                >
+                  Restore the column order
+                </button>
+              )}
             </>
           ) : (
             <button onClick={() => setReveal(!reveal)}>
@@ -384,7 +427,7 @@ export function GroupExample({
       )}
       <p class="visual-note">
         {transposition
-          ? "These plots compare the same Challenge excerpt before and after order 52413."
+          ? "The orange bars show the original English passage; the green bars show the scrambled version of that same passage."
           : "Bars compare the same passage before and after ORANGE substitution; both label rows show the known replacements."}
       </p>
     </div>
@@ -392,42 +435,26 @@ export function GroupExample({
 }
 
 export function TranspositionLetters({ staticView = false }: { staticView?: boolean }) {
-  const [restored, setRestored] = useState(staticView);
-  const text = restored ? CHALLENGE_PLAIN : CHALLENGE_TEXT;
   return (
-    <div class="analysis-visual transposition-letter-example" data-restored={restored}>
+    <div class="analysis-visual transposition-letter-example" data-static={staticView}>
       <div class="challenge-strip">
         <span>
           <a href={CHALLENGE_SOURCE}>National Cipher Challenge · Challenge 3 B</a> ·{" "}
           {letters(CHALLENGE_TEXT).length} letters
         </span>
-        <p>{restored ? CHALLENGE_PLAIN.slice(0, 75) : CHALLENGE_TEXT.slice(0, 90)}</p>
+        <p>{CHALLENGE_TEXT.slice(0, 90)}</p>
       </div>
-      <ComparisonChart
-        rows={letterPairs(text)}
-        label={restored ? "Restored message" : "Challenge ciphertext"}
-      />
+      <ComparisonChart rows={letterPairs(CHALLENGE_TEXT)} label="Challenge ciphertext" />
       <div class="demo-observation">
-        <strong>
-          {restored
-            ? "The text changed. Every single letter bar stayed in place."
-            : "The letter peaks already sit under E, T and other English labels."}
-        </strong>
+        <strong>The individual letters look familiar. Why can’t we read the message?</strong>
         <span>
-          Try restoring the order and watch the histogram. No new alphabet or Caesar shift is
-          needed.
+          Have the letters changed, or have their positions changed? Check the neighbouring letters
+          next.
         </span>
       </div>
-      {!staticView && (
-        <div class="animation-controls" data-animation-controls>
-          <button onClick={() => setRestored(!restored)}>
-            {restored ? "Show ciphertext again" : "Restore order · watch the bars"}
-          </button>
-        </div>
-      )}
       <p class="visual-note">
-        Generic English is an approximate reference. Unchanged letter counts plus disrupted groups
-        suggest transposition; readable output confirms this example.
+        Letter counts alone do not tell the whole story. The next comparison looks at pairs and
+        triples.
       </p>
     </div>
   );
@@ -539,10 +566,10 @@ export function BlockExample({ staticView = false }: { staticView?: boolean }) {
 
 export function RouteExample({ staticView = false }: { staticView?: boolean }) {
   const motion = useMotion();
-  const [columnar, setColumnar] = useState(false),
+  const [phase, setPhase] = useState(staticView ? 2 : 0),
+    [columnar, setColumnar] = useState(false),
     [position, setPosition] = useState(staticView ? 15 : 0),
     [playing, setPlaying] = useState(false);
-  useEffect(() => setPlaying(motion && !staticView), [motion, staticView]);
   useEffect(() => {
     if (!playing || staticView) return;
     const timer = setInterval(() => setPosition((p) => Math.min(15, p + 1)), 400);
@@ -551,7 +578,8 @@ export function RouteExample({ staticView = false }: { staticView?: boolean }) {
   useEffect(() => {
     if (position === 15) setPlaying(false);
   }, [position]);
-  const grid = transpose("WEAREDISCOVERED", [4, 2, 0, 1, 3]);
+  const order = phase === 0 ? [0, 1, 2, 3, 4] : ROUTE_ORDER;
+  const grid = transpose(ROUTE_MESSAGE, order);
   const route = Array.from({ length: 15 }, (_, i) =>
     columnar ? (i % 3) * 5 + Math.floor(i / 3) : i,
   );
@@ -559,85 +587,147 @@ export function RouteExample({ staticView = false }: { staticView?: boolean }) {
     .slice(0, position)
     .map((i) => grid[i])
     .join("");
+  const startRoute = (down: boolean) => {
+    setPhase(2);
+    setColumnar(down);
+    setPosition(0);
+    setPlaying(motion);
+  };
   return (
-    <div class="analysis-visual route-demonstration">
+    <div class="analysis-visual route-demonstration" data-phase={phase}>
+      <ol class="route-steps">
+        <li aria-current={phase === 0 ? "step" : undefined}>1. Write the message</li>
+        <li aria-current={phase === 1 ? "step" : undefined}>2. Move the columns</li>
+        <li aria-current={phase === 2 ? "step" : undefined}>3. Choose a reading route</li>
+      </ol>
       <div class="route-layout">
-        <div>
-          <div class="route-headings">
-            {[5, 3, 1, 2, 4].map((c) => (
-              <span key={c}>{c}</span>
-            ))}
-          </div>
-          <div class="route-grid" aria-label="Reading route grid">
-            {[...grid].map((c, i) => (
-              <div
-                key={i}
-                class={`${route.indexOf(i) < position ? "route-read" : ""} ${route[position - 1] === i ? "route-current" : ""}`}
-              >
-                <small>{route.indexOf(i) + 1}</small>
-                {c}
-              </div>
-            ))}
-          </div>
+        <div
+          class="animated-columns route-columns"
+          aria-label="Reading route grid"
+          data-order={order.map((c) => c + 1).join("")}
+        >
+          {[0, 1, 2, 3, 4].map((col) => (
+            <div
+              key={col}
+              class={"animated-column column-colour-" + col}
+              style={{ transform: "translateX(" + order.indexOf(col) * 100 + "%)" }}
+            >
+              <strong>Column {col + 1}</strong>
+              {[0, 1, 2].map((row) => {
+                const index = row * 5 + order.indexOf(col),
+                  readIndex = route.indexOf(index);
+                return (
+                  <span
+                    key={row}
+                    class={
+                      phase === 2
+                        ? (readIndex < position ? "route-read " : "") +
+                          (route[position - 1] === index ? "route-current" : "")
+                        : ""
+                    }
+                  >
+                    {phase === 2 && <small>{readIndex + 1}</small>}
+                    {ROUTE_MESSAGE[row * 5 + col]}
+                  </span>
+                );
+              })}
+            </div>
+          ))}
         </div>
         <div>
-          <h3>{columnar ? "Read down columns ↓" : "Read across rows →"}</h3>
-          <p>Follow the numbered cells. The grid and column order stay the same.</p>
+          <h3>
+            {phase === 0
+              ? "LET’S MOVE LETTERS"
+              : phase === 1
+                ? "Columns moved: 5, 3, 1, 2, 4"
+                : columnar
+                  ? "Read down each column ↓"
+                  : "Read across each row →"}
+          </h3>
+          <p>
+            {phase === 0
+              ? "Read the rows: LETSM / OVELE / TTERS. This is our original 15-letter message."
+              : phase === 1
+                ? "Every coloured column keeps its three letters. Now choose how to collect them."
+                : "Follow the numbered cells. Compare the results of the two reading routes."}
+          </p>
           <div class="decoded-preview" aria-label="Reading route output">
-            {output || "Watch the letters collect here…"}
+            {phase === 0
+              ? ROUTE_MESSAGE
+              : phase === 1
+                ? "Choose “Across rows” or “Down columns”"
+                : output || "The letters will collect here…"}
           </div>
-          <p class="route-count">{position} / 15 letters</p>
+          {phase === 2 && <p class="route-count">{position} / 15 letters</p>}
         </div>
       </div>
       {!staticView && (
         <div class="animation-controls" data-animation-controls>
           <button
-            aria-pressed={!columnar}
             onClick={() => {
-              setColumnar(false);
+              setPhase(0);
               setPosition(0);
-              setPlaying(motion);
+              setPlaying(false);
             }}
+          >
+            Reset original grid
+          </button>
+          <button
+            onClick={() => {
+              setPhase(1);
+              setPosition(0);
+              setPlaying(false);
+            }}
+          >
+            Reorder columns 5, 3, 1, 2, 4
+          </button>
+          <button
+            disabled={phase === 0}
+            aria-pressed={phase === 2 && !columnar}
+            onClick={() => startRoute(false)}
           >
             Across rows
           </button>
           <button
-            aria-pressed={columnar}
-            onClick={() => {
-              setColumnar(true);
-              setPosition(0);
-              setPlaying(motion);
-            }}
+            disabled={phase === 0}
+            aria-pressed={phase === 2 && columnar}
+            onClick={() => startRoute(true)}
           >
             Down columns
           </button>
-          <button onClick={() => setPlaying(!playing)}>{playing ? "Pause" : "Play"}</button>
-          <button
-            onClick={() => {
-              setPlaying(false);
-              setPosition((p) => Math.min(p + 1, 15));
-            }}
-          >
-            Read one letter
-          </button>
-          <button
-            onClick={() => {
-              setPlaying(false);
-              setPosition(15);
-            }}
-          >
-            Show complete route
-          </button>
+          {phase === 2 && (
+            <>
+              <button onClick={() => setPlaying(!playing)}>{playing ? "Pause" : "Play"}</button>
+              <button
+                onClick={() => {
+                  setPlaying(false);
+                  setPosition((p) => Math.min(p + 1, 15));
+                }}
+              >
+                Read one letter
+              </button>
+              <button
+                onClick={() => {
+                  setPlaying(false);
+                  setPosition(15);
+                }}
+              >
+                Show complete route
+              </button>
+            </>
+          )}
         </div>
       )}
-      <div class="demo-observation">
-        <strong>
-          {columnar ? "Down columns: EOD ASR WDV EIE RCE" : "Across rows: EAWER OSDIC DRVEE"}
-        </strong>
-        <span>
-          Same letters, same order 53124, different route. Always decide how the grid is read.
-        </span>
-      </div>
+      {phase === 2 && (
+        <div class="demo-observation">
+          <strong>Same reordered grid, two possible ciphertexts</strong>
+          <span>
+            Across rows: {transpose(ROUTE_MESSAGE, ROUTE_ORDER)}
+            <br />
+            Down columns: {transpose(ROUTE_MESSAGE, ROUTE_ORDER, false, true)}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

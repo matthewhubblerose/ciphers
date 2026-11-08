@@ -2,7 +2,6 @@ export type VisualKind =
   | "typing-letters"
   | "typing-bigrams"
   | "caesar"
-  | "caesar-clue"
   | "substitution-letters"
   | "substitution-groups"
   | "transposition-letters"
@@ -55,13 +54,6 @@ export const decks: Deck[] = [
           "Start at shift zero. Animate the correction one position at a time, or use the slider. The central region is A–Z; each side repeats thirteen letters. The original English passage is the reference so the correct shift lines up exactly. A generic English reference would only be approximate. At shift seven, read the recovered opening.",
       },
       {
-        title: "One shift restores the shape and the message",
-        body: "The tall L bar has moved back to E. Every smaller peak moved by exactly the same amount.",
-        visual: "caesar-clue",
-        notes:
-          "This is a practical clue, not a proof from one peak. Short messages and unusual vocabulary can produce misleading graphs. Test all shifts if needed.",
-      },
-      {
         title: "A keyphrase substitution shuffles the labels",
         body: "ORANGE changes the alphabet without moving every letter by one shared shift.",
         visual: "substitution-letters",
@@ -69,22 +61,22 @@ export const decks: Deck[] = [
           "Compare alphabetical order first, then select Order by frequency. Independently ranked heights match the original passage, but the paired letter names differ. The full alphabet shows that the replacements do not form a Caesar rotation. Ties mean frequency alone may not determine a unique mapping.",
       },
       {
-        title: "The same replacements explain the groups",
+        title: "Letter groupings remain",
         body: "Bigrams and trigrams survive with different letter names.",
         visual: "substitution-groups",
         notes:
           "The English reference is the original passage for this controlled example. Every encoded pair or triple has exactly the count of its original group. The labels show the known ORANGE mapping; in an unknown puzzle these would be hypotheses to check consistently across several groups.",
       },
       {
-        title: "Transposition already looks English by letter",
-        body: "Challenge 3 Part B has English-like counts under the original letter labels.",
+        title: "Why does this unreadable text have English-like letter counts?",
+        body: "We cannot read Challenge 3 B, but its letter frequencies already look English. What could have happened?",
         visual: "transposition-letters",
         notes:
           "This is an attributed excerpt from National Cipher Challenge 2026, Challenge 3 Part B. No rotation or relabelling is needed to make the single-letter chart English-like. The graph alone cannot rule out every substitution or mixed cipher; it gives us a reason to try a transposition.",
       },
       {
-        title: "But its common groups have been disrupted",
-        body: "The letter totals survive, while neighbouring letters have been separated.",
+        title: "Do the bigrams and trigrams look English too?",
+        body: "Compare the groups. What does this tell us about the positions of the letters?",
         visual: "transposition-groups",
         notes:
           "These charts compare the scrambled excerpt with the same excerpt restored by the known key, using identical group labels and percentage denominators. Notice that common English groups are reduced or missing in the ciphertext. Reordering preserves letter counts but changes most adjacencies; accidental groups can remain.",
@@ -97,11 +89,11 @@ export const decks: Deck[] = [
           "Each row is a block, independent of display spacing. Animate the column order, then read MEETZ / INTHE / DINER. Explain that the output does not insert word spaces automatically. The same operation in the transposition tool now reads the visible grid directly.",
       },
       {
-        title: "Other routes give different transpositions",
-        body: "Read across reordered rows, or down reordered columns. Agree on the route before testing a key.",
+        title: "Reorder columns, then choose how to read them",
+        body: "Start with LET’S MOVE LETTERS in a five-column grid. Move the columns, then read across rows or down columns.",
         visual: "routes",
         notes:
-          "Switch the readout for the known WEAREDISCOVERED example and order 53124. Row reading gives EAWEROSDICDRVEE; column reading gives EODASRWDVEIERCE. Not every transposition is a five-letter block permutation. Short final rows need careful handling.",
+          "LETSMOVELETTERS has exactly 15 letters, so no padding is needed. Read the original grid across rows: LETSM / OVELE / TTERS. Move columns to 53124, then trace either reading route. The route changes the ciphertext even though the reordered grid stays the same.",
       },
       {
         title: "Use the pattern to choose your next test",

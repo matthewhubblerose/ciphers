@@ -22,7 +22,7 @@ Open <http://localhost:4321/ciphers/>. The `/ciphers` base path preserves the ex
 - **Transposition:** block reordering and columnar routes, numeric and word keys, draggable columns and accessible arrow alternatives. Incomplete final rows need no padding.
 - **Vigenère:** adjustable keys and individual shifts, a live histogram for the selected key position, copyable column ciphertext, key-length candidates and a compact repeated-group gap table.
 - **Guide:** one beginner Excel walkthrough, from cells, formulas and fixed references to a generated grid, fixed-value column moves and a copyable result. Screenshots come from the real Excel worksheet ranges and exclude application side panes.
-- **Deck:** one independent 11-slide cipher-analysis presentation. Demonstrations start on entry: typed text builds letter and pair histograms, labelled Caesar bars slide and wrap, substitution bars animate into rank order, and coloured Challenge 3 B columns move in three stages. Before/after controls show unchanged letter counts and restored group counts; an animated reading grid compares row and column routes. Includes pause, steps, replay, reduced-motion controls, fullscreen and completed print examples.
+- **Deck:** one independent 10-slide cipher-analysis presentation. Demonstrations start on entry: typed text builds letter and pair histograms, labelled Caesar bars slide and wrap, substitution bars animate into rank order, and coloured Challenge 3 B columns move in three stages. A question-led comparison introduces transposition; a readable 15-letter grid demonstrates column moves before comparing row and column routes. Includes pause, steps, replay, reduced-motion controls, fullscreen and completed print examples.
 
 ### Conventions
 

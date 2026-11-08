@@ -208,13 +208,7 @@ export default function AnalysisVisual({
 }) {
   if (kind === "typing-letters" || kind === "typing-bigrams")
     return <TypingExample bigrams={kind === "typing-bigrams"} staticView={staticView} />;
-  if (kind === "caesar" || kind === "caesar-clue")
-    return (
-      <CaesarDemo
-        staticView={staticView || kind === "caesar-clue"}
-        compact={kind === "caesar-clue"}
-      />
-    );
+  if (kind === "caesar") return <CaesarDemo staticView={staticView} />;
   if (kind === "substitution-letters") return <SubstitutionExample staticView={staticView} />;
   if (kind === "substitution-groups") return <GroupExample staticView={staticView} />;
   if (kind === "transposition-letters") return <TranspositionLetters staticView={staticView} />;
