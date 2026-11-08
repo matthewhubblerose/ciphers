@@ -1708,7 +1708,7 @@ summary {
   }
 }
 .analysis-slide {
-  padding: 30px 38px;
+  padding: 30px 38px 55px;
   justify-content: flex-start;
   min-height: 640px;
   aspect-ratio: auto;
@@ -1855,6 +1855,9 @@ summary {
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
+.deck-group-pair > div {
+  min-width: 0;
+}
 .deck-group-pair h3 {
   color: #f4f6e9;
   margin: 0 0 10px;
@@ -1926,15 +1929,24 @@ summary {
 }
 @media (max-width: 700px) {
   .analysis-slide {
-    padding: 22px 18px;
+    padding: 22px 18px 55px;
     min-height: 660px;
+  }
+  .analysis-slide .deck-chart {
+    overflow-x: auto;
+  }
+  .analysis-slide .deck-chart svg {
+    min-width: 560px;
+  }
+  .analysis-slide .caesar-demo .deck-chart svg {
+    min-width: 900px;
   }
   .analysis-slide > p {
     font-size: 15px;
   }
   .deck-group-pair,
   .route-example {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .deck-alphabet {
     font-size: 12px;
@@ -1991,6 +2003,15 @@ summary {
     padding: 20px 28px;
     height: 165mm;
     min-height: 165mm;
+  }
+  .print-slides .deck-chart svg {
+    min-width: 0;
+  }
+  .print-slides .deck-chart {
+    overflow: visible;
+  }
+  .print-slides .typing-preview {
+    height: auto;
   }
   .print-slides .analysis-slide h2 {
     font-size: 25pt;

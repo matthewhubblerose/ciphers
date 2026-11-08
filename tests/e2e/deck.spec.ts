@@ -58,7 +58,9 @@ test("Caesar alignment, ranked substitution and block movement recover their exa
   );
 });
 
-test("guide screenshots load and only one guide and deck are listed", async ({ page }) => {
+test("guide screenshots load and only one guide and deck are listed", async ({
+  page,
+}, testInfo) => {
   await page.goto("/ciphers/guides/");
   await expect(page.locator(".resource-card")).toHaveCount(1);
   await page.locator(".resource-card").click();
@@ -75,6 +77,31 @@ test("guide screenshots load and only one guide and deck are listed", async ({ p
       () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
     ),
   ).toBe(true);
+  await page.screenshot({
+    path: `artifacts/${testInfo.project.name}-excel-guide.png`,
+    fullPage: true,
+  });
   await page.goto("/ciphers/decks/");
   await expect(page.locator(".resource-card")).toHaveCount(1);
+});
+
+test("reduced motion supports manual steps and print contains completed examples", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto(url);
+  const live = page.locator(".deck-root>.slide-stage");
+  await expect(live.getByText(/Reduced motion is enabled/)).toBeVisible();
+  await live.getByRole("button", { name: "Step", exact: true }).click();
+  await expect(live.locator(".typing-demo")).toHaveAttribute("data-position", "1");
+  await page.emulateMedia({ media: "print" });
+  const printed = page.locator(".print-slides");
+  await expect(printed.locator('[data-correct="true"]')).toHaveCount(2);
+  await expect(printed.getByLabel("Block transposition output")).toHaveText("MEETZ INTHE DINER");
+  expect(await printed.locator(".typing-demo").first().getAttribute("data-position")).not.toBe("0");
+  await expect(printed.locator("[data-animation-controls]")).toHaveCount(0);
+  await printed
+    .locator(".slide-stage")
+    .first()
+    .screenshot({ path: "artifacts/analysis-print-first-slide.png" });
 });

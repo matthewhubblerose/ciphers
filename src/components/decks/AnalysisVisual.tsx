@@ -215,7 +215,7 @@ function TypingDemo({
           ? "Reference: Norvig’s Google Books bigrams; this chart counts within words."
           : "Reference: typical English A–Z frequencies."}{" "}
         Samples vary; more text usually makes the pattern steadier.
-        {reduced
+        {reduced && !staticView
           ? " Reduced motion is enabled; use Step or the progress slider for manual control."
           : ""}
       </p>
