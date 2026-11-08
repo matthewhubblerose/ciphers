@@ -1,22 +1,29 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import type { Deck, Slide } from "../data/decks";
+import AnalysisVisual from "./decks/AnalysisVisual";
 
 export function SlideView({
   slide,
   index,
   total,
   title,
+  staticView = false,
 }: {
   slide: Slide;
   index: number;
   total: number;
   title: string;
+  staticView?: boolean;
 }) {
   return (
-    <section class="slide-stage" aria-label={`Slide ${index + 1} of ${total}: ${slide.title}`}>
+    <section
+      class={`slide-stage ${slide.visual ? "analysis-slide" : ""}`}
+      aria-label={`Slide ${index + 1} of ${total}: ${slide.title}`}
+    >
       <p class="eyebrow">{title}</p>
       <h2>{slide.title}</h2>
       {slide.body && <p>{slide.body}</p>}
+      {slide.visual && <AnalysisVisual kind={slide.visual} staticView={staticView} />}
       {slide.code && <pre class="slide-code">{slide.code}</pre>}
       {slide.bullets && (
         <ul>
@@ -100,6 +107,7 @@ export default function DeckPlayer({ deck }: { deck: Deck }) {
   return (
     <div class="deck-root" ref={root} aria-busy={!ready}>
       <SlideView
+        key={index}
         slide={deck.slides[index]}
         index={index}
         total={deck.slides.length}
@@ -143,7 +151,13 @@ export default function DeckPlayer({ deck }: { deck: Deck }) {
       </p>
       <div class="print-slides" aria-hidden="true">
         {deck.slides.map((slide, i) => (
-          <SlideView slide={slide} index={i} total={deck.slides.length} title={deck.title} />
+          <SlideView
+            slide={slide}
+            index={i}
+            total={deck.slides.length}
+            title={deck.title}
+            staticView
+          />
         ))}
       </div>
     </div>

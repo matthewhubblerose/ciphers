@@ -8,11 +8,9 @@ test("pages use club wording, have working links and fit the viewport", async ({
     "/",
     "/tools/",
     "/guides/",
-    "/guides/frequency/",
     "/guides/transposition/",
     "/decks/",
-    "/decks/frequency/",
-    "/decks/transposition/",
+    "/decks/cipher-analysis/",
   ]) {
     expect((await page.goto("/ciphers" + route))?.status()).toBe(200);
     await expect(page.locator("main h1")).toBeVisible();
@@ -261,7 +259,7 @@ test("tools share formatting controls and omit removed actions and taglines", as
 });
 
 test("club decks support navigation, presenter notes and print layouts", async ({ page }) => {
-  for (const slug of ["frequency", "transposition"]) {
+  for (const slug of ["cipher-analysis"]) {
     await page.goto(`/ciphers/decks/${slug}/`);
     await page.getByRole("button", { name: "Next", exact: false }).click();
     await expect(page).toHaveURL(/#slide-2$/);

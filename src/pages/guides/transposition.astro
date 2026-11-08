@@ -1,203 +1,426 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const image = (name: string) => `${base}/images/excel/${name}.png`;
 ---
 
-<BaseLayout title="Transposition in Excel">
+<BaseLayout title="Build a transposition tool in Excel">
   <header class="wrap page-intro">
-    <p class="eyebrow">GUIDE 02 / ARRANGEMENT</p>
+    <p class="eyebrow">GUIDE 01 / EXCEL</p>
     <h1>
-      Put the letters
+      Build a transposition
       <br />
-      in their place<span class="accent">.</span>
+      tool in Excel<span class="accent">.</span>
     </h1>
-    <p>Build a transposition workbench in Excel, then try a new column order in seconds.</p>
+    <p>From your first formula to movable columns and a complete decoded message.</p>
     <div class="guide-meta">
-      <span>20 MIN READ</span>
-      <span>EXCEL 365 / 2024</span>
-      <a href={`${base}/decks/transposition/`}>Open this deck ↗</a>
+      <span>START FROM A BLANK WORKBOOK</span>
+      <span>MICROSOFT 365 / EXCEL 2024</span>
     </div>
   </header>
   <div class="wrap article-layout">
     <nav class="article-toc" aria-label="Guide contents">
       <p class="eyebrow">IN THIS GUIDE</p>
-      <a href="#method">01 / Pick a method</a>
-      <a href="#grid">02 / Build the grid</a>
-      <a href="#manual">03 / Move columns or rows</a>
-      <a href="#key">04 / Use a key</a>
-      <a href="#decipher">05 / Reverse it</a>
-      <a href="#check">06 / Check your work</a>
+      <a href="#basics">01 / Cells and formulas</a>
+      <a href="#references">02 / References and $</a>
+      <a href="#inputs">03 / Prepare the text</a>
+      <a href="#letters">04 / One letter per cell</a>
+      <a href="#grid">05 / Make the grid</a>
+      <a href="#move">06 / Move columns</a>
+      <a href="#output">07 / Copy the answer</a>
+      <a href="#refresh">08 / Try another message</a>
     </nav>
     <article class="guide-content">
-      <h2 id="method">First, agree on the route</h2>
       <p>
-        Transposition rearranges letters. The frequency chart stays the same. Here we use five
-        columns and the numeric key <code>53124</code>, meaning “read columns 5, 3, 1, 2, 4”.
+        Transposition changes the order of letters. We will build a sheet that splits ciphertext
+        into rows of a chosen length, then move the same columns in every row. Our small example
+        comes from{" "}
+        <a href="https://www.cipherchallenge.org/challenge/challenge-3/">
+          National Cipher Challenge, Challenge 3 Part B
+        </a>
+        :
       </p>
-      <pre>Plaintext: WEAREDISCOVERED
-Write across five columns:
-1 2 3 4 5
-W E A R E
-D I S C O
-V E R E D
-
-Reorder every block (53124): EAWER OSDIC DRVEE
-Read down columns (53124):   EOD ASR WDV EIE RCE</pre>
+      <pre>TEZEM HNETI EIRND</pre>
       <p>
-        These are different methods. The workbench offers both. The final row stays short; there is
-        no automatic X padding. Five-letter output groups are only display spacing and are
-        independent of the transposition block size.
+        With five columns, putting them in order <strong>5, 2, 4, 1, 3</strong> reveals{" "}
+        <code>MEETZ INTHE DINER</code>. Read that as “MEET Z IN THE DINER”. Five-letter groups are
+        display spacing, not word boundaries.
       </p>
-      <h2 id="grid">Build the grid in Excel</h2>
+      <h2 id="basics">1. A cell can hold an instruction</h2>
       <p>
-        Create sheets called <strong>Setup</strong>, <strong>Grid</strong> and{" "}
-        <strong>Output</strong>. These formulas use English Excel names and commas. Your locale may
-        require semicolons instead.
+        Open a blank workbook. Each square is a <strong>cell</strong>. The letters along the top
+        name columns; the numbers down the side name rows. <strong>B3</strong> means column B, row
+        3. Click a cell, type, then press Enter. To replace its contents, select it and type again.
+        Double-click it or press F2 to edit what is already there.
       </p>
-      <ol>
+      <p>
+        A <strong>formula</strong> starts with <code>=</code>. Type <code>=1+2</code> into B3 and
+        press Enter. The cell displays <strong>3</strong>; selecting it shows the instruction in the
+        formula bar above the grid. Ordinary text does not need an equals sign.
+      </p>
+      <p>
+        Rename the first sheet <strong>Basics</strong> by double-clicking its tab at the bottom. Use
+        the + beside the tabs to add three more sheets called <strong>Inputs</strong>,{" "}
+        <strong>Arrange</strong> and <strong>Readout</strong>. These names matter because formulas
+        will refer to them.
+      </p>
+      <h2 id="references">2. Refer to another cell, then fix a reference</h2>
+      <p>
+        On Basics, enter <strong>10</strong> in A3 and <strong>20</strong> in A4. Replace B3 with:
+      </p>
+      <pre>=A3+1</pre>
+      <p>
+        B3 now shows 11. Change A3 and B3 updates automatically: the formula reads another cell's
+        value. In C3 enter:
+      </p>
+      <pre>=$A$3+1</pre>
+      <p>
+        Both cells show the same answer. Now copy B3:C3 (select them and press Ctrl+C), select B4,
+        and paste with Ctrl+V. B4 becomes <code>=A4+1</code>, so it shows 21. C4 keeps{" "}
+        <code>=$A$3+1</code>, so it still shows 11.
+      </p>
+      <ul>
         <li>
-          On Setup, paste the message into <strong>B1</strong>. Put the block size{" "}
-          <strong>5</strong> in <strong>B2</strong>.
+          <code>A3</code> is relative: copying down changes the row; copying across changes the
+          column.
         </li>
-        <li>In Setup!B3, remove ordinary spaces, line breaks and tabs, and convert to capitals:</li>
-      </ol>
-      <pre>=UPPER(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(B1," ",""),CHAR(10),""),CHAR(13),""),CHAR(9),""))</pre>
+        <li>
+          <code>$A$3</code> fixes both column A and row 3 when copied.
+        </li>
+        <li>
+          <code>$A3</code> fixes only the column; <code>A$3</code> fixes only the row.
+        </li>
+      </ul>
+      <figure class="excel-figure">
+        <img
+          src={image("references")}
+          alt="Actual Excel cells: copying down changes A3 to A4 while dollar A dollar 3 stays fixed; answers are 11, 21 and 11."
+          loading="lazy"
+        />
+        <figcaption>
+          Basics!A1:F5. The two columns on the right display the formulas so you can compare them.
+        </figcaption>
+      </figure>
       <p>
-        This cleanup does not remove all punctuation. For this exercise paste A–Z letters and
-        whitespace only. Alternatively copy continuous output from the site's cipher tools.
+        When editing a reference in a formula, F4 cycles through these dollar-sign choices. Dollar
+        signs control copying; they do not turn a formula into a fixed letter. We will fix the
+        letters as values later.
+      </p>
+      <h2 id="inputs">3. Build the text preparation one step at a time</h2>
+      <p>
+        On Inputs, put the labels from this table in column A. Enter each value or formula in the
+        matching B cell. Functions are named instructions: the inputs go inside parentheses,
+        separated by commas. Text inside a formula needs double quotation marks. These examples use
+        English function names; some Excel settings require semicolons instead of commas.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Label in column A</th>
+            <th>Cell</th>
+            <th>Enter</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Key length</td>
+            <td>B2</td>
+            <td>
+              <code>5</code>
+            </td>
+          </tr>
+          <tr>
+            <td>Ciphertext</td>
+            <td>B3</td>
+            <td>
+              <code>TEZEM HNETI EIRND</code>
+            </td>
+          </tr>
+          <tr>
+            <td>Remove spaces</td>
+            <td>B4</td>
+            <td>
+              <code>=SUBSTITUTE(B3," ","")</code>
+            </td>
+          </tr>
+          <tr>
+            <td>Uppercase</td>
+            <td>B5</td>
+            <td>
+              <code>=UPPER(B4)</code>
+            </td>
+          </tr>
+          <tr>
+            <td>Letter count</td>
+            <td>B6</td>
+            <td>
+              <code>=LEN(B5)</code>
+            </td>
+          </tr>
+          <tr>
+            <td>Grid rows</td>
+            <td>B7</td>
+            <td>
+              <code>=ROUNDUP(B6/B2,0)</code>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        <code>SUBSTITUTE</code> takes the text in B3, finds a space (<code>" "</code>), and replaces
+        it with nothing (<code>""</code>). <code>UPPER</code> reads that result from B4 and
+        capitalises it. <code>LEN</code> reads B5 and counts its characters. This is a{" "}
+        <strong>chain</strong>: one formula's output becomes the next formula's input.
       </p>
       <p>
-        On Grid, type the original column numbers <strong>1, 2, 3, 4, 5</strong> into A1:E1. Put
-        this formula in A2:
+        Finally B7 divides the letter count by the key length. <code>ROUNDUP(...,0)</code> rounds up
+        to a whole number of rows: 15 ÷ 5 needs three rows; 16 ÷ 5 needs four.
       </p>
-      <pre>=MID(Setup!$B$3,(ROW()-2)*Setup!$B$2+COLUMN(),1)</pre>
-      <p>
-        Fill A2 across to E2 and then down. The required number of data rows is{" "}
-        <code>=ROUNDUP(LEN(Setup!$B$3)/Setup!$B$2,0)</code>. For WEAREDISCOVERED that is three data
-        rows, A2:E4. Empty final cells return an empty string.
-      </p>
-      <h2 id="manual">Fix the values before moving them</h2>
+      <figure class="excel-figure">
+        <img
+          src={image("inputs")}
+          alt="Actual Excel Inputs sheet with key length 5, spaced ciphertext, cleaned text, 15 letters and 3 grid rows."
+          loading="lazy"
+        />
+        <figcaption>Inputs!A1:B7. Check these results before continuing.</figcaption>
+      </figure>
       <div class="callout">
         <p>
-          <strong>Freeze Panes does not freeze formulas.</strong> Copy Grid!A1:E4 into a new sheet
-          called Manual using <strong>Paste Special → Values</strong>. Moving these fixed letters
-          will not recalculate their positions. Keep Grid as the untouched source.
+          <strong>For now, paste one line containing letters and ordinary spaces only.</strong> This
+          simple cleanup leaves punctuation, tabs and line breaks intact. For a longer challenge,
+          use the site's transposition tool with “No spacing” and punctuation off, then copy its
+          input letters. Do not put zero or a negative number in the key-length cell.
+        </p>
+      </div>
+      <h2 id="letters">4. Extract one letter, then make a list</h2>
+      <p>Try this in an empty cell on Basics:</p>
+      <pre>=MID("HELLO",2,1)</pre>
+      <p>
+        The answer is E. <code>MID</code> takes some text, a starting position, and how many
+        characters to take. Positions start at 1. Try changing 2 to 4, or the final 1 to 2.
+      </p>
+      <p>
+        On Inputs, type <strong>Position</strong> in D1 and <strong>Letter</strong> in E1. In D2
+        enter:
+      </p>
+      <pre>=SEQUENCE(B6)</pre>
+      <p>
+        This produces the numbers 1 to 15 down the column. One formula has produced several cells:
+        Excel calls this a <strong>spill</strong>. Keep the cells below D2 empty. Click the top cell
+        to edit the formula; the other results belong to it.
+      </p>
+      <p>First try this in E2:</p>
+      <pre>=MID($B$5,D2,1)</pre>
+      <p>
+        It takes one letter from the cleaned text at the position given by D2. B5 stays fixed if we
+        copy the formula. We could copy E2 down, but there is a shorter way. Replace it with:
+      </p>
+      <pre>=MID($B$5,D2#,1)</pre>
+      <p>
+        The <code>#</code> means <strong>all of the spilled results starting at D2</strong>. Instead
+        of reading just position 1, MID reads the complete list of positions and spills the letters
+        down E. If Excel shows <code>#SPILL!</code>, clear anything blocking the result area.
+      </p>
+      <h2 id="grid">5. Wrap the letters into rows</h2>
+      <p>Leave F empty as a gap. In G1 enter:</p>
+      <pre>=SEQUENCE(1,B2)</pre>
+      <p>
+        Here SEQUENCE makes <strong>one row</strong> and B2 columns. With a key length of 5, the
+        headings 1, 2, 3, 4, 5 appear across G1:K1. In G2 enter:
+      </p>
+      <pre>=WRAPROWS(E2#,B2,"")</pre>
+      <p>
+        <code>WRAPROWS</code> takes the letter list E2#, places B2 letters in each row, and uses
+        empty text for any unused cells in a short final row. The number of columns follows the key
+        length automatically.
+      </p>
+      <figure class="excel-figure">
+        <img
+          src={image("grid")}
+          alt="Actual Excel generated grid with original headers 1 to 5 and rows T E Z E M, H N E T I, E I R N D."
+          loading="lazy"
+        />
+        <figcaption>
+          Inputs!D1:K17. D and E show the intermediate lists; G:K show the five-column grid.
+        </figcaption>
+      </figure>
+      <p>
+        If you see <code>#NAME?</code>, check the spelling and your Excel version. WRAPROWS and
+        TOCOL require Microsoft 365 or Excel 2024. Do not type into individual spilled cells.
+      </p>
+      <h2 id="move">6. Make the letters movable</h2>
+      <p>
+        Select Inputs!G1:K4: the five headers and all three data rows. Copy, switch to Arrange,
+        select A1, then choose <strong>Home → Paste ▼ → Values</strong> (the 123 icon). The letters
+        are now ordinary values, independent of their original formulas.
+      </p>
+      <figure class="excel-figure">
+        <img
+          src={image("before")}
+          alt="Actual Excel Arrange sheet before reordering: headers 1 2 3 4 5 above the fixed ciphertext letters."
+          loading="lazy"
+        />
+        <figcaption>
+          Arrange!A1:E4 after Paste Values. Selecting a letter should show that letter, not a
+          formula.
+        </figcaption>
+      </figure>
+      <div class="callout">
+        <p>
+          <strong>Paste Values is the important step.</strong> Freeze Panes only keeps headings
+          visible while scrolling; it does not freeze calculations. Leave the generated grid on
+          Inputs intact so you can make a fresh copy.
         </p>
       </div>
       <p>
-        In desktop Excel for Windows, select a column header on Manual, point at the selection
-        border, hold <strong>Shift</strong> and drag it between columns. Look for the insertion
-        line. Move the columns until their original-number headers read 5, 3, 1, 2, 4. The Shift key
-        inserts rather than overwriting cells. A reliable alternative is Cut, then right-click the
-        destination header and choose <strong>Insert Cut Cells</strong>.
+        On Arrange, select the whole <strong>E column</strong> by clicking its letter at the top.
+        Point to the selection border until the move pointer appears. Hold <strong>Shift</strong>,
+        drag to just before column A, and release when you see the insertion line. The original
+        header 5 should now be first.
       </p>
       <p>
-        To drag <strong>rows</strong> instead, first copy Grid!A1:E4 and use{" "}
-        <strong>Paste Special → Values + Transpose</strong> on another blank sheet. Original columns
-        become rows, with labels 1–5 in the first column. Reorder those complete rows with
-        Shift-drag or Insert Cut Cells. Transpose back when finished so you can read the message
-        across its blocks.
+        Next move original header <strong>2</strong> (now in column C) to just before column B. Then
+        move original header <strong>4</strong> (now in column E) to just before column C. Your
+        headers should read <strong>5, 2, 4, 1, 3</strong>. Always follow the numbered headers,
+        because Excel's column letters describe positions and stay A, B, C, D, E.
       </p>
       <p>
-        Use <strong>View → Freeze Panes → Freeze Top Row</strong> to keep column labels visible, or
-        Freeze First Column in the transposed layout. This affects scrolling only. Browser and Mac
-        Excel may have different drag gestures; Insert Cut Cells avoids relying on them.
+        If dragging is awkward, select the source column, press Ctrl+X, right-click the destination
+        column letter, and choose <strong>Insert Cut Cells</strong>. Ordinary dragging or ordinary
+        pasting can overwrite letters, so check the numbered headings after each move.
+      </p>
+      <figure class="excel-figure">
+        <img
+          src={image("arranged")}
+          alt="Actual Excel reordered columns 5 2 4 1 3 showing MEETZ, INTHE and DINER across the three rows."
+          loading="lazy"
+        />
+        <figcaption>
+          The same fixed columns after native Excel insertion moves. Read each row left to right.
+        </figcaption>
+      </figure>
+      <h2 id="output">7. Join the visible grid into one answer</h2>
+      <p>
+        For a first small experiment on Basics, type <code>MEET</code> in A7 and <code>Z</code> in
+        B7. In C7 enter:
+      </p>
+      <pre>=TEXTJOIN("",TRUE,A7:B7)</pre>
+      <p>
+        This joins the cells into MEETZ. The first input is the separator (empty text here); TRUE
+        tells Excel to ignore empty cells. <code>A7:B7</code> means the rectangular range from A7
+        through B7.
       </p>
       <p>
-        For block transposition, read each row left to right, then move to the next row. To join a
-        row on the Manual sheet, put <code>=TEXTJOIN("",TRUE,A2:E2)</code> in G2, fill down, then
-        join G2:G4 with <code>=TEXTJOIN("",TRUE,G2:G4)</code>. Adjust the last row for longer
-        messages.
-      </p>
-      <h2 id="key">Automate the order with a key</h2>
-      <p>
-        For an automatic route, keep the original Grid unchanged. In Output!A1:E1 enter{" "}
-        <strong>5, 3, 1, 2, 4</strong> as separate numbers. In Output!A2 enter:
-      </p>
-      <pre>=INDEX(Grid!$A2:$E2,1,A$1)</pre>
-      <p>
-        Fill across five columns and down to row 4. Each output column now selects an original
-        column by its number. In G2 use <code>=TEXTJOIN("",TRUE,A2:E2)</code>, fill down to G4, then
-        join G2:G4 for block output. Join each whole column instead to get columnar output: in A6
-        use <code>=TEXTJOIN("",TRUE,A2:A4)</code>, fill across to E6, then{" "}
-        <code>=TEXTJOIN("",TRUE,A6:E6)</code>.
-      </p>
-      <h3>Numeric key from one cell</h3>
-      <p>
-        If Setup!B4 contains the text <code>53124</code>, Output!A1 can use the following, filled
-        across. It supports single-digit columns only; for 10 or more, enter the column numbers
-        separately.
-      </p>
-      <pre>=VALUE(MID(Setup!$B$4,COLUMN(),1))</pre>
-      <h3>Word key: HOTEL → 41523</h3>
-      <p>
-        Write HOTEL across the original columns. Alphabetical order is E, H, L, O, T, originally at
-        positions 4, 1, 5, 2, 3. Thus the read order is <code>41523</code>. This is different from
-        writing each letter's alphabetical rank under the original word, which gives 2, 4, 5, 1, 3.
-      </p>
-      <pre>Original column: 1 2 3 4 5
-Word key:        H O T E L
-Read order:      4 1 5 2 3</pre>
-      <p>
-        In Excel 365 / 2024, put HOTEL in Setup!B4 and this formula in Output!A1. Leave A1:E1
-        otherwise empty so the result can spill:
-      </p>
-      <pre>=LET(k,UPPER(Setup!$B$4),p,SEQUENCE(1,LEN(k)),SORTBY(p,MID(k,p,1),1,p,1))</pre>
-      <p>
-        For duplicate letters, the original position breaks ties left to right. For earlier Excel
-        versions, sort the key letters manually, keeping original positions next to them. Validate
-        any numeric key: every original column number must appear exactly once.
-      </p>
-      <h2 id="decipher">Reverse the process</h2>
-      <p>
-        For <strong>block transposition</strong>, write ciphertext across rows and use the inverse
-        key. For encryption order 5, 3, 1, 2, 4 the inverse is <strong>3, 4, 2, 5, 1</strong>: the
-        original column 1 is now in position 3, column 2 in position 4, and so on. In an empty area
-        you can calculate this with <code>=MATCH(COLUMN(),$A$1:$E$1,0)</code>, filled across.
+        Our complete grid needs a little more care. Excel normally changes references to follow
+        cells when you move columns. We want to read the <strong>current positions</strong>, A to E,
+        in the order visible on Arrange. We will build an address as text, then ask Excel to read
+        it.
       </p>
       <p>
-        <strong>An incomplete final block needs its own inverse.</strong> With 14 letters, the last
-        block has four letters. Drop missing original column 5 from 53124, giving 3124 for that row;
-        its inverse is 2314. Do not apply the full five-column inverse to a short row. The site's
-        tool handles this automatically.
+        On Readout, put <strong>Grid address</strong> in A2 and enter this small test in B2:
+      </p>
+      <pre>=ADDRESS(4,5,4)</pre>
+      <p>
+        The result is <code>E4</code>: row 4, column 5, with relative-style notation (the final 4
+        means no dollar signs). Our last row is the data-row count plus one header row. Our last
+        column is the key length. Replace B2 with:
+      </p>
+      <pre>="Arrange!A2:"&amp;ADDRESS(Inputs!B7+1,Inputs!B2,4)</pre>
+      <p>
+        <code>Inputs!B7</code> reads a cell on another sheet. <code>&amp;</code> joins text
+        fragments. The result is the text <code>Arrange!A2:E4</code>. It describes the data
+        rectangle without the headers. Because it is text, column moves do not rewrite it.
       </p>
       <p>
-        For <strong>columnar transposition</strong>, first split ciphertext into original columns in
-        key order. If there are L letters and N columns, every column has <code>INT(L/N)</code>{" "}
-        letters; the first <code>MOD(L,N)</code> original columns have one extra. Fill each column
-        top to bottom, then read rows across in original order. For 14 letters and five columns,
-        original columns 1–4 have three letters, column 5 has two. With 53124, take chunks of
-        lengths 2, 3, 3, 3, 3. The workbench can verify your reconstruction.
+        Put <strong>Read by rows</strong> in A3. In B3 enter:
       </p>
-      <h2 id="check">Check with a known message</h2>
+      <pre>=TOCOL(INDIRECT(B2),1,FALSE)</pre>
+      <p>
+        <code>INDIRECT</code> reads the cells named by the text address in B2. <code>TOCOL</code>{" "}
+        turns that rectangle into one column: 1 ignores blank cells, and FALSE scans{" "}
+        <strong>across each row</strong> before moving to the next. You should see M, E, E, T, Z, I,
+        N, T, H, E, D, I, N, E, R spilling down B.
+      </p>
+      <p>
+        Put <strong>Copy the value in D3</strong> in D2. In D3 enter:
+      </p>
+      <pre>=TEXTJOIN("",TRUE,B3#)</pre>
+      <p>
+        This joins the entire spilled list. D3 should display <strong>MEETZINTHEDINER</strong>.
+        Select D3 and copy it. To paste the answer into another spreadsheet, use{" "}
+        <strong>Paste Values</strong>; into a text editor or cipher tool, paste normally. Copy D3
+        alone, not the intermediate list.
+      </p>
+      <figure class="excel-figure">
+        <img
+          src={image("readout")}
+          alt="Actual Excel Readout sheet with address Arrange A2 to E4, the letters listed in row order and joined answer MEETZINTHEDINER."
+          loading="lazy"
+        />
+        <figcaption>
+          Readout!A1:D18. This answer was checked after moving the actual Excel columns, not just
+          rewriting a key.
+        </figcaption>
+      </figure>
+      <h2 id="refresh">8. Try a different length or ciphertext</h2>
       <ol>
-        <li>Start with WEAREDISCOVERED, block size 5, key 53124.</li>
         <li>
-          Block generation should produce <code>EAWEROSDICDRVEE</code>.
+          Change Inputs!B2 to a positive whole-number key length and B3 to your new ciphertext. The
+          lists and source grid update automatically.
         </li>
         <li>
-          Columnar generation should produce <code>EODASRWDVEIERCE</code>.
+          Check B7 for the data-row count. Include one extra header row when selecting the source
+          grid, and include exactly B2 columns.
         </li>
-        <li>Reverse either method and check that every letter returns.</li>
-        <li>Try HOTEL, then BALLOON to check a word key with duplicates.</li>
+        <li>
+          On Arrange, clear the previous grid before pasting the new source grid as{" "}
+          <strong>Values</strong> into A1. This removes stale letters when the new message is
+          shorter.
+        </li>
+        <li>
+          Move the numbered columns into a new order. Readout follows the new key length, row count
+          and visible order.
+        </li>
+        <li>
+          Check that the output has the same number of letters as Inputs!B6. No letters should be
+          added or lost.
+        </li>
       </ol>
+      <p>
+        Try <code>ABC DEF GH</code> with key length 3: the final row is short, and the blank cell
+        should be skipped in the joined output. The sheet treats each row as an independent block. A
+        cipher written down columns needs a different reconstruction; this guide builds the block
+        method used in Challenge 3 B.
+      </p>
+      <p>
+        You can also test a known numeric order without dragging: on a separate sheet, type the
+        original column numbers in row 1. For example A1:E1 = 5, 2, 4, 1, 3. In A2 enter{" "}
+        <code>=INDEX(Inputs!$G2:$K2,1,A$1)</code>, copy across and down. INDEX selects the source
+        column named in the heading. This five-column example is an optional extension; the
+        movable-values method above works with your chosen key length.
+      </p>
       <p class="small">
-        Excel references:{" "}
-        <a href="https://support.microsoft.com/en-gb/excel/move-or-copy-cells-rows-and-columns?nochrome=true">
-          Microsoft: move or copy rows and columns
+        All images are actual Excel worksheet-range captures; application side panes are excluded.
+        Microsoft references:{" "}
+        <a href="https://support.microsoft.com/en-gb/excel/move-or-copy-cells-rows-and-columns">
+          moving columns
         </a>
         ,{" "}
-        <a href="https://support.microsoft.com/en-us/office/freeze-panes-to-lock-rows-and-columns-dab2ffc9-020d-4026-8121-67dd25f2508f">
-          Freeze Panes
+        <a href="https://support.microsoft.com/en-us/office/overview-of-formulas-in-excel-ecfdc708-9162-49e8-b993-c311f47ca173">
+          formulas and references
         </a>
-        . The formulas and examples above are built for this session.
+        , and{" "}
+        <a href="https://support.microsoft.com/en-us/office/wraprows-function-796825f3-975a-4cee-9c84-1bbddf60ade0">
+          WRAPROWS
+        </a>
+        .
       </p>
       <div class="actions">
         <a class="button primary" href={`${base}/tools/#transposition`}>
-          Try transposition ↗
+          Open the transposition tool ↗
         </a>
-        <a class="text-link" href={`${base}/decks/transposition/`}>
-          Open this deck →
+        <a class="text-link" href={`${base}/decks/cipher-analysis/`}>
+          Explore cipher patterns →
         </a>
       </div>
     </article>

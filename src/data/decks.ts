@@ -1,10 +1,22 @@
-import { keyedAlphabet, substitute } from "../utils/ciphers";
+export type VisualKind =
+  | "typing-letters"
+  | "typing-bigrams"
+  | "caesar"
+  | "caesar-clue"
+  | "substitution-letters"
+  | "substitution-groups"
+  | "transposition-letters"
+  | "transposition-groups"
+  | "blocks"
+  | "routes"
+  | "summary";
 export interface Slide {
   title: string;
   body?: string;
   bullets?: string[];
   code?: string;
   notes: string;
+  visual?: VisualKind;
 }
 export interface Deck {
   slug: string;
@@ -13,250 +25,94 @@ export interface Deck {
   duration: string;
   slides: Slide[];
 }
-const alphabet = keyedAlphabet("ORANGE");
-const enc = (text: string) => substitute(text, alphabet, false);
-const reveal = (text: string, known: string) =>
-  [...text]
-    .filter((c) => /[A-Z]/.test(c))
-    .map((c) => (known.includes(c) ? c : "·"))
-    .join("");
 export const decks: Deck[] = [
   {
-    slug: "frequency",
-    title: "Frequency, bigrams & trigrams",
+    slug: "cipher-analysis",
+    title: "Which cipher was used?",
     description:
-      "Recognise the cipher, find THE, and build an alphabet from a few well-tested guesses.",
+      "Use letter and group frequencies to distinguish Caesar shifts, keyphrase substitutions and transpositions.",
     duration: "25–35 minutes",
     slides: [
       {
-        title: "Every cipher leaves a clue",
-        body: "Frequency analysis, bigrams and trigrams",
-        code: "COUNT → GUESS → TEST → REVISE",
+        title: "English has a letter-frequency fingerprint",
+        body: "Watch the measured frequencies settle as more English text arrives.",
+        visual: "typing-letters",
         notes:
-          "Ask club members what can survive encryption. Aim: distinguish Caesar, substitution and transposition, then use neighbouring letters to test a mapping. Allow about 30 minutes including the activity.",
+          "Play the typing animation, or step and scrub through it. Early counts fluctuate strongly. More text usually gives a more stable English-like distribution, but improvement is not monotonic and no single sample matches a reference exactly. E and T are often common; compare the full pattern.",
       },
       {
-        title: "The first inspection",
+        title: "Letter pairs have a fingerprint too",
+        body: "Bigrams such as TH and HE become useful clues in a longer sample.",
+        visual: "typing-bigrams",
+        notes:
+          "This example uses bigrams because the TH / HE / IN pattern is clearer and more stable than individual trigrams in this sample. For consistency with Peter Norvig’s reference, this typing chart counts within words. The cipher tools ignore display spaces and include groups across removed word boundaries.",
+      },
+      {
+        title: "A Caesar shift moves the whole pattern",
+        body: "Shift every count together. The extra thirteen letters on each side make wrapping visible.",
+        visual: "caesar",
+        notes:
+          "Start at shift zero. Animate the correction one position at a time, or use the slider. The central region is A–Z; each side repeats thirteen letters. The original English passage is the reference so the correct shift lines up exactly. A generic English reference would only be approximate. At shift seven, read the recovered opening.",
+      },
+      {
+        title: "Look for one shared rotation",
+        body: "A recognisable English shape, moved around the alphabet, suggests a Caesar shift.",
+        visual: "caesar-clue",
         bullets: [
-          "Remove five-letter display groups before counting.",
-          "Count A–Z letters and compare percentages.",
-          "Use a few hundred letters when possible.",
-        ],
-        code: "AAAAA BBBBB ≠ two five-letter words",
-        notes:
-          "Open the frequency tool alongside the session. Five-letter groups are usually transmission formatting, not word boundaries. Punctuation is ignored by analysis.",
-      },
-      {
-        title: "English has an uneven fingerprint",
-        bullets: [
-          "E is often around 12–13%.",
-          "T, A, O, I and N are also common.",
-          "Short texts and unusual vocabulary can change the order.",
-        ],
-        code: "E  █████████████\nT  █████████\nA  ████████\nZ  ▏",
-        notes:
-          "These are approximate values, not a promise about the sample. Show the English overlay and the exact count table. Ask why raw counts are not suitable for comparing different lengths.",
-      },
-      {
-        title: "A Caesar shift rotates the pattern",
-        body: "The bar heights survive. Each letter label moves the same distance, wrapping at Z.",
-        code: "Shift 7: E → L, T → A, A → H\nAOL ZLJYLA → THE SECRET",
-        notes:
-          "Keep bars in alphabetical order to see the rotation; frequency sorting removes that spatial clue. Compare the whole shape, not just its tallest bar. Demonstrate all 26 Caesar candidates.",
-      },
-      {
-        title: "Substitution shuffles the labels",
-        bullets: [
-          "The frequent letters can have unfamiliar names.",
-          "Each cipher letter always maps to the same plaintext letter.",
-          "One high bar suggests a guess; it does not prove E.",
-        ],
-        code: "Plain:  ABCDEFGHIJKLMNOPQRSTUVWXYZ\nCipher: " + alphabet,
-        notes:
-          "This is the ORANGE keyphrase alphabet used in the guide. Repeated letters in the keyphrase are removed, then unused A–Z letters are appended. Contrast arbitrary shuffling with a Caesar rotation.",
-      },
-      {
-        title: "Transposition keeps letter counts",
-        bullets: [
-          "The actual E, T and A bars may still look English.",
-          "Positions change, so ordinary letter pairs often break.",
-          "Natural letter counts with strange pairs suggest rearrangement.",
+          "The bar heights stay the same.",
+          "All letters move by the same amount.",
+          "Test the alignment by reading the output.",
         ],
         notes:
-          "A substitution also preserves the index of coincidence. IC alone cannot distinguish those two cipher families. Long enough text is needed for a useful fingerprint.",
+          "This is a practical clue, not a proof from one peak. Short messages and unusual vocabulary can produce misleading graphs. Test all shifts if needed.",
       },
       {
-        title: "Look at neighbouring letters",
-        body: "Count overlapping bigrams and trigrams in the continuous message.",
-        code: "THERE\nBigrams:  TH  HE  ER  RE\nTrigrams: THE HER ERE",
+        title: "A keyphrase substitution shuffles the labels",
+        body: "ORANGE changes the alphabet without moving every letter by one shared shift.",
+        visual: "substitution-letters",
         notes:
-          "Common candidates include TH, HE, IN, ER, AN and THE, AND, ING, HER, ERE. They can cross word boundaries when spaces have been removed. They are not guaranteed to rank in this order.",
+          "Compare alphabetical order first, then select Order by frequency. Independently ranked heights match the original passage, but the paired letter names differ. The full alphabet shows that the replacements do not form a Caesar rotation. Ties mean frequency alone may not determine a unique mapping.",
       },
       {
-        title: "Worked example: test THE",
-        body: `In our ORANGE sample, ${enc("THE")} is the most common trigram. Guess ${enc("THE")} → THE.`,
-        code: `${enc("THE OTHER EXPLORERS WERE THERE")}\n${reveal("THE OTHER EXPLORERS WERE THERE", "THE")}`,
-        notes: `Load the Substitution · ORANGE practice sample. In manual substitution, set ${enc("T")} → T, ${enc("H")} → H, ${enc("E")} → E. Ask club members which fragments might become words. All practice text is original.`,
-      },
-      {
-        title: "Use HER to discover R",
-        body: `Look for ${enc("HE")} followed by another cipher letter. ${enc("HER")} could be HER, giving ${enc("R")} → R.`,
-        code: reveal("THE OTHER EXPLORERS WERE THERE", "THER"),
+        title: "The same replacements explain the groups",
+        body: "Bigrams and trigrams survive with different letter names.",
+        visual: "substitution-groups",
         notes:
-          "Check THERE and possible OTHER together. HE may have other continuations, so test rather than assume. Show how the same mapping affects every occurrence in the message.",
+          "The English reference is the original passage for this controlled example. Every encoded pair or triple has exactly the count of its original group. The labels show the known ORANGE mapping; in an unknown puzzle these would be hypotheses to check consistently across several groups.",
       },
       {
-        title: "Expand and check the whole message",
-        bullets: [
-          `·THER suggests OTHER: ${enc("O")} → O.`,
-          `·ERE may be WERE: ${enc("W")} → W.`,
-          `·ETTER may be LETTER: ${enc("L")} → L.`,
-        ],
-        code: "A good guess helps several fragments at once.",
+        title: "Transposition already looks English by letter",
+        body: "Challenge 3 Part B has English-like counts under the original letter labels.",
+        visual: "transposition-letters",
         notes:
-          "Undo a guess that makes other fragments implausible. A readable word alone is not enough; require several pieces of consistent evidence. The full solution and alphabet are in the guide.",
+          "This is an attributed excerpt from National Cipher Challenge 2026, Challenge 3 Part B. No rotation or relabelling is needed to make the single-letter chart English-like. The graph alone cannot rule out every substitution or mixed cipher; it gives us a reason to try a transposition.",
       },
       {
-        title: "Your investigation",
-        bullets: [
-          "Load the substitution practice cipher.",
-          "Compare single letters, bigrams and trigrams.",
-          "Test THE, then HER. Record the evidence for each guess.",
-          "Generate a new keyphrase cipher for a partner.",
-        ],
+        title: "But its common groups have been disrupted",
+        body: "The letter totals survive, while neighbouring letters have been separated.",
+        visual: "transposition-groups",
         notes:
-          "Allow 8–10 minutes. Club members can switch tools without losing their input. Have them explain why a guess is plausible, and what would make them reject it. For generating, select Generate ciphertext and enter a keyphrase.",
+          "These charts compare the scrambled excerpt with the same excerpt restored by the known key, using identical group labels and percentage denominators. Notice that common English groups are reduced or missing in the ciphertext. Reordering preserves letter counts but changes most adjacencies; accidental groups can remain.",
       },
       {
-        title: "Questions to discuss",
-        bullets: [
-          "How does a Caesar chart differ from an arbitrary substitution?",
-          "Why might an English-like chart suggest transposition?",
-          "How can knowing THE help you find R?",
-        ],
-        code: "Clues suggest. The full message confirms.",
+        title: "Reorder each block of five the same way",
+        body: "For Challenge 3 B, read columns 5, 2, 4, 1, 3 in every row.",
+        visual: "blocks",
         notes:
-          "Expected answers: the Caesar histogram is a cyclic rotation; transposition preserves letter labels/counts; a candidate HER reuses HE and can reveal R. Ask for one reason each method can be misleading.",
-      },
-    ],
-  },
-  {
-    slug: "transposition",
-    title: "Transposition in Excel",
-    description:
-      "Build a grid, rearrange fixed columns, and use a numeric or word key to control the route.",
-    duration: "30–40 minutes",
-    slides: [
-      {
-        title: "Same letters, different places",
-        body: "Build a transposition workbench in Excel",
-        code: "WEAREDISCOVERED → EAWEROSDICDRVEE",
-        notes:
-          "Aim: write text across a grid, reorder columns, use keys, and distinguish block from columnar transposition. The example has 15 letters. Use the full guide for formulas and longer notes.",
+          "Each row is a block, independent of display spacing. Animate the column order, then read MEETZ / INTHE / DINER. Explain that the output does not insert word spaces automatically. The same operation in the transposition tool now reads the visible grid directly.",
       },
       {
-        title: "Write the message across five columns",
-        code: "1 2 3 4 5\nW E A R E\nD I S C O\nV E R E D",
-        body: "Letter identities and counts stay unchanged.",
+        title: "Other routes give different transpositions",
+        body: "Read across reordered rows, or down reordered columns. Agree on the route before testing a key.",
+        visual: "routes",
         notes:
-          "Ask club members which information a frequency analyser can still recover. Writing across rows is the convention in this session; other puzzles may use different routes.",
+          "Switch the readout for the known WEAREDISCOVERED example and order 53124. Row reading gives EAWEROSDICDRVEE; column reading gives EODASRWDVEIERCE. Not every transposition is a five-letter block permutation. Short final rows need careful handling.",
       },
       {
-        title: "A numeric key is a read order",
-        body: "53124 means read original columns 5, 3, 1, 2, 4.",
-        code: "5 3 1 2 4\nE A W E R\nO S D I C\nD R V E E",
+        title: "Use the pattern to choose your next test",
+        visual: "summary",
         notes:
-          "Original column numbers travel with their columns. Read each row to get block transposition. Numeric rank labels under a word are a different representation; define the convention first.",
-      },
-      {
-        title: "Block and columnar routes",
-        code: "Across each reordered row:\nEAWER OSDIC DRVEE\n\nDown each selected column:\nEOD ASR WDV EIE RCE",
-        notes:
-          "These are different ciphers, using the same grid and read order. Display grouping of five letters is separate from block size. The workbench offers both routes and reverses either one.",
-      },
-      {
-        title: "Set up Excel",
-        bullets: [
-          "Setup!B1: WEAREDISCOVERED",
-          "Setup!B2: 5",
-          "Setup!B3: cleaned uppercase text",
-          "Grid!A1:E1: original column numbers 1–5",
-        ],
-        notes:
-          'For the club sample B3 can be =UPPER(SUBSTITUTE(B1," ","")); the full guide also removes tabs and line breaks. Use letters and whitespace only. Set up three sheets: Setup, Grid and Output.',
-      },
-      {
-        title: "Extract one character per cell",
-        body: "Put this in Grid!A2. Fill across to E2, then down to row 4.",
-        code: "=MID(Setup!$B$3,\n (ROW()-2)*Setup!$B$2+COLUMN(),1)",
-        notes:
-          "The dollar signs fix the source and block-size references. ROW and COLUMN locate each character. The guide contains the single-line formula. Empty cells beyond the text return empty strings. Formula separators may vary by locale.",
-      },
-      {
-        title: "Fix values before moving columns",
-        bullets: [
-          "Copy the grid to a sheet called Manual.",
-          "Paste Special → Values.",
-          "Shift-drag the column border between other columns.",
-          "Or use Cut → Insert Cut Cells.",
-        ],
-        code: "Freeze Panes keeps headings visible.\nPaste Values fixes the letters.",
-        notes:
-          "Do not drag the formula-generated grid: ROW/COLUMN would recalculate. Microsoft reference: https://support.microsoft.com/en-gb/excel/move-or-copy-cells-rows-and-columns?nochrome=true . The Shift-drag instruction is for desktop Excel for Windows. Insert Cut Cells is a useful alternative.",
-      },
-      {
-        title: "Prefer dragging rows?",
-        bullets: [
-          "Paste the fixed grid with Transpose.",
-          "Original columns become complete rows.",
-          "Move the rows, keeping their original labels.",
-          "Transpose back to read the blocks.",
-        ],
-        notes:
-          "Original labels 1–5 are now in the first column. Use Freeze First Column for visibility only. Browser and Mac Excel may have different drag interactions.",
-      },
-      {
-        title: "Let a numeric key control the grid",
-        body: "Put 5, 3, 1, 2, 4 in Output!A1:E1. In A2, enter and fill across and down:",
-        code: '=INDEX(Grid!$A2:$E2,1,A$1)\n\nJoin a row:\n=TEXTJOIN("",TRUE,A2:E2)',
-        notes:
-          "Join all resulting rows for block output. Join whole selected columns for columnar output. Keep the original Grid unchanged. All numbers 1–5 must occur exactly once in the key.",
-      },
-      {
-        title: "Word keys: HOTEL → 41523",
-        code: "Column: 1 2 3 4 5\nKey:    H O T E L\n\nAlphabetical: E H L O T\nRead order:   4 1 5 2 3",
-        body: "Break ties between repeated letters from left to right.",
-        notes:
-          "The ranks written under HOTEL would be 2,4,5,1,3. Here the tool expects a read order, not rank labels. The full guide includes a SORTBY formula for Excel 365 / 2024.",
-      },
-      {
-        title: "Automatically sort a word key",
-        body: "Put HOTEL in Setup!B4. In Output!A1, leave room for the result to spill:",
-        code: "=LET(k,UPPER(Setup!$B$4),\np,SEQUENCE(1,LEN(k)),\nSORTBY(p,MID(k,p,1),1,p,1))",
-        notes:
-          "Excel 365 / 2024 formula. Original positions provide a secondary sort for duplicate letters. Earlier Excel versions can sort a table of key letters and original positions manually.",
-      },
-      {
-        title: "Deciphering uses the inverse route",
-        code: "Encryption order: 5 3 1 2 4\nFull-block inverse: 3 4 2 5 1",
-        bullets: [
-          "Incomplete final blocks need their own inverse.",
-          "Columnar decoding must reconstruct column lengths first.",
-          "No automatic padding is added.",
-        ],
-        notes:
-          "For a hypothetical 14-letter message, columns 1–4 have length 3 and column 5 length 2. With 53124, take ciphertext chunks of lengths 2,3,3,3,3, restore original columns, then read across rows. For a short block of 4 letters, remove column 5 from the order before inverting.",
-      },
-      {
-        title: "Build, test, swap",
-        bullets: [
-          "Generate the known message with key 53124.",
-          "Check block and columnar results against the examples.",
-          "Decipher each result back to WEAREDISCOVERED.",
-          "Try a word key, then an incomplete final block.",
-        ],
-        notes:
-          "Allow 10 minutes. Ask club members to explain the route to a partner. Verify with the transposition tool. The guide contains detailed formulas and the handling of short final rows.",
+          "A pattern narrows the search. Confirm with readable output and several consistent clues. Letter and group distributions vary with the source and text length, and combined ciphers may hide these patterns. Vigenère can flatten a distribution and needs separate key-length analysis.",
       },
     ],
   },

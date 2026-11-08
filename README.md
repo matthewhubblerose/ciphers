@@ -21,8 +21,8 @@ Open <http://localhost:4321/ciphers/>. The `/ciphers` base path preserves the ex
 - **Substitution:** manual cipher-to-plain guesses, duplicate checks, keyphrase generation and editable cipher alphabets.
 - **Transposition:** block reordering and columnar routes, numeric and word keys, draggable columns and accessible arrow alternatives. Incomplete final rows need no padding.
 - **Vigenère:** adjustable keys and individual shifts, a live histogram for the selected key position, copyable column ciphertext, key-length candidates and a compact repeated-group gap table.
-- **Guides:** frequency/bigram/trigram analysis with an original worked substitution example; transposition in Excel with copyable formulas, fixed-value dragging, numeric keys and word keys.
-- **Decks:** the same sessions in 12 and 13 slides, keyboard navigation, shareable slide hashes, fullscreen, presenter notes and Print / Save PDF.
+- **Guide:** one beginner Excel walkthrough, from cells, formulas and fixed references to a generated grid, fixed-value column moves and a copyable result. Screenshots come from the real Excel worksheet ranges and exclude application side panes.
+- **Deck:** one independent 11-slide cipher-analysis presentation, with typing histograms, a wrapping Caesar ribbon, ranked keyphrase substitution, and the real Challenge 3 B transposition. Includes keyboard navigation, shareable slide hashes, fullscreen, presenter notes and Print / Save PDF with completed examples.
 
 ### Conventions
 
