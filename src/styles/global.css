@@ -702,15 +702,34 @@ input[type="range"] {
 .ngram-table {
   max-height: 460px;
 }
+.ngram-comparison {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
 .ngram-table table {
-  min-width: 480px;
+  min-width: 0;
+  width: 100%;
+}
+.ngram-table caption {
+  text-align: left;
+  font-weight: 600;
+  padding: 10px 0;
+}
+.english-groups {
+  background: #f0f4e8;
+  padding: 0 12px;
+  border-radius: 6px;
+}
+@media (max-width: 650px) {
+  .ngram-comparison {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .ngram-table thead {
   position: sticky;
   top: 0;
-}
-.ngram-table .english-reference {
-  background: #f0f4e8;
 }
 .alphabet-scroll {
   overflow-x: auto;

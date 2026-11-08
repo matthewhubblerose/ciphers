@@ -323,32 +323,52 @@ export default function Workbench() {
                 return (
                   <section class="ngram-panel" key={n}>
                     <h3>{n === 2 ? "Bigrams" : "Trigrams"}</h3>
-                    <div class="table-scroll ngram-table">
-                      <table>
-                        <caption>
-                          Top 30 {n === 2 ? "bigrams" : "trigrams"}: your text and English reference
-                        </caption>
-                        <thead>
-                          <tr>
-                            <th>{gramSort ? "Rank" : "Row"}</th>
-                            <th>Ciphertext group</th>
-                            <th>Count</th>
-                            <th>Ciphertext %</th>
-                            <th>English group</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {english.map((gram, i) => (
-                            <tr key={gram}>
-                              <td>{i + 1}</td>
-                              <th class="mono">{cipher[i]?.gram || "—"}</th>
-                              <td>{cipher[i]?.count ?? 0}</td>
-                              <td>{(cipher[i]?.percent ?? 0).toFixed(2)}</td>
-                              <td class="mono english-reference">{gram}</td>
+                    <div class="ngram-comparison">
+                      <div class="table-scroll ngram-table ciphertext-groups">
+                        <table>
+                          <caption>Ciphertext: top 30 {n === 2 ? "bigrams" : "trigrams"}</caption>
+                          <thead>
+                            <tr>
+                              <th>{gramSort ? "Rank" : "Row"}</th>
+                              <th>Ciphertext group</th>
+                              <th>Count</th>
+                              <th>Ciphertext %</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                          </thead>
+                          <tbody>
+                            {cipher.map((group, i) => (
+                              <tr key={group.gram}>
+                                <td>{i + 1}</td>
+                                <th class="mono">{group.gram}</th>
+                                <td>{group.count}</td>
+                                <td>{group.percent.toFixed(2)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        {cipher.length === 0 && (
+                          <p class="hint">Enter more letters to count groups.</p>
+                        )}
+                      </div>
+                      <div class="table-scroll ngram-table english-groups">
+                        <table>
+                          <caption>Common English {n === 2 ? "bigrams" : "trigrams"}</caption>
+                          <thead>
+                            <tr>
+                              <th>English rank</th>
+                              <th>Group</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {english.map((gram) => (
+                              <tr key={gram}>
+                                <td>{ENGLISH_GROUPS[n].indexOf(gram) + 1}</td>
+                                <th class="mono">{gram}</th>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </section>
                 );

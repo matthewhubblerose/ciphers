@@ -52,13 +52,17 @@ test("ngrams have top-30 English reference tables and retain input between tools
   await page.getByLabel("Your message", { exact: true }).fill(challenge3);
   await expect(page.getByText("200 LETTERS", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: /Bigrams & trigrams/ }).click();
-  const tables = page.locator(".ngram-table");
+  const tables = page.locator(".english-groups");
   await expect(tables).toHaveCount(2);
   for (const table of await tables.all()) await expect(table.locator("tbody tr")).toHaveCount(30);
-  await expect(tables.first().locator("tbody tr").first().locator("td").last()).toHaveText("TH");
-  await expect(tables.last().locator("tbody tr").first().locator("td").last()).toHaveText("THE");
+  await expect(tables.first().locator("tbody th").first()).toHaveText("TH");
+  await expect(tables.last().locator("tbody th").first()).toHaveText("THE");
+  await expect(page.getByRole("columnheader", { name: "English group", exact: true })).toHaveCount(
+    0,
+  );
+  await expect(page.locator(".ciphertext-groups")).toHaveCount(2);
   await page.getByLabel("Order groups by frequency").uncheck();
-  await expect(tables.first().locator("tbody tr").first().locator("td").last()).toHaveText("AL");
+  await expect(tables.first().locator("tbody th").first()).toHaveText("AL");
   await page.reload();
   await expect(page.getByLabel("Your message", { exact: true })).toHaveValue(challenge3);
 });
