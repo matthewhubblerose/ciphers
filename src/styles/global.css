@@ -2709,3 +2709,36 @@ summary {
 .learning-lab h2 {
   margin-top: 0;
 }
+
+.lab-controls {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-inline-size: 0;
+}
+.lab-controls textarea {
+  width: 100%;
+  font-family: var(--mono);
+}
+.key-length-analysis {
+  margin: 2rem 0;
+}
+.key-length-analysis .length-chart i {
+  min-height: 1px;
+  max-height: none;
+  position: absolute;
+  bottom: 0;
+}
+.key-length-analysis .ic-track {
+  position: relative;
+  display: block;
+  height: 110px;
+  flex: 0 0 110px;
+  width: 16px;
+}
+.key-length-analysis td {
+  overflow-wrap: anywhere;
+}
+.key-length-analysis table {
+  min-width: 390px;
+}

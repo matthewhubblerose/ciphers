@@ -5,7 +5,6 @@ import {
   coincidence,
   format,
   keyedAlphabet,
-  keyLengths,
   letters,
   mod,
   ngrams,
@@ -17,7 +16,6 @@ import {
 import {
   ENGLISH_GROUPS,
   formatOutput,
-  gapSummary,
   IC_HELP,
   keyColumn,
   type Spacing,
@@ -25,6 +23,7 @@ import {
 import { SAMPLES } from "../../utils/samples";
 import FrequencyPlot from "./FrequencyPlot";
 import GroupChart from "./GroupChart";
+import KeyLengthAnalysis from "./KeyLengthAnalysis";
 
 const TOOLS = [
   ["frequency", "Frequency", "01"],
@@ -102,8 +101,6 @@ export default function Workbench() {
   const columnCipher = vigKey ? keyColumn(text, vigKey.length, selectedColumn) : "";
   const selectedShift = vigKey ? ABC.indexOf(vigKey[selectedColumn]) : 0;
   const shiftedColumn = caesar(columnCipher, selectedShift, vigDecode);
-  const lengths = tool === "vigenere" ? keyLengths(text) : [],
-    gaps = tool === "vigenere" ? gapSummary(text) : [];
   const display = (raw: string) =>
     formatOutput(raw, text, {
       spacing,
@@ -787,66 +784,13 @@ export default function Workbench() {
                   />
                 </section>
               )}
-              <details>
-                <summary>Possible key lengths</summary>
-                <p class="hint">
-                  Average Index of Coincidence for each candidate length. Peaks near English (about
-                  0.066) are worth trying; random letters average about 0.038. Multiples can also
-                  peak.
-                </p>
-                <div class="length-chart">
-                  {lengths.map((k) => (
-                    <button
-                      key={k.length}
-                      style={{ "--score": `${Math.min(100, (k.ic / 0.12) * 100)}%` }}
-                      title={`Length ${k.length}: ${k.ic.toFixed(4)}`}
-                      onClick={() => {
-                        setVigKey("A".repeat(k.length));
-                        setColumn(0);
-                      }}
-                    >
-                      <span>{k.ic.toFixed(3)}</span>
-                      <i />
-                      <b>{k.length}</b>
-                    </button>
-                  ))}
-                </div>
-                <p class="small muted">
-                  Select a length to start with A (shift 0) in each key position.
-                </p>
-              </details>
-              <details>
-                <summary>Repeated-group gaps</summary>
-                <p class="hint">
-                  The ten most frequent gaps between repeated trigrams. Gaps count letters, ignoring
-                  spaces. A key length may divide several gaps; accidental repeats also occur.
-                </p>
-                {gaps.length ? (
-                  <div class="table-scroll">
-                    <table>
-                      <caption>Repeated trigram gap summary</caption>
-                      <thead>
-                        <tr>
-                          <th>Gap (letters)</th>
-                          <th>Occurrences</th>
-                          <th>Example groups</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {gaps.map((g) => (
-                          <tr key={g.gap}>
-                            <th>{g.gap}</th>
-                            <td>{g.count}</td>
-                            <td class="mono">{g.groups}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <p>No repeated trigrams yet.</p>
-                )}
-              </details>
+              <KeyLengthAnalysis
+                text={text}
+                onSelectLength={(n) => {
+                  setVigKey("A".repeat(n));
+                  setColumn(0);
+                }}
+              />
             </>
           )}
           {!["frequency", "ngrams"].includes(tool) && (

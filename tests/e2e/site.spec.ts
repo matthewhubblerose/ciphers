@@ -10,6 +10,7 @@ test("pages use club wording, have working links and fit the viewport", async ({
     "/guides/",
     "/guides/transposition/",
     "/guides/identify/",
+    "/guides/vigenere/",
     "/decks/",
     "/decks/cipher-analysis/",
   ]) {
@@ -217,10 +218,14 @@ test("Vigenère updates the selected stream histogram and exposes its ciphertext
   await page.getByLabel("Key", { exact: true }).fill("BOT");
   await page.getByLabel("Try a practice cipher").selectOption("4");
   await expect(page.getByLabel("Output", { exact: true })).toHaveValue(/^THEOTHEREXPLORERS/);
-  await page.getByText("Possible key lengths", { exact: true }).click();
   await expect(page.locator(".length-chart button")).toHaveCount(20);
-  await page.getByText("Repeated-group gaps", { exact: true }).click();
-  await expect(page.getByRole("table", { name: "Repeated trigram gap summary" })).toBeVisible();
+  await expect(
+    page.getByRole("table", { name: "Factor votes from all consecutive repeated-group gaps" }),
+  ).toBeVisible();
+  await page.getByText("Inspect repeated groups, positions and gaps", { exact: true }).click();
+  await expect(
+    page.getByRole("table", { name: "Repeated groups ordered by occurrence count" }),
+  ).toBeVisible();
   expect(await page.locator("body").innerText()).not.toMatch(/chi.squared|χ²/i);
 });
 
