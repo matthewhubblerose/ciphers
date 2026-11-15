@@ -4,9 +4,9 @@ import { ABC, frequencies, letters, ngrams, transpose } from "../../utils/cipher
 import {
   ANALYSIS_TEXT,
   CAESAR_TEXT,
-  CHALLENGE_PLAIN,
+  DEMO_PLAIN,
   letterPairs,
-  shortChallenge,
+  shortDemo,
   SUB_ALPHABET,
   SUB_TEXT,
   substitutionGroups,
@@ -16,7 +16,7 @@ import {
   ROUTE_MESSAGE,
   ROUTE_ORDER,
 } from "../../utils/deckAnalysis";
-import { CHALLENGE_ORDER, CHALLENGE_SOURCE, CHALLENGE_TEXT } from "../../data/challenge";
+import { DEMO_ORDER, DEMO_TEXT } from "../../data/challenge";
 
 export function useMotion() {
   const [allowed, setAllowed] = useState(false);
@@ -53,6 +53,8 @@ export function TypingExample({
   staticView?: boolean;
 }) {
   const motion = useMotion();
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
   const textPanel = useRef<HTMLParagraphElement>(null);
   const [columns, setColumns] = useState(72);
   useLayoutEffect(() => {
@@ -76,7 +78,7 @@ export function TypingExample({
   const [position, setPosition] = useState(staticView ? ANALYSIS_TEXT.length : 0);
   const [playing, setPlaying] = useState(false),
     [speed, setSpeed] = useState(160);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!staticView && matchMedia("(prefers-reduced-motion: reduce)").matches)
       setPosition(ANALYSIS_TEXT.length);
   }, [staticView]);
@@ -171,7 +173,7 @@ export function TypingExample({
         </span>
       </div>
       {!staticView && (
-        <div class="animation-controls" data-animation-controls>
+        <fieldset class="animation-controls" data-animation-controls disabled={!ready}>
           <button
             onClick={() => {
               if (position === ANALYSIS_TEXT.length) setPosition(0);
@@ -230,7 +232,7 @@ export function TypingExample({
               setPosition(Number(e.currentTarget.value));
             }}
           />
-        </div>
+        </fieldset>
       )}
       <p class="visual-note">
         {bigrams
@@ -335,18 +337,16 @@ export function GroupExample({
     }));
   };
   const originalCount =
-    ngrams(transposition ? CHALLENGE_PLAIN : ANALYSIS_TEXT, 3).find((g) => g.gram === "THE")
-      ?.count ?? 0;
+    ngrams(transposition ? DEMO_PLAIN : ANALYSIS_TEXT, 3).find((g) => g.gram === "THE")?.count ?? 0;
   const cipherGroup = transposition ? "THE" : "TCG";
   const cipherCount =
-    ngrams(transposition ? CHALLENGE_TEXT : SUB_TEXT, 3).find((g) => g.gram === cipherGroup)
-      ?.count ?? 0;
+    ngrams(transposition ? DEMO_TEXT : SUB_TEXT, 3).find((g) => g.gram === cipherGroup)?.count ?? 0;
   return (
     <div class="analysis-visual group-example" data-restored={restored}>
       {transposition ? (
         <div class="challenge-strip">
-          <span>Challenge 3 B · compare the common English groups</span>
-          <p>{restored ? "MEETZ INTHE DINER ATBRE AKFAS…" : "TEZEM HNETI EIRND RTEBA AKSFA…"}</p>
+          <span>original practice example · compare the common English groups</span>
+          <p>{restored ? DEMO_PLAIN.slice(0, 25) : DEMO_TEXT.slice(0, 25)}</p>
         </div>
       ) : (
         <div class="group-mapping">
@@ -438,13 +438,10 @@ export function TranspositionLetters({ staticView = false }: { staticView?: bool
   return (
     <div class="analysis-visual transposition-letter-example" data-static={staticView}>
       <div class="challenge-strip">
-        <span>
-          <a href={CHALLENGE_SOURCE}>National Cipher Challenge · Challenge 3 B</a> ·{" "}
-          {letters(CHALLENGE_TEXT).length} letters
-        </span>
-        <p>{CHALLENGE_TEXT.slice(0, 90)}</p>
+        <span>Original practice message · {letters(DEMO_TEXT).length} letters</span>
+        <p>{DEMO_TEXT.slice(0, 90)}</p>
       </div>
-      <ComparisonChart rows={letterPairs(CHALLENGE_TEXT)} label="Challenge ciphertext" />
+      <ComparisonChart rows={letterPairs(DEMO_TEXT)} label="Practice ciphertext" />
       <div class="demo-observation">
         <strong>The individual letters look familiar. Why can’t we read the message?</strong>
         <span>
@@ -473,7 +470,7 @@ export function BlockExample({ staticView = false }: { staticView?: boolean }) {
   useEffect(() => {
     if (step === 3) setPlaying(false);
   }, [step]);
-  const orders = [[0, 1, 2, 3, 4], [4, 0, 1, 2, 3], [4, 1, 0, 2, 3], CHALLENGE_ORDER];
+  const orders = [[0, 1, 2, 3, 4], [4, 0, 1, 2, 3], [4, 1, 0, 2, 3], DEMO_ORDER];
   const order = orders[step];
   const notes = [
     "Take each five-letter block as a row.",
@@ -485,7 +482,7 @@ export function BlockExample({ staticView = false }: { staticView?: boolean }) {
     <div class="analysis-visual block-example" data-step={step}>
       <div class="block-context">
         <span>As supplied</span>
-        <code>TEZEM HNETI EIRND</code>
+        <code>{shortDemo}</code>
         <b>3 blocks of 5 letters</b>
       </div>
       <div
@@ -501,13 +498,13 @@ export function BlockExample({ staticView = false }: { staticView?: boolean }) {
           >
             <strong>Column {col + 1}</strong>
             {[0, 1, 2].map((row) => (
-              <span key={row}>{shortChallenge[row * 5 + col]}</span>
+              <span key={row}>{shortDemo[row * 5 + col]}</span>
             ))}
           </div>
         ))}
       </div>
       <div class="decoded-preview" aria-label="Block transposition output">
-        {transpose(shortChallenge, order)
+        {transpose(shortDemo, order)
           .match(/.{1,5}/g)
           ?.join(" ")}
       </div>
@@ -748,7 +745,7 @@ export function PatternSummary() {
     },
     {
       name: "Transposition",
-      rows: letterPairs(CHALLENGE_TEXT),
+      rows: letterPairs(DEMO_TEXT),
       clue: "Letters fit; neighbours do not.",
       action: "Try block and column orders.",
     },

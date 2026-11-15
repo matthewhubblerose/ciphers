@@ -11,14 +11,14 @@ import {
   transpose,
 } from "./ciphers";
 import { PRACTICE } from "./samples";
-import { CHALLENGE_ORDER, CHALLENGE_TEXT } from "../data/challenge";
+import { DEMO_ORDER, DEMO_TEXT } from "../data/challenge";
 
 export const ANALYSIS_TEXT = PRACTICE;
 export const CAESAR_SHIFT = 7;
 export const CAESAR_TEXT = caesar(ANALYSIS_TEXT, CAESAR_SHIFT, false, true);
 export const SUB_ALPHABET = keyedAlphabet("ORANGE");
 export const SUB_TEXT = substitute(ANALYSIS_TEXT, SUB_ALPHABET, false, true);
-export const CHALLENGE_PLAIN = transpose(CHALLENGE_TEXT, CHALLENGE_ORDER);
+export const DEMO_PLAIN = transpose(DEMO_TEXT, DEMO_ORDER);
 export const BIGRAM_REFERENCE = [
   ["TH", 3.56],
   ["HE", 3.07],
@@ -82,8 +82,8 @@ export function substitutionGroups(n: number): PlotPair[] {
     });
 }
 export function transpositionGroups(n: number): PlotPair[] {
-  const cipher = new Map(ngrams(CHALLENGE_TEXT, n).map((g) => [g.gram, g.percent]));
-  return ngrams(CHALLENGE_PLAIN, n)
+  const cipher = new Map(ngrams(DEMO_TEXT, n).map((g) => [g.gram, g.percent]));
+  return ngrams(DEMO_PLAIN, n)
     .slice(0, 8)
     .map((g) => ({
       label: g.gram,
@@ -94,7 +94,7 @@ export function transpositionGroups(n: number): PlotPair[] {
 }
 export const repeatedAlphabet = Array.from({ length: 52 }, (_, i) => ABC[mod(i - 13)]);
 export const decodedCaesar = (shift: number) => caesar(CAESAR_TEXT, shift, true, true);
-export const shortChallenge = letters(CHALLENGE_TEXT).slice(0, 15);
+export const shortDemo = letters(DEMO_TEXT).slice(0, 15);
 
 export const ROUTE_MESSAGE = "LETSMOVELETTERS";
 export const ROUTE_ORDER = [4, 2, 0, 1, 3];

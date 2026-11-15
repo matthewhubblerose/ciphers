@@ -69,10 +69,10 @@ export const decks: Deck[] = [
       },
       {
         title: "Why does this unreadable text have English-like letter counts?",
-        body: "We cannot read Challenge 3 B, but its letter frequencies already look English. What could have happened?",
+        body: "We cannot read original practice example, but its letter frequencies already look English. What could have happened?",
         visual: "transposition-letters",
         notes:
-          "This is an attributed excerpt from National Cipher Challenge 2026, Challenge 3 Part B. No rotation or relabelling is needed to make the single-letter chart English-like. The graph alone cannot rule out every substitution or mixed cipher; it gives us a reason to try a transposition.",
+          "This is an original passage written for this site. No rotation or relabelling is needed to make the single-letter chart English-like. The graph alone cannot rule out every substitution or mixed cipher; it gives us a reason to try a transposition.",
       },
       {
         title: "Do the bigrams and trigrams look English too?",
@@ -83,10 +83,10 @@ export const decks: Deck[] = [
       },
       {
         title: "Reorder each block of five the same way",
-        body: "For Challenge 3 B, read columns 5, 2, 4, 1, 3 in every row.",
+        body: "For original practice example, read columns 5, 2, 4, 1, 3 in every row.",
         visual: "blocks",
         notes:
-          "Each row is a block, independent of display spacing. Animate the column order, then read MEETZ / INTHE / DINER. Explain that the output does not insert word spaces automatically. The same operation in the transposition tool now reads the visible grid directly.",
+          "Each row is a block, independent of display spacing. Animate the column order, then read BRING / YOURM / APNOW. Explain that the output does not insert word spaces automatically. The same operation in the transposition tool now reads the visible grid directly.",
       },
       {
         title: "Reorder columns, then choose how to read them",

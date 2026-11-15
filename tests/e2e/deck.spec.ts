@@ -102,7 +102,7 @@ test("demonstrations run on entry and connect the graphs to real text", async ({
       .evaluateAll((els) => els.map((el) => el.getAttribute("data-value"))),
   ).not.toEqual(scrambled);
   await page.goto(slide("blocks"));
-  await expect(live.getByLabel("Block transposition output")).toHaveText("MEETZ INTHE DINER", {
+  await expect(live.getByLabel("Block transposition output")).toHaveText("BRING YOURM APNOW", {
     timeout: 8000,
   });
   await page.goto(slide("routes"));
@@ -138,7 +138,7 @@ test("Caesar alignment, ranked substitution and block movement recover their exa
   ).toBe(true);
   await page.goto(slide("blocks"));
   await live.getByRole("button", { name: "Reorder 5, 2, 4, 1, 3" }).click();
-  await expect(live.getByLabel("Block transposition output")).toHaveText("MEETZ INTHE DINER");
+  await expect(live.getByLabel("Block transposition output")).toHaveText("BRING YOURM APNOW");
   await expect(live.getByLabel("Five-column transposition grid")).toHaveAttribute(
     "data-order",
     "52413",
@@ -193,7 +193,7 @@ test("reduced motion supports manual steps and print contains completed examples
   await page.emulateMedia({ media: "print" });
   const printed = page.locator(".print-slides");
   await expect(printed.locator('[data-correct="true"]')).toHaveCount(1);
-  await expect(printed.getByLabel("Block transposition output")).toHaveText("MEETZ INTHE DINER");
+  await expect(printed.getByLabel("Block transposition output")).toHaveText("BRING YOURM APNOW");
   expect(await printed.locator(".typing-demo").first().getAttribute("data-position")).not.toBe("0");
   await expect(printed.locator("[data-animation-controls]")).toHaveCount(0);
   await printed

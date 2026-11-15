@@ -24,6 +24,7 @@ import {
 } from "../../utils/workbench";
 import { SAMPLES } from "../../utils/samples";
 import FrequencyPlot from "./FrequencyPlot";
+import GroupChart from "./GroupChart";
 
 const TOOLS = [
   ["frequency", "Frequency", "01"],
@@ -107,8 +108,9 @@ export default function Workbench() {
     formatOutput(raw, text, {
       spacing,
       keepPunctuation: punctuation,
-      uppercase,
-      preserveOutputCase: tool === "transposition",
+      uppercase: tool === "substitution" && subMode === "manual" ? false : uppercase,
+      preserveOutputCase:
+        tool === "transposition" || (tool === "substitution" && subMode === "manual"),
     });
   let order: number[] = [],
     result = "",
@@ -119,7 +121,7 @@ export default function Workbench() {
     if (tool === "substitution")
       result =
         subMode === "manual"
-          ? [...clean].map((c) => mapping[c] || "·").join("")
+          ? [...clean].map((c) => mapping[c]?.toLowerCase() || c).join("")
           : substitute(clean, alphabet, subMode === "decode");
     if (tool === "transposition") {
       order = parseOrder(orderKey, size);
@@ -323,6 +325,7 @@ export default function Workbench() {
                 return (
                   <section class="ngram-panel" key={n}>
                     <h3>{n === 2 ? "Bigrams" : "Trigrams"}</h3>
+                    <GroupChart text={text} n={n} />
                     <div class="ngram-comparison">
                       <div class="table-scroll ngram-table ciphertext-groups">
                         <table>
@@ -452,8 +455,8 @@ export default function Workbench() {
               {subMode === "manual" ? (
                 <>
                   <p class="hint">
-                    Enter the plaintext letter beneath each ciphertext letter. Unsolved letters
-                    appear as ·.
+                    Enter the plaintext letter beneath each ciphertext letter. Unsolved letters stay
+                    UPPERCASE. Guesses appear lowercase, highlighted and underlined.
                   </p>
                   <div class="alphabet-grid">
                     {[...ABC].map((c) => (
@@ -869,14 +872,16 @@ export default function Workbench() {
                   />
                   Keep punctuation
                 </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={uppercase}
-                    onChange={(e) => setUppercase(e.currentTarget.checked)}
-                  />
-                  Uppercase <span class="muted">(off: preserve case)</span>
-                </label>
+                {!(tool === "substitution" && subMode === "manual") && (
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={uppercase}
+                      onChange={(e) => setUppercase(e.currentTarget.checked)}
+                    />
+                    Uppercase <span class="muted">(off: preserve case)</span>
+                  </label>
+                )}
               </div>
               {error && (
                 <p class="error" role="alert">
@@ -893,14 +898,35 @@ export default function Workbench() {
                   Copy output
                 </button>
               </div>
-              <textarea
-                id="cipher-output"
-                class="output"
-                readOnly
-                value={error ? "" : display(result)}
-                placeholder="Result"
-                rows={6}
-              />
+              {tool === "substitution" && subMode === "manual" ? (
+                <div
+                  id="cipher-output"
+                  class="output mixed-output"
+                  role="textbox"
+                  aria-label="Output"
+                  aria-readonly="true"
+                  tabIndex={0}
+                >
+                  {[...display(result)].map((c, i) =>
+                    /[a-z]/.test(c) ? (
+                      <mark class="solved-letter" key={i}>
+                        {c}
+                      </mark>
+                    ) : (
+                      <span key={i}>{c}</span>
+                    ),
+                  )}
+                </div>
+              ) : (
+                <textarea
+                  id="cipher-output"
+                  class="output"
+                  readOnly
+                  value={error ? "" : display(result)}
+                  placeholder="Result"
+                  rows={6}
+                />
+              )}
             </>
           )}
           <p class="status" role="status">

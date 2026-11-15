@@ -23,7 +23,7 @@ test("pages and slides fit their viewports and produce review screenshots", asyn
     if (tool === "substitution")
       await page.getByLabel("Substitution operation", { exact: true }).selectOption("encode");
     if (tool === "transposition") {
-      await page.getByLabel("Your message", { exact: true }).fill("TEZEM HNETI EIRND");
+      await page.getByLabel("Your message", { exact: true }).fill("NRGIB URMYO NOAWP");
       await page.getByLabel("Column order or word key").fill("52413");
     }
     expect(

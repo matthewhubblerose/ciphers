@@ -4,11 +4,11 @@ import {
   ANALYSIS_TEXT,
   CAESAR_SHIFT,
   CAESAR_TEXT,
-  CHALLENGE_PLAIN,
+  DEMO_PLAIN,
   decodedCaesar,
   letterPairs,
   repeatedAlphabet,
-  shortChallenge,
+  shortDemo,
   SUB_ALPHABET,
   substitutionGroups,
   transpositionGroups,
@@ -17,7 +17,7 @@ import {
   ROUTE_MESSAGE,
   ROUTE_ORDER,
 } from "./deckAnalysis";
-import { CHALLENGE_ORDER, CHALLENGE_TEXT } from "../data/challenge";
+import { DEMO_ORDER, DEMO_TEXT } from "../data/challenge";
 
 describe("analysis deck examples", () => {
   it("keeps characters fixed until a whole third line is complete", () => {
@@ -63,10 +63,10 @@ describe("analysis deck examples", () => {
     for (const n of [2, 3])
       for (const pair of substitutionGroups(n)) expect(pair.value).toBeCloseTo(pair.reference, 10);
   });
-  it("restores the real challenge while changing neighbours but preserving letters", () => {
-    expect(transpose(shortChallenge, CHALLENGE_ORDER)).toBe("MEETZINTHEDINER");
-    expect(CHALLENGE_PLAIN.startsWith("MEETZINTHEDINER")).toBe(true);
-    expect([...letters(CHALLENGE_TEXT)].sort()).toEqual([...CHALLENGE_PLAIN].sort());
+  it("restores the original example while changing neighbours but preserving letters", () => {
+    expect(transpose(shortDemo, DEMO_ORDER)).toBe("BRINGYOURMAPNOW");
+    expect(DEMO_PLAIN.startsWith("BRINGYOURMAPNOW")).toBe(true);
+    expect([...letters(DEMO_TEXT)].sort()).toEqual([...DEMO_PLAIN].sort());
     for (const n of [2, 3])
       expect(transpositionGroups(n).some((p) => Math.abs(p.value - p.reference) > 0.5)).toBe(true);
   });
