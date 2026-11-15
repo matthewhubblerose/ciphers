@@ -16,15 +16,15 @@ Open <http://localhost:4321/ciphers/>. The `/ciphers` base path preserves the ex
 ## What's included
 
 - **Frequency:** alphabetic or independent frequency ordering for ciphertext and English, both letter labels, exact counts, percentages and an Index of Coincidence explanation.
-- **Bigrams and trigrams:** top-ten percentage bar charts, overlapping counts and percentages, and top-30 English reference rank tables, with frequency or alphabetical ordering. Percentages use all overlapping groups, not just the displayed groups.
+- **Bigrams and trigrams:** paired ciphertext/English percentage bars and top-30 tables with English percentages. Compare independently ranked groups or align the same group names. Ciphertext percentages use all overlapping groups; English percentages use Norvig’s complete within-word counts for that group length. The source counts and importer are checked in.
 - **Caesar:** one left-shift operation, all 26 candidates, and independent formatting controls.
 - **Substitution:** unsolved ciphertext stays uppercase; guessed plaintext is lowercase, highlighted and underlined. Includes duplicate checks, keyphrase generation and editable cipher alphabets.
 - **Transposition:** block reordering and columnar routes, numeric and word keys, draggable columns and accessible arrow alternatives. Incomplete final rows need no padding.
 - **Vigenère:** adjustable keys and individual shifts, a live histogram for the selected key position, copyable column ciphertext, average-stream IC charts and exact values for lengths up to 20, and Kasiski factor votes with repeated 3–5-letter groups, positions and gaps.
-- **Spreadsheet guide:** a fixed five-column puzzle based on the teacher-provided Wilf workbook's formula structure, followed by a reusable width 2–20 solver. Uses copied MID/ROW/COLUMN formulas and ordinary ranges, with no spill references. Includes an interactive model and check cases. Excel 2019+ and Google Sheets functions; live Excel verified at widths 2, 3, 5 and 20. Live Google Sheets UI testing was unavailable in this session.
-- **Identification guide:** shared deck animations, four mystery ciphers, a Vigenère comparison and a cipher-identification cheat sheet.
-- **Vigenère guide:** repeating-shift playground, crib alignment and conflict checks, worked Kasiski and IC examples, and a full stream-by-stream Caesar workshop.
-- **Substitution guide:** THE → THA → HER practice with original text, atomic group guesses, contradiction checks, undo, individual clearing, optional word spaces and a solution reveal.
+- **Spreadsheet guide:** motivates transposition with a movable puzzle, then teaches cells, formulas, references, copying, MID and grid indices in small steps. Includes 21 actual Excel screenshot checkpoints, interactive MID/index exercises, values-only copying and whole-column moves, followed by a reusable width 2–20 solver. Uses ordinary ranges with no spill syntax. Excel 2019+ and Google Sheets function/menu instructions; native Excel verified. Live Google Sheets UI testing remains unverified.
+- **Identification guide:** an interactive counting and IC starter, fuller four-cipher explanations, shared deck animations with readable colours, and mysteries that collect five yes/no observations before showing a tick/cross comparison grid. Correct choices have reduced-motion-aware emoji feedback.
+- **Vigenère guide:** Caesar recap → two alternating shifts → letter-coded shifts → word keys. Click letters to inspect their shifts or align a crib. Includes history with sources, before/after letter and group comparisons, a hands-on Kasiski gap example, fuller crib/IC reasoning and a complete stream-solving workshop.
+- **Substitution guide:** motivates why group guesses save work with a one-letter/three-letter comparison, then teaches THE → THA → HER with atomic guesses, contradiction checks, undo, individual clearing, optional word spaces and a solution reveal.
 - **Deck:** one independent 10-slide cipher-analysis presentation. Demonstrations start on entry: typed text builds letter and pair histograms, labelled Caesar bars slide and wrap, substitution bars animate into rank order, and coloured practice columns move in three stages. A question-led comparison introduces transposition; a readable 15-letter grid demonstrates column moves before comparing row and column routes. Includes pause, steps, replay, reduced-motion controls, fullscreen and completed print examples.
 
 ### Conventions
@@ -37,7 +37,7 @@ Tools operate on English A–Z letters. Analysis ignores spaces and punctuation.
 - **Transposition:** the default reads across the grid exactly as displayed. 52413 reads original columns 5, 2, 4, 1, 3; dragging changes this order directly. HOTEL gives 41523. Repeated letters sort left to right. The separate Reverse a known block key / Restore a columnar cipher methods reconstruct an encryption route and display the restored result grid. Use comma-separated numbers above 9; block sizes are 2–30.
 - **Routes:** block transposition reads reordered rows; columnar transposition reads selected columns top to bottom. Columnar decoding accounts for unequal original column lengths.
 
-All practice ciphertexts, deck examples and test fixtures are generated from original text written for this site. No National Cipher Challenge ciphertext is included. English group reference ranks come from [Peter Norvig's Google Books analysis](https://www.norvig.com/mayzner.html); they count within words, whereas ciphertext groups can cross removed word boundaries.
+All practice ciphertexts, deck examples and test fixtures are generated from original text written for this site. No National Cipher Challenge ciphertext is included. English group reference counts, ranks and percentages come from [Peter Norvig's Google Books analysis](https://www.norvig.com/mayzner.html); they count within words, whereas ciphertext groups can cross removed word boundaries. `scripts/import-ngram-reference.mjs` reproduces `src/data/englishNgrams.json` from the archive linked on that page. The imported `*/*` totals are the denominators, so percentages are not renormalized over only the top groups.
 
 ## Verify changes
 
@@ -53,6 +53,8 @@ pnpm test:e2e
 Unit tests check standard vectors, statistical counts, key conventions, all Caesar shifts, transposition round trips, repeat positions and factor votes, crib phase/conflicts, and atomic substitution hypotheses. Playwright covers generation/deciphering workflows, guide experiments and reveals, malformed keys, local persistence, all internal page links, desktop dragging, mobile arrow controls, deck navigation and print layouts.
 
 Browser tests use an installed Google Chrome in an isolated headless profile; they never attach to your personal browser session. They start their own local server when needed. Install Google Chrome before running them, or change `channel` in `playwright.config.ts` to use Playwright's bundled Chromium. Browser artifacts go into ignored `test-results/`.
+
+Set `PLAYWRIGHT_BASE_URL` to reuse a preview at another address (for example `http://localhost:4321` when a dev server is bound to localhost rather than 127.0.0.1). Clipboard test permissions follow the configured origin.
 
 `pnpm verify` runs the complete sequence. CI installs bundled Chromium and runs the browser tests against the production build using `astro preview`; local tests use the development server. `PLAYWRIGHT_CHANNEL` can override the browser channel. Layout captures and test PDF handouts go into ignored `artifacts/`. The commit hook checks formatting, lint and unit tests directly, so it also works with this machine's older Git version.
 
