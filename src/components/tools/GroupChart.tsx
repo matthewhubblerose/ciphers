@@ -23,7 +23,8 @@ export default function GroupChart({ text, n }: { text: string; n: number }) {
       ))}
       {!groups.length && <p>Enter at least {n} letters to see the chart.</p>}
       <p class="small muted">
-        Bars share a scale within this chart. Full counts and percentages are below.
+        Bars share a scale within this chart. Percentages include all groups, even those outside the
+        top ten.
       </p>
     </div>
   );

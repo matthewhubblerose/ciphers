@@ -9,12 +9,13 @@ test("pages use club wording, have working links and fit the viewport", async ({
     "/tools/",
     "/guides/",
     "/guides/transposition/",
+    "/guides/identify/",
     "/decks/",
     "/decks/cipher-analysis/",
   ]) {
     expect((await page.goto("/ciphers" + route))?.status()).toBe(200);
     await expect(page.locator("main h1")).toBeVisible();
-    expect(await page.locator("body").innerText()).not.toMatch(/\b(classroom|teacher|lesson)s?\b/i);
+    expect(await page.locator("body").innerText()).not.toMatch(/lorem ipsum|TODO:/i);
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,

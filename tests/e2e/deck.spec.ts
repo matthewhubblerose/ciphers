@@ -147,8 +147,7 @@ test("Caesar alignment, ranked substitution and block movement recover their exa
 
 test("spreadsheet guide model works and the deck is listed", async ({ page }, testInfo) => {
   await page.goto("/ciphers/guides/");
-  await expect(page.locator(".resource-card")).toHaveCount(1);
-  await page.locator(".resource-card").click();
+  await page.getByRole("link", { name: /Transposition in Excel and Google Sheets/ }).click();
   await expect(page.locator(".guide-content")).not.toContainText(/Challenge 3|TEZEM|MEETZ/i);
   await expect(page.locator(".guide-content")).toContainText("SEMTL LVEEO RTSET");
   await page.getByLabel("Practice column order").fill("52413");

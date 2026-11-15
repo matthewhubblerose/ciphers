@@ -512,7 +512,7 @@ export function BlockExample({ staticView = false }: { staticView?: boolean }) {
         <strong>{notes[step]}</strong>
         <span>
           {step === 3
-            ? "MEET Z IN THE DINER. Apply exactly the same column order to every block."
+            ? "BRING YOUR MAP NOW. Apply exactly the same column order to every block."
             : "The coloured columns move as complete units, keeping every letter."}
         </span>
       </div>

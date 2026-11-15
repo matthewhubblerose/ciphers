@@ -2665,3 +2665,47 @@ summary {
   border-left: 4px solid var(--green);
   line-height: 1.7;
 }
+
+.choice-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1rem 0;
+}
+.choice-buttons button {
+  background: var(--white);
+  color: var(--ink);
+  border: 1px solid var(--green);
+  padding: 0.65rem 0.9rem;
+  border-radius: 4px;
+}
+.choice-buttons button[aria-pressed="true"] {
+  background: var(--green);
+  color: white;
+}
+.guide-animation {
+  background: #163e31;
+  padding: 1rem;
+  border-radius: 6px;
+  margin: 1.5rem 0;
+  min-width: 0;
+}
+.guide-animation p,
+.guide-animation li {
+  color: #f1f6e7;
+}
+.guide-animation .animation-controls {
+  border: 0;
+}
+.cipher-excerpt {
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  padding: 1rem;
+  background: #edf2df;
+}
+.cipher-cheatsheet {
+  min-width: 630px;
+}
+.learning-lab h2 {
+  margin-top: 0;
+}

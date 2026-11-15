@@ -1,0 +1,114 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import CipherDetective from "../../components/guides/CipherDetective";
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<BaseLayout title="Which cipher is it?">
+  <header class="wrap page-intro">
+    <p class="eyebrow">GUIDE 02 / INVESTIGATE</p>
+    <h1>
+      Which cipher
+      <br />
+      is it<span class="accent">?</span>
+    </h1>
+    <p>
+      Look for what has changed and what has survived. Use a clue to choose your next experiment.
+    </p>
+  </header>
+  <div class="wrap article-layout">
+    <nav class="article-toc" aria-label="Guide contents">
+      <a href="#explore">01 / Explore the patterns</a>
+      <a href="#cheat-sheet">02 / Quick reference</a>
+      <a href="#next">03 / Choose a test</a>
+    </nav>
+    <article class="guide-content">
+      <p>
+        Start with plenty of text if you can. Cipher blocks of five letters are usually display
+        spacing, not five-letter words. The tools ignore spaces and punctuation when counting A–Z
+        letters.
+      </p>
+      <div id="explore">
+        <CipherDetective client:load />
+      </div>
+      <h2 id="cheat-sheet">Keep this cheat sheet beside your puzzle</h2>
+      <div class="table-scroll">
+        <table class="cipher-cheatsheet">
+          <caption>Clues for common English-language ciphers</caption>
+          <thead>
+            <tr>
+              <th>Possible cipher</th>
+              <th>Letter frequencies</th>
+              <th>Bigrams / trigrams</th>
+              <th>Try next</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Caesar</th>
+              <td>English peaks shifted together</td>
+              <td>Same groups, all shifted equally</td>
+              <td>All 26 shifts</td>
+            </tr>
+            <tr>
+              <th>Substitution</th>
+              <td>Labels shuffled; ranked peaks often familiar</td>
+              <td>Common shapes survive with new labels</td>
+              <td>Consistent THE hypothesis</td>
+            </tr>
+            <tr>
+              <th>Transposition</th>
+              <td>English-like counts at the actual letters</td>
+              <td>Many familiar neighbours disrupted</td>
+              <td>Grid widths and reading routes</td>
+            </tr>
+            <tr>
+              <th>Vigenère</th>
+              <td>Often flatter; one shift or relabelling does not align everything</td>
+              <td>Common groups split across several encodings</td>
+              <td>Kasiski gaps; average column IC</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 id="next">Use two clues, then test an idea</h2>
+      <p>
+        For a suspected Vigenère cipher, look at letters <em>and</em> groups: if neither matches the
+        usual English pattern, multiple alphabets are worth testing. It is not enough to see one
+        missing THE. Short texts, unusual vocabulary and mixed ciphers can all mislead you. A
+        one-letter Vigenère key is just Caesar; repeated keys can have a shorter true period (MAPMAP
+        behaves like MAP).
+      </p>
+      <p>
+        The <strong>Index of Coincidence (IC)</strong> is often near 0.066 for English and 0.0385
+        for uniform random letters. Substitution and transposition preserve whole-message IC.
+        Repeating-key Vigenère often lowers it. Try a candidate length, take every nth letter, and
+        average the streams’ IC values: a length that separates the shifts may bring them back
+        towards English. Multiples can peak too. Confirm with readable output.
+      </p>
+      <div class="actions">
+        <a class="button primary" href={`${base}/tools/#frequency`}>
+          Test your own message ↗
+        </a>
+        <a class="text-link" href={`${base}/decks/cipher-analysis/`}>
+          Present the original deck →
+        </a>
+      </div>
+      <p class="small">
+        All example passages and ciphertexts are original to this site. The animations are shared
+        with our cipher-analysis deck. English group ranks:{" "}
+        <a href="https://www.norvig.com/mayzner.html">Peter Norvig’s Google Books analysis</a>{" "}
+        (within words; our tools include groups across removed spaces). Vigenère detection and
+        statistical methods:{" "}
+        <a href="https://cs.uri.edu/cryptography/classical-ciphers/vigenere/cryptanalysis-article.html">
+          University of Rhode Island, Vigenère cryptanalysis
+        </a>{" "}
+        and{" "}
+        <a href="https://www.cs.trincoll.edu/cryptography/vigenere.html">
+          Trinity College, solving Vigenère
+        </a>
+        .
+      </p>
+    </article>
+  </div>
+</BaseLayout>
