@@ -479,113 +479,214 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
       </p>
       <p>
         Let’s put the width in one cell instead. Changing that cell will redraw the grid. In this
-        reusable version we’ll type the wanted column order into a row of numbers, because we want
-        formulas to keep updating when the width changes. You can keep the simpler movable version
-        for five-column puzzles.
+        reusable version we’ll give the grid its own row and column numbers. The formulas will
+        follow those numbers when we move a column, so we can experiment directly in the live grid.
+        We will no longer need a values-only copy of the letters on Solve.
       </p>
       <h3>13. Give the reusable sheet its inputs</h3>
       <ol>
         <li>
-          Add a tab named <strong>Solver</strong>. Put <code>Width</code> in A1 and <code>5</code>{" "}
-          in B1. Put <code>Letters only</code> in A2 and <code>SEMTLLVEEORTSET</code> in B2. This
-          time paste letters only: no spaces, punctuation or line breaks.
+          Return to <strong>Input</strong>. Put <code>Width</code> in A5 and <code>5</code> in B5.
+          Keep our original message in A2 and the space-removing formula in A3. The letters in A3
+          should still be <code>SEMTLLVEEORTSET</code>.
         </li>
         <li>
-          In A5:E5 enter <code>5 2 4 1 3</code> in separate cells. This row tells the formulas which
-          source column to read first, second and so on.
+          Add a new tab named <strong>Sequences</strong>. Keeping the message and width on Input
+          means they stay in one place while we move columns on this new tab.
         </li>
       </ol>
       <ExcelScreenshot
         series="lesson"
-        name="flex-inputs"
-        alt="Solver inputs are width 5, the letter-only message, and a row of source column numbers"
-        caption="Only three things will need changing for a new puzzle: B1, B2 and the active numbers in row 5."
+        name="sequence-inputs"
+        alt="Input has the original message in A2, cleaned letters in A3 and width 5 in B5"
+        caption="The two inputs live on Input: change A2 for a new message and B5 for a new width."
       />
-      <h3>14. Rebuild the position calculation</h3>
+      <h3>14. Generate our own row and column numbers</h3>
       <p>
-        Our new grid starts in row 6. So <code>ROW()-6</code> counts complete rows before the
-        current one. Instead of multiplying by a fixed 5, multiply by <code>$B$1</code>, our chosen
-        width.
+        <strong>SEQUENCE</strong> makes a list of numbers for us. Its inputs are
+        <code>SEQUENCE(how many rows, how many columns, first number, step)</code>. If we leave out
+        the first number and step, both are 1. The answers spread into nearby empty cells from the
+        cell containing the formula. This is called <strong>spilling</strong>. Both modern Excel and
+        Google Sheets can do this; we do not need Excel’s special spill-reference symbol.
       </p>
-      <p>
-        We also need the source-column number from row 5. In column A that is <code>A$5</code>: the
-        row stays pinned to 5, but the column is allowed to change to B, C, D… when copied across.
-        That is why it has one dollar sign rather than two.
-      </p>
-      <pre>=MID($B$2,A$5+(ROW()-6)*$B$1,1)</pre>
+      <div class="table-scroll">
+        <table>
+          <caption>Two directions for our helper numbers</caption>
+          <thead>
+            <tr>
+              <th>Cell on Sequences</th>
+              <th>Formula</th>
+              <th>What it makes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>C5</th>
+              <td>
+                <code>=SEQUENCE(1,20)</code>
+              </td>
+              <td>One row: 1, 2, 3, …, 20 across C5:V5.</td>
+            </tr>
+            <tr>
+              <th>A6</th>
+              <td>
+                <code>=SEQUENCE(100,1,0)</code>
+              </td>
+              <td>One column: 0, 1, 2, …, 99 down A6:A105.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <ol>
         <li>
-          Enter this formula in A6. The answer should be L: the first source-column number is 5, so
-          we fetch character 5.
+          On Sequences, type <code>Rows before</code> in A5. Enter the two formulas from the table.
+          Leave B and W empty: our movable columns will be C to V, with a blank column on each side.
         </li>
         <li>
-          Copy A6 across to E6, then select A6:E6 and copy down to row 8. You should see the same
-          decoded rows as before.
+          Look down A. The first row of letters has <strong>0 complete rows before it</strong>, the
+          next has 1, then 2. Starting at zero saves us having to subtract the worksheet row number.
+        </li>
+        <li>
+          Make only the column labels movable: select C5:V5 and copy. In Excel use
+          <strong>Paste Special → Values</strong> over the same cells. In Sheets use
+          <strong>Edit → Paste special → Values only</strong>. Press Escape when finished. Keep A6’s
+          vertical SEQUENCE formula live.
         </li>
       </ol>
+      <aside class="guide-callout">
+        A horizontal SEQUENCE is one connected block: we cannot move just one of its generated
+        cells. This one-time values-only paste turns the 20 labels into independent numbers. We will
+        keep the letter formulas live and move them with their labels. There is no need to copy the
+        letter grid.
+      </aside>
       <ExcelScreenshot
         series="lesson"
-        name="flex-five"
-        alt="The reusable grid uses row 5 numbers and the width cell to select the letters"
-        caption="The familiar five-column result is a check that the new formula works before we add more columns."
+        name="sequence-axes"
+        alt="Sequences has column labels starting at C5 and row counts starting at zero in A6"
+        caption="Check the two directions: 1, 2, 3… across row 5; 0, 1, 2… down column A. B stays empty."
       />
-      <h3>15. Prepare space for widths up to 20</h3>
       <p>
-        We could fill twenty columns, but a five-column puzzle should only display five of them.{" "}
-        <strong>IF</strong> chooses between two answers:{" "}
-        <code>IF(test,answer if true,answer if false)</code>. We’ll ask “is this worksheet column
-        beyond our chosen width?”
+        SEQUENCE needs Excel for Microsoft 365, Excel 2021 or newer, or Google Sheets. If an older
+        Excel version shows a name error, type 1 and 2 in C5:D5, select both and drag the fill
+        handle across to V5. Likewise fill 0 and 1 from A6:A7 down to A105. The remaining formulas
+        work the same way.
       </p>
-      <pre>=IF(COLUMN()&gt;$B$1,"",MID($B$2,A$5+(ROW()-6)*$B$1,1))</pre>
+      <h3>15. Build the position from those numbers</h3>
+      <p>
+        We still need a position for MID. In the second row of a width-5 grid, source column 3
+        contains character 8: skip 1 complete row × 5 letters, then take letter 3. Our helper cells
+        give us every part of that calculation.
+      </p>
+      <pre>=C$5+$A6*Input!$B$5</pre>
       <ol>
         <li>
-          Replace A6 with the formula above. If COLUMN() is larger than the width, the result is
-          empty text. Otherwise we run our MID formula.
+          Enter this in C6. <code>C$5</code> is the source-column label above us; <code>$A6</code>
+          is the number of complete rows before us; <code>Input!$B$5</code> is the width. The answer
+          is 1 + 0 × 5 = <strong>1</strong>.
         </li>
         <li>
-          Copy A6. Type <code>A6:T105</code> in the name box, press Enter, and paste. T is column
-          20. This prepares 100 rows for widths 2–20; only the active columns show letters.
+          Copy C6 across to G6, then copy C6:G6 down to row 8. Check for 1–5, then 6–10, then 11–15.
         </li>
+      </ol>
+      <p>
+        The dollar signs pin only what must stay fixed when copying: row 5 for a label, column A for
+        a row count, and both parts of Input’s width cell. There is no ROW or COLUMN in this
+        formula.
+      </p>
+      <ExcelScreenshot
+        series="lesson"
+        name="sequence-positions"
+        alt="The helper-number formula produces positions 1 to 15 in three rows"
+        caption="The helper numbers reproduce the same character positions as Lesson 1, without depending on a letter column’s worksheet position."
+      />
+      <h3>16. Fetch letters and prepare widths up to 20</h3>
+      <p>
+        Replace C6 with <code>=MID(Input!$A$3,C$5+$A6*Input!$B$5,1)</code>. The new part wraps our
+        position calculation in MID, using the cleaned message on Input. Copy across to G6 and down
+        to row 8: SEMTL / LVEEO / RTSET should return.
+      </p>
+      <p>
+        We also want room for wider puzzles. <strong>IF</strong> chooses between two answers:
+        <code>IF(test,answer if true,answer if false)</code>. A source-column label larger than the
+        width should give empty text, rather than another letter.
+      </p>
+      <pre>=IF(C$5&gt;Input!$B$5,"",MID(Input!$A$3,C$5+$A6*Input!$B$5,1))</pre>
+      <ol>
         <li>
-          In U6 type <code>=TEXTJOIN("",TRUE,A6:T6)</code>, then copy U6 to U7:U105. In U2 type{" "}
-          <code>=TEXTJOIN("",TRUE,U6:U105)</code>. Use the name box to reach U2 if it is off-screen.
+          Replace C6 with this formula. Copy it, select C6:V105 using the name box, and paste. This
+          prepares 20 columns and 100 rows. At width 5, labels 6–20 give blank cells.
         </li>
       </ol>
       <ExcelScreenshot
         series="lesson"
-        name="flex-wide"
-        alt="Solver shows the active five columns, with prepared columns beyond the width remaining empty"
-        caption="The prepared columns beyond your selected width are blank. The formulas are still there, ready for a wider puzzle."
+        name="sequence-grid"
+        alt="The live grid starts in C6, with row counts in A and inactive columns blank"
+        caption="SEMTL / LVEEO / RTSET is back. The blank cells to the right still contain formulas, ready for a larger width."
       />
-      <ExcelScreenshot
-        series="lesson"
-        name="flex-answer"
-        alt="U2 contains the complete joined answer from the reusable solver"
-        caption="U2 is the answer cell. You can jump straight to it using the name box."
-      />
-      <h3>16. Check a different width</h3>
+      <h3>17. Join between two fixed edges</h3>
+      <p>
+        Leave B and W blank. Joining from B to W includes all 20 letter columns between them. Those
+        two outside edges stay in place when we move columns inside the grid, so the answer
+        continues to include every letter.
+      </p>
       <ol>
         <li>
-          Change B1 to <code>3</code>, B2 to <code>ABCDEFGH</code>, and A5:C5 to <code>3 1 2</code>.
-          Each active source-column number must be used once. Numbers beyond the selected width are
-          ignored.
+          In X6 enter <code>=TEXTJOIN("",TRUE,B6:W6)</code>. Copy it down to X105.
         </li>
         <li>
-          U2 should show <code>CABFDEGH</code>. The short final row has just G and H; MID gives
-          empty text for the missing character, and TEXTJOIN skips it.
+          In X2 enter <code>=TEXTJOIN("",TRUE,X6:X105)</code>. This joins the rows in order.
+        </li>
+        <li>Use the name box to jump back to C6. Now we can try some column moves.</li>
+      </ol>
+      <h3>18. Move the formula columns themselves</h3>
+      <ol>
+        <li>
+          Move the whole worksheet column whose row-5 label is <strong>5</strong> before the first
+          letter column, C. Use Excel’s Shift-drag at the column edge, or drag the column heading in
+          Sheets, just as in Lesson 1. Keep the label and all its formulas together.
+        </li>
+        <li>
+          Move label 2 into second place and label 4 into third place. Keep every moved column
+          inside C:V. Leave A, the empty edge columns B and W, and the answer column X in place.
         </li>
       </ol>
       <ExcelScreenshot
         series="lesson"
-        name="flex-three"
-        alt="Solver is set to width 3 and handles the incomplete final row without padding"
-        caption="A new width and message, using the same formulas. Check the row fragments CAB / FDE / GH."
+        name="sequence-solved"
+        alt="The formula columns have been moved to labels 5 2 4 1 3 and show LETSM OVELE TTERS"
+        caption="The letters follow their source-column labels. We moved live formulas, with no values-only copy of the letters."
+      />
+      <ExcelScreenshot
+        series="lesson"
+        name="sequence-answer"
+        alt="X2 contains LETSMOVELETTERS after moving the live formula columns"
+        caption="Jump to X2 using the name box. The joined answer has updated after the moves."
+      />
+      <h3>19. Check a different width</h3>
+      <ol>
+        <li>
+          On Input change B5 to <code>3</code> and A2 to <code>ABCDEFGH</code>. A3 updates for us.
+          On Sequences rearrange the columns so labels 3, 1, 2 come first, followed by the others.
+          You can also type a new complete order in row 5, using each number 1–20 once.
+        </li>
+        <li>
+          X2 should show <code>CABFDEGH</code>. The last row has no third source letter, so its
+          first displayed cell is empty; G and H still join correctly. Labels larger than 3 stay
+          blank wherever they have been moved.
+        </li>
+      </ol>
+      <ExcelScreenshot
+        series="lesson"
+        name="sequence-three"
+        alt="The same formulas at width 3 give CAB, FDE and a blank followed by G and H"
+        caption="The formulas handle another width and a short last row. Check CAB / FDE / GH, then try your own column order."
       />
       <p>
         There is one limit to remember: we prepared 100 rows, so at width 3 the sheet holds 300
-        letters. In U3 enter <code>=IF(LEN(B2)&gt;100*B1,"Add more rows","All letters fit")</code>.
-        LEN counts characters. If the message is too long, extend the grid, the row joins and the
-        final joining range together.
+        letters. In X3 enter{" "}
+        <code>=IF(LEN(Input!A3)&gt;100*Input!B5,"Add more rows","All letters fit")</code>. LEN
+        counts characters. If the message is too long, extend the grid, the row joins and the final
+        joining range together, and increase the number of rows in A6’s SEQUENCE.
       </p>
       <details>
         <summary>Troubleshooting</summary>
@@ -619,9 +720,13 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
           <a href="https://support.microsoft.com/en-us/office/mid-function-d5f9e25c-d7d6-472e-b568-4ecb12433028">
             Microsoft MID
           </a>{" "}
-          and{" "}
+          ,{" "}
+          <a href="https://support.microsoft.com/en-us/excel/functions/sequence-function">
+            Microsoft SEQUENCE
+          </a>
+          , <a href="https://support.google.com/docs/answer/9368244?hl=en">Google SEQUENCE</a>, and{" "}
           <a href="https://support.google.com/docs/table/25273?hl=en">Google Sheets functions</a>.
-          No spill references are used.
+          SEQUENCE spreads its answers into empty cells; all references use ordinary cell ranges.
         </p>
       </aside>
     </article>
