@@ -9,11 +9,20 @@ test("cipher identification guide connects animations, clues and practice", asyn
   await page.goto("/ciphers/guides/identify/");
   const patterns = page.getByRole("group", { name: "Cipher pattern choices" });
   const starter = page.getByRole("region", { name: "Learn frequency analysis" });
+  await expect(
+    starter.getByRole("heading", { name: "Count neighbours as well as single letters" }),
+  ).toBeVisible();
+  await expect(
+    starter.getByRole("table", { name: "Two useful names for neighbouring letters" }),
+  ).toContainText("Trigram");
+  await expect(starter).toContainText("TH · HE · EN");
   await starter
     .getByRole("group", { name: "What shall we count?" })
     .getByRole("button", { name: "2. Bigrams" })
     .click();
   await expect(starter).toContainText("2 ÷ 5 = 40%");
+  await starter.getByRole("button", { name: "3. Trigrams", exact: true }).click();
+  await expect(starter).toContainText("2 ÷ 4 = 50%");
   await starter.getByLabel("First picked position").selectOption("3");
   await expect(starter.getByRole("status")).toContainText("a matching pair");
   await patterns.getByRole("button", { name: "Caesar", exact: true }).click();

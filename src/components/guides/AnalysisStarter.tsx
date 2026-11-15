@@ -25,6 +25,47 @@ export default function AnalysisStarter() {
           Before guessing any letters, we can count what appears in the ciphertext. Counts give us
           clues even when we cannot read a word.
         </p>
+        <h3>Count neighbours as well as single letters</h3>
+        <p>
+          English letters often travel together. For example, T is often followed by H, and TH is
+          often followed by E. Counting those neighbours gives us clues that a single-letter count
+          cannot show. A group does not have to be a whole word: ING can sit at the end of a word
+          such as walking.
+        </p>
+        <div class="table-scroll">
+          <table>
+            <caption>Two useful names for neighbouring letters</caption>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>What we count</th>
+                <th>Common English examples</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Bigram</th>
+                <td>Two letters next to each other. “Bi” means two.</td>
+                <td>TH, HE, IN</td>
+              </tr>
+              <tr>
+                <th>Trigram</th>
+                <td>Three letters next to each other. “Tri” means three.</td>
+                <td>THE, AND, ING</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Move along <strong>one letter at a time</strong>, so the groups overlap. THEN gives three
+          bigrams: <code>TH · HE · EN</code>. It gives two trigrams: <code>THE · HEN</code>. The H
+          belongs to more than one group; that is exactly what we want to count.
+        </p>
+        <p>
+          If a cipher keeps the same neighbours together, a common group can help us guess several
+          letters at once. If it breaks up those neighbours, the group counts change. Try the three
+          counting buttons below to see the difference, starting with BANANA.
+        </p>
         <label class="field">
           Counting practice text
           <textarea
