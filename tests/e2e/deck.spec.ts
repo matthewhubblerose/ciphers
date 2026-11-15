@@ -2,6 +2,17 @@ import { test, expect } from "@playwright/test";
 import { decks, type VisualKind } from "../../src/data/decks";
 
 const url = "/ciphers/decks/cipher-analysis/";
+test("deck shortcuts handle document targets without runtime errors", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto(url);
+  await expect(page.locator(".deck-root")).toHaveAttribute("aria-busy", "false");
+  await page.evaluate(() =>
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })),
+  );
+  await expect(page).toHaveURL(/#slide-2$/);
+  expect(errors).toEqual([]);
+});
 test("typing holds characters still and scrolls one complete line at a time", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto(url);

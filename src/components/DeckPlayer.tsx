@@ -66,14 +66,9 @@ export default function DeckPlayer({ deck }: { deck: Deck }) {
   }
   useEffect(() => {
     function key(e: KeyboardEvent) {
-      if (
-        (e.target as HTMLElement)?.closest("input,select,textarea") ||
-        e.altKey ||
-        e.ctrlKey ||
-        e.metaKey
-      )
-        return;
-      if (e.key === " " && (e.target as HTMLElement)?.closest("button,a")) return;
+      const target = e.target instanceof Element ? e.target : null;
+      if (target?.closest("input,select,textarea") || e.altKey || e.ctrlKey || e.metaKey) return;
+      if (e.key === " " && target?.closest("button,a")) return;
       if (["ArrowRight", "PageDown", " "].includes(e.key)) {
         e.preventDefault();
         go(activeIndex.current + 1);
