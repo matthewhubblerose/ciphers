@@ -2628,6 +2628,24 @@ summary {
   height: 100%;
   background: var(--green);
 }
+.paired-group-row {
+  display: block;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.group-pair-line {
+  display: grid;
+  grid-template-columns: 3ch minmax(0, 1fr) 8rem;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 0.15rem 0;
+}
+.english-pair-line .group-bar-track i {
+  background: #a3be7d;
+}
+.english-pair-line b {
+  color: #4a6435;
+}
 .mixed-output {
   white-space: pre-wrap;
   overflow-wrap: anywhere;

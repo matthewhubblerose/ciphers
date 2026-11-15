@@ -23,6 +23,7 @@ import {
 import { SAMPLES } from "../../utils/samples";
 import FrequencyPlot from "./FrequencyPlot";
 import GroupChart from "./GroupChart";
+import { englishGroups, englishGroupPercent } from "../../utils/englishGroups";
 import KeyLengthAnalysis from "./KeyLengthAnalysis";
 
 const TOOLS = [
@@ -314,15 +315,15 @@ export default function Workbench() {
               </label>
               {[2, 3].map((n) => {
                 const cipher = ngrams(text, n).slice(0, 30);
-                const english = [...ENGLISH_GROUPS[n]];
+                const english = englishGroups(n).slice(0, 30);
                 if (!gramSort) {
                   cipher.sort((a, b) => a.gram.localeCompare(b.gram));
-                  english.sort();
+                  english.sort((a, b) => a.gram.localeCompare(b.gram));
                 }
                 return (
                   <section class="ngram-panel" key={n}>
                     <h3>{n === 2 ? "Bigrams" : "Trigrams"}</h3>
-                    <GroupChart text={text} n={n} />
+                    <GroupChart text={text} n={n} compare ranked={gramSort} />
                     <div class="ngram-comparison">
                       <div class="table-scroll ngram-table ciphertext-groups">
                         <table>
@@ -333,6 +334,7 @@ export default function Workbench() {
                               <th>Ciphertext group</th>
                               <th>Count</th>
                               <th>Ciphertext %</th>
+                              <th>Same group in English %</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -342,6 +344,7 @@ export default function Workbench() {
                                 <th class="mono">{group.gram}</th>
                                 <td>{group.count}</td>
                                 <td>{group.percent.toFixed(2)}</td>
+                                <td>{englishGroupPercent(group.gram).toFixed(2)}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -357,13 +360,15 @@ export default function Workbench() {
                             <tr>
                               <th>English rank</th>
                               <th>Group</th>
+                              <th>English %</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {english.map((gram) => (
-                              <tr key={gram}>
-                                <td>{ENGLISH_GROUPS[n].indexOf(gram) + 1}</td>
-                                <th class="mono">{gram}</th>
+                            {english.map((group) => (
+                              <tr key={group.gram}>
+                                <td>{ENGLISH_GROUPS[n].indexOf(group.gram) + 1}</td>
+                                <th class="mono">{group.gram}</th>
+                                <td>{group.percent.toFixed(2)}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -378,8 +383,10 @@ export default function Workbench() {
                 <a href="https://www.norvig.com/mayzner.html">
                   Peter Norvig’s Google Books analysis
                 </a>
-                , ranked within words. Your ciphertext counts include groups across removed word
-                spaces, so ranks can differ. Alphabetical mode sorts each top-30 list separately.
+                , counting within words. English % = that group’s count divided by all groups of the
+                same length. Your ciphertext includes groups across removed spaces, so the
+                percentages are a reference, not a target to match exactly. Alphabetical mode aligns
+                the chart by group name and sorts each top-30 table separately.
               </p>
             </>
           )}

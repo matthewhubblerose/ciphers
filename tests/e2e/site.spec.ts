@@ -233,9 +233,10 @@ test("Vigenère updates the selected stream histogram and exposes its ciphertext
 test("copy actions return the selected ciphertext stream and formatted output", async ({
   page,
   context,
+  baseURL,
 }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"], {
-    origin: "http://127.0.0.1:4321",
+    origin: new URL(baseURL!).origin,
   });
   await page.goto("/ciphers/tools/#vigenere");
   await page.getByLabel("Your message", { exact: true }).fill("LXFOP VEFRN HR");
