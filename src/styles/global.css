@@ -2778,3 +2778,75 @@ summary {
   line-height: 1.9;
   font-size: 1rem;
 }
+
+.letter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 1rem 0;
+}
+.letter-buttons button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 2.5rem;
+  padding: 0.5rem;
+  border: 1px solid var(--green);
+  background: var(--white);
+  color: var(--ink);
+  font: 1.1rem var(--mono);
+}
+.letter-buttons button[aria-pressed="true"] {
+  outline: 3px solid var(--green);
+  outline-offset: 1px;
+}
+.letter-buttons small {
+  font-size: 0.65rem;
+  margin-bottom: 0.4rem;
+}
+.checkpoint {
+  border-left: 4px solid #829d4e;
+  padding: 0.8rem 1rem;
+  background: #edf2df;
+}
+.source-notes {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+.guide-content .source-notes p {
+  font-size: 0.8rem;
+}
+.lesson-transpose-grid {
+  gap: 0.25rem;
+  min-width: 0;
+}
+.lesson-transpose-grid .column-header {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0.5rem 0.2rem;
+  font-size: 0.65rem;
+}
+.lesson-transpose-grid .column-header button {
+  padding: 0.35rem;
+}
+.lesson-column {
+  flex: 1;
+  min-width: 0;
+}
+.lesson-column.colour-0 {
+  background: #dbe9ba;
+}
+.lesson-column.colour-1 {
+  background: #d5e9f1;
+}
+.lesson-column.colour-2 {
+  background: #f0dfb6;
+}
+.lesson-column.colour-3 {
+  background: #e6d9ef;
+}
+.lesson-column.colour-4 {
+  background: #f1d9d7;
+}

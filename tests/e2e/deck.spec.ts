@@ -161,15 +161,33 @@ test("spreadsheet guide model works and the deck is listed", async ({ page }, te
   await page.getByRole("link", { name: /Transposition in Excel and Google Sheets/ }).click();
   await expect(page.locator(".guide-content")).not.toContainText(/Challenge 3|TEZEM|MEETZ/i);
   await expect(page.locator(".guide-content")).toContainText("SEMTL LVEEO RTSET");
-  await page.getByLabel("Practice column order").fill("52413");
+  for (let i = 0; i < 4; i++)
+    await page.getByRole("button", { name: "Move practice column 5 left", exact: true }).click();
+  await page.getByRole("button", { name: "Move practice column 2 left", exact: true }).click();
+  for (let i = 0; i < 2; i++)
+    await page.getByRole("button", { name: "Move practice column 4 left", exact: true }).click();
   await expect(page.getByLabel("Spreadsheet model output")).toHaveText("LETSMOVELETTERS");
-  await page.getByLabel("Formula row").selectOption("3");
-  await expect(page.getByRole("region", { name: "Five-column spreadsheet model" })).toContainText(
-    "15",
+  await page.getByRole("button", { name: "Worksheet row 4, column E", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Explore grid positions" })).toContainText(
+    "Character 15 is T",
   );
-  await page.getByLabel("Practice column order").fill("11111");
-  await expect(page.getByRole("alert")).toContainText("exactly once");
-  await page.getByLabel("Practice column order").fill("52413");
+  const mid = page.getByRole("region", { name: "Try the MID function" });
+  await mid.getByLabel("Start at character", { exact: true }).fill("2");
+  await mid.getByLabel("How many characters?").fill("3");
+  await expect(mid.getByLabel("MID result")).toHaveText("EMT");
+  const images = page.locator(".excel-figure img");
+  expect(await images.count()).toBeGreaterThanOrEqual(18);
+  for (const img of await images.all()) {
+    await img.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() =>
+        img.evaluate(
+          (el: HTMLImageElement) =>
+            el.complete && el.naturalWidth === 925 && el.naturalHeight === 465,
+        ),
+      )
+      .toBe(true);
+  }
   await expect(page.locator(".guide-content")).not.toContainText(/\w\d+#/);
   expect(
     await page.evaluate(
