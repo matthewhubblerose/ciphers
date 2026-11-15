@@ -93,17 +93,10 @@ export default function VigenereLab({ part }: { part: "play" | "crib" | "break" 
                 </p>
                 {clean.length > 0 && (
                   <>
-                    <label class="field">
-                      Inspect letter {i + 1}
-                      <input
-                        aria-label="Inspect message letter"
-                        type="range"
-                        min={0}
-                        max={Math.max(0, clean.length - 1)}
-                        value={i}
-                        onInput={(e) => setCursor(Number(e.currentTarget.value))}
-                      />
-                    </label>
+                    <p>
+                      Click an input letter in the first 24 positions below to follow its shift. The
+                      selected column is highlighted.
+                    </p>
                     <p class="guide-callout">
                       Letter {i + 1}: {clean[i]} ({ABC.indexOf(clean[i])}) {decode ? "−" : "+"}{" "}
                       {safeKey[i % safeKey.length]} ({ABC.indexOf(safeKey[i % safeKey.length])}) ={" "}
@@ -111,7 +104,7 @@ export default function VigenereLab({ part }: { part: "play" | "crib" | "break" 
                       uses key position {(i % safeKey.length) + 1}.
                     </p>
                     <div class="table-scroll">
-                      <table>
+                      <table class="clickable-cipher-grid">
                         <caption>First 24 letters — spaces do not advance the key</caption>
                         <thead>
                           <tr>
@@ -127,19 +120,31 @@ export default function VigenereLab({ part }: { part: "play" | "crib" | "break" 
                           <tr>
                             <th>Input</th>
                             {[...clean.slice(0, 24)].map((c, j) => (
-                              <td key={j}>{c}</td>
+                              <td class={j === i ? "active-row" : ""} key={j}>
+                                <button
+                                  aria-label={`Inspect message letter ${j + 1}, ${decode ? c : c.toLowerCase()}`}
+                                  aria-pressed={j === i}
+                                  onClick={() => setCursor(j)}
+                                >
+                                  {decode ? c : c.toLowerCase()}
+                                </button>
+                              </td>
                             ))}
                           </tr>
                           <tr>
                             <th>Key</th>
                             {[...clean.slice(0, 24)].map((_, j) => (
-                              <td key={j}>{safeKey[j % safeKey.length]}</td>
+                              <td class={j === i ? "active-row" : ""} key={j}>
+                                {safeKey[j % safeKey.length]}
+                              </td>
                             ))}
                           </tr>
                           <tr>
                             <th>Output</th>
                             {[...letters(out).slice(0, 24)].map((c, j) => (
-                              <td key={j}>{decode ? c.toLowerCase() : c}</td>
+                              <td class={j === i ? "active-row" : ""} key={j}>
+                                {decode ? c.toLowerCase() : c}
+                              </td>
                             ))}
                           </tr>
                         </tbody>
@@ -182,22 +187,35 @@ export default function VigenereLab({ part }: { part: "play" | "crib" | "break" 
                 min={1}
                 max={10}
                 value={cribLength}
-                onInput={(e) =>
-                  setCribLength(Math.max(1, Math.min(10, Number(e.currentTarget.value) || 1)))
-                }
+                onInput={(e) => {
+                  const n = Math.max(
+                    1,
+                    Math.min(10, Math.trunc(Number(e.currentTarget.value) || 1)),
+                  );
+                  e.currentTarget.value = String(n);
+                  setCribLength(n);
+                }}
               />
             </label>
-            <label class="field">
-              Crib starts at letter {start + 1}
-              <input
-                aria-label="Crib starting position"
-                type="range"
-                min={0}
-                max={Math.max(0, shortCipher.length - letters(crib).length)}
-                value={start}
-                onInput={(e) => setStart(Number(e.currentTarget.value))}
-              />
-            </label>
+            <p>
+              Click where your guessed word should begin. Shaded letters show the part covered by
+              the crib. A greyed-out starting point would not leave enough room for the whole guess.
+            </p>
+            <div class="letter-buttons" aria-label="Place the crib">
+              {[...shortCipher].map((c, j) => (
+                <button
+                  key={j}
+                  aria-label={`Start crib at letter ${j + 1}`}
+                  aria-pressed={j === start}
+                  disabled={j > shortCipher.length - letters(crib).length}
+                  class={j >= start && j < start + letters(crib).length ? "active-row" : ""}
+                  onClick={() => setStart(j)}
+                >
+                  <small>{j + 1}</small>
+                  {c}
+                </button>
+              ))}
+            </div>
             <p>
               Key hypothesis:{" "}
               <output class="mono" aria-label="Crib key hypothesis">
@@ -218,7 +236,10 @@ export default function VigenereLab({ part }: { part: "play" | "crib" | "break" 
             )}
             <div class="table-scroll">
               <table>
-                <caption>Crib calculation: subtract plaintext from ciphertext modulo 26</caption>
+                <caption>
+                  Subtract the crib letter’s number from the ciphertext letter’s number; wrap
+                  negative answers by adding 26
+                </caption>
                 <thead>
                   <tr>
                     <th>Letter position</th>
@@ -233,8 +254,12 @@ export default function VigenereLab({ part }: { part: "play" | "crib" | "break" 
                   {shifts.rows.map((r) => (
                     <tr key={r.position}>
                       <th>{r.position}</th>
-                      <td>{r.cipher}</td>
-                      <td>{r.plain}</td>
+                      <td>
+                        {r.cipher} ({ABC.indexOf(r.cipher)})
+                      </td>
+                      <td>
+                        {r.plain} ({ABC.indexOf(r.plain.toUpperCase())})
+                      </td>
                       <td>{r.shift}</td>
                       <td>{r.keyLetter}</td>
                       <td>{r.slot}</td>

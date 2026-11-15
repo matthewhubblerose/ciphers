@@ -1,162 +1,423 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import ShiftSequenceLab from "../../components/guides/ShiftSequenceLab";
 import VigenereLab from "../../components/guides/VigenereLab";
-import { keyLengths, vigenere } from "../../utils/ciphers";
+import VigenereEffects from "../../components/guides/VigenereEffects";
+import KasiskiMini from "../../components/guides/KasiskiMini";
+import { ABC, keyLengths, vigenere } from "../../utils/ciphers";
 import { PRACTICE } from "../../utils/samples";
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
-const scores = keyLengths(vigenere(PRACTICE, "MAP", false));
-const small = vigenere("THECATSATTHECATRANTHECATHID", "MAP", false);
+const cipher = vigenere(PRACTICE, "MAP", false),
+  scores = keyLengths(cipher),
+  short = vigenere("MEETATTHEOAKTREE", "MAP", false);
 ---
 
 <BaseLayout title="Understand and break Vigenère">
   <header class="wrap page-intro">
     <p class="eyebrow">GUIDE 03 / FOLLOW THE KEY</p>
     <h1>
-      One message.
+      One shift.
       <br />
-      Several shifts<span class="accent">.</span>
+      Then another<span class="accent">.</span>
     </h1>
     <p>
-      Build a Vigenère cipher, discover its repeating key, then break an original practice message
-      one shift at a time.
+      Start with Caesar, try two alternating shifts, then build a Vigenère key. When the idea makes
+      sense, learn three ways to investigate a secret message.
     </p>
   </header>
   <div class="wrap article-layout">
     <nav class="article-toc" aria-label="Guide contents">
-      <a href="#shifts">01 / Multiple Caesar shifts</a>
-      <a href="#detect">02 / Detect the pattern</a>
-      <a href="#crib">03 / Try a crib</a>
-      <a href="#kasiski">04 / Follow repeated groups</a>
-      <a href="#ic">05 / Compare coincidence</a>
-      <a href="#solve">06 / Solve the streams</a>
+      <a href="#caesar">First, remember Caesar</a>
+      <a href="#two">Try two shifts</a>
+      <a href="#key">Use letters as a key</a>
+      <a href="#patterns">Watch the counts change</a>
+      <a href="#crib">Guess a word</a>
+      <a href="#kasiski">Find repeated groups</a>
+      <a href="#ic">Test key lengths with IC</a>
+      <a href="#solve">Work a complete example</a>
     </nav>
     <article class="guide-content">
-      <h2 id="shifts">A word tells you which shifts to use</h2>
+      <h2 id="caesar">First, remember a Caesar shift</h2>
       <p>
-        A Caesar cipher uses one shift for the whole message. Vigenère repeats a sequence of shifts.
-        Number the alphabet A=0, B=1, …, Z=25. The word <strong>MAP</strong> encodes shifts{" "}
-        <strong>12, 0, 15</strong>. Repeat those three shifts: letter 1 uses M, letter 2 uses A,
-        letter 3 uses P, then letter 4 uses M again.
+        A Caesar cipher slides every letter along the alphabet by the same amount. With a shift of
+        7, a becomes H, b becomes I, and e becomes L. If you pass z, keep counting from a again. To
+        read the message, slide the letters back by 7.
       </p>
       <p>
-        To encode, add the shift and wrap past Z to A. To decode, subtract it. M (12) + M (12) = Y
-        (24). E (4) + A (0) = E (4). E (4) + P (15) = T (19). So the word “meet” begins{" "}
-        <strong>YET</strong> when encoded with MAP. The two e’s became different letters because
-        they used different key positions.
+        Because every e gets the same replacement, repeated letters stay repeated. The English
+        frequency chart keeps its shape and moves around the alphabet. There are only 26 shifts to
+        try, so a codebreaker can test all of them fairly quickly.
+      </p>
+      <ShiftSequenceLab part="caesar" client:load />
+      <p class="checkpoint">
+        <strong>Before continuing:</strong> with shift 7, the two e’s in “meet” both become L. Can
+        you explain why the number of e’s has not been lost, but has moved to the L bar?
+      </p>
+      <h2 id="two">What if we use two different shifts?</h2>
+      <p>
+        Suppose we want to hide that simple pattern. We could alternate between two Caesar shifts
+        instead of using the same one all the way through:
+      </p>
+      <ul>
+        <li>
+          Letters <strong>1, 3, 5, 7, …</strong> use shift <strong>7</strong>.
+        </li>
+        <li>
+          Letters <strong>2, 4, 6, 8, …</strong> use shift <strong>22</strong>.
+        </li>
+      </ul>
+      <p>
+        The first letter uses 7, the second 22, the third 7 again, and so on. The two e’s in “meet”
+        now sit at different key positions: one moves 22 places, the other 7. They do not have to
+        become the same ciphertext letter.
+      </p>
+      <ShiftSequenceLab part="two" client:load />
+      <aside class="guide-callout">
+        <strong>Try this:</strong> click the e at position 2, then the e at position 3. One becomes
+        A and the other L with shifts 7 and 22. Then change the second shift to 7. What familiar
+        cipher have you returned to? Set the second shift back to 22 before continuing.
+      </aside>
+
+      <h2 id="key">A key is a repeating set of instructions</h2>
+      <p>
+        Writing a long list of numbers is awkward. We can record each shift with a letter: A means
+        no shift, B means 1, C means 2, and so on. We start at zero because shifting by zero leaves
+        the letter alone.
+      </p>
+      <div class="key-number-reference" aria-label="Key letters and their shift numbers">
+        {[...ABC].map((c, i) => (
+          <span>
+            <b>{c}</b>
+            <small>{i}</small>
+          </span>
+        ))}
+      </div>
+      <p>
+        So our two shifts, 7 and 22, can be written as <strong>HW</strong>. Repeat HW under the
+        message and it reminds you which shift to use each time. HW need not be a word. A memorable
+        word is often easier to remember, though: <strong>MAP</strong> records{" "}
+        <strong>12, 0, 15</strong>.
+      </p>
+      <pre>message: m e e t a t t h e …
+key:     M A P M A P M A P …
+shift:  12 0 15 12 0 15 12 0 15 …</pre>
+      <p>
+        Now there are three shifts in the repeating cycle. The key length is 3. Letter 4 starts the
+        key again at M. Spaces and punctuation do not use up a key letter in our tools.
+      </p>
+      <p>
+        This repeating-key method is usually called the <strong>Vigenère cipher</strong>. Try MAP
+        below. Click an input letter in the grid to follow its calculation, then change a key letter
+        and see which message positions change.
       </p>
       <VigenereLab part="play" client:load />
+      <p class="checkpoint">
+        With MAP, “meet” begins YETF: m + 12 = Y, e + 0 = E, e + 15 = T, t + 12 wraps to F. Try key
+        M to return to one Caesar shift. MAPMAP uses six written key letters but repeats the same
+        three shifts, so its shortest period is still 3.
+      </p>
       <aside class="guide-callout">
-        <strong>Try it:</strong> encode MEET with MAP. Then change the key to M: the whole message
-        now uses one Caesar shift. Try MAPMAP: six key letters, but the same three shifts repeat, so
-        its shortest period is still 3.
+        <h3>A cipher for real secret messages</h3>
+        <p>
+          Spies, diplomats and soldiers all needed ways to keep messages secret. Vigenère-type
+          systems were used for diplomatic correspondence and military messages, and versions of the
+          cipher also appeared in agents’ materials. The name comes from Blaise de Vigenère, a
+          French diplomat who wrote about ciphers in the 1500s.
+        </p>
+        <p>
+          For a long time these changing alphabets defeated the simple frequency tricks that worked
+          on Caesar, and the cipher gained a reputation for being unbreakable. That reputation
+          outlasted the reality: Friedrich Kasiski published a general attack in{" "}
+          <strong>1863</strong>. The point is not that it was magically safe, but that mixing the
+          shifts hid the familiar clues. We are about to learn how to find them again.
+        </p>
       </aside>
-      <h2 id="detect">When should you suspect Vigenère?</h2>
+
+      <h2 id="patterns">Why do the frequency patterns become flatter?</h2>
       <p>
-        One shared shift fails to read the message. Relabelling the largest letter peaks does not
-        consistently match English either. Familiar bigrams and trigrams may be spread among several
-        encodings, and whole-message letter frequencies often look flatter. A repeated-key
-        polyalphabetic cipher such as Vigenère is then worth testing.
+        Think about six e’s. A simple substitution puts all six into one new letter bar. With MAP
+        repeated beneath them, those e’s become <code>Q E T Q E T</code>: two Q’s, two E’s and two
+        T’s. One big pile has been shared between three smaller piles.
       </p>
       <p>
-        Use these clues together. A short message, an unusual topic or a mixed cipher can look
-        similar. <a href={`${base}/guides/identify/`}>Compare the four cipher patterns</a> before
-        choosing a method.
+        The rest of the letters are shared out too. This tends to flatten the letter chart, so the
+        usual English peaks no longer simply slide or swap labels. It will not always be perfectly
+        flat: the key, the message and the amount of text all matter.
       </p>
-      <h2 id="crib">Method 1: cribbing</h2>
       <p>
-        A <strong>crib</strong> is a word or phrase you think might appear. A greeting, a place name
-        or a repeated phrase from the puzzle’s story can help. Align the guess with the ciphertext
-        and subtract the guessed plaintext values. Those differences are possible key letters.
+        Groups are affected for the same reason. THE starting against MAP becomes FHT. Against APM
+        it becomes TWQ; against PMA it becomes ITE. A frequent group’s count can be split among
+        several labels. The bigram and trigram charts therefore lose some of their strongest
+        familiar peaks too.
       </p>
+      <VigenereEffects client:load />
+      <p>
+        Suspect multiple shifts when one Caesar correction fails and neither the letter pattern nor
+        a consistent relabelling of groups looks convincing. Combine these clues rather than
+        deciding from one missing THE. If counting and IC are new,{" "}
+        <a href={`${base}/guides/identify/#starter`}>start with the counting exercises</a>.
+      </p>
+      <aside class="guide-callout">
+        <strong>A useful plan:</strong> first look for a way into the key. A guessed word can
+        suggest key letters. Repeated groups can suggest key lengths. IC can help compare those
+        lengths. Once the length is plausible, separate the shifts and tackle ordinary Caesar
+        ciphers again.
+      </aside>
+
+      <h2 id="crib">Method 1: what if we can guess a word?</h2>
+      <p>
+        A <strong>crib</strong> is a word or phrase you think may be in the message. Perhaps the
+        story tells you it is arranging a meeting. You might try MEET at the beginning. You are
+        making a hypothesis, not deciding that it must be right.
+      </p>
+      <p>
+        Our short practice ciphertext is <code>{short}</code>. Try writing MEET under its first four
+        letters. To find an encoding shift, subtract the guessed plaintext letter’s number from the
+        ciphertext letter’s number.
+      </p>
+      <div class="table-scroll">
+        <table>
+          <caption>Work out the first three possible key letters</caption>
+          <thead>
+            <tr>
+              <th>Cipher</th>
+              <th>Guessed plain</th>
+              <th>Shift</th>
+              <th>Key letter</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Y = 24</td>
+              <td>m = 12</td>
+              <td>24 − 12 = 12</td>
+              <td>M</td>
+            </tr>
+            <tr>
+              <td>E = 4</td>
+              <td>e = 4</td>
+              <td>4 − 4 = 0</td>
+              <td>A</td>
+            </tr>
+            <tr>
+              <td>T = 19</td>
+              <td>e = 4</td>
+              <td>19 − 4 = 15</td>
+              <td>P</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        That suggests MAP. If the key really has length 3, its fourth shift should repeat M. F = 5
+        and t = 19, so 5 − 19 = −14. Wrap that result by adding 26: −14 + 26 = 12, which is M again.
+        The fourth letter agrees with our guess.
+      </p>
+      <ol>
+        <li>
+          Keep MEET in the crib box below and assumed key length 3. Check that the hypothesis is
+          MAP.
+        </li>
+        <li>
+          Read the rest of the decoded message. A readable whole instruction supports the guess much
+          more than four convenient letters.
+        </li>
+        <li>
+          Try assumed length 2. Now some crib letters demand different shifts in the same key
+          position: that is a contradiction.
+        </li>
+        <li>
+          Try moving the crib to another starting letter. If it stops making sense, the word,
+          position or assumed key length may be wrong.
+        </li>
+      </ol>
       <VigenereLab part="crib" client:load />
       <p>
-        A crib longer than your guessed key length can test the guess: two letters using the same
-        key position must demand the same shift. A shorter crib can fit by accident. Keep the
-        candidate only if it reads other parts of the message too.
+        A short crib can fit by chance, especially if it covers each key position only once. A
+        longer crib gives more chances for contradictions. Keep an undoable record of your guesses
+        and test them elsewhere before trusting the key.
       </p>
-      <h2 id="kasiski">Method 2: Kasiski examination</h2>
+
+      <h2 id="kasiski">Method 2: follow a group that repeats</h2>
       <p>
-        If a repeated plaintext group meets the same part of a repeating key, it encrypts the same
-        way. Count the gaps between the <em>starts</em> of repeated ciphertext groups. A key length
-        may divide several of those gaps.
-      </p>
-      <p>
-        Here is a deliberately small example. Encode{" "}
-        <code>THE CAT SAT THE CAT RAN THE CAT HID</code> with MAP, ignoring spaces. You get{" "}
-        <code>{small}</code>. <strong>FHT</strong> starts at letters <strong>1, 10 and 19</strong>.
-        The consecutive gaps are <strong>9 and 9</strong>. Both 3 and 9 divide those gaps, so both
-        are candidates. The repeated phrase is too regular to decide by itself.
+        Imagine THE appearing twice. If it meets different key positions, it may encrypt
+        differently. But if it meets the <em>same</em> part of the key both times, it gets the same
+        shifts and makes the same ciphertext group.
       </p>
       <p>
-        The analysis below shows actual start positions, gaps and factor votes. Try groups of 4 or 5
-        letters for fewer accidental repeats. Overlapping groups can describe the same underlying
-        repetition, so their votes are not independent proof. No repeated group does not rule out
-        Vigenère.
-      </p>
-      <h2 id="ic">Method 3: Index of Coincidence</h2>
-      <p>
-        Imagine choosing two different positions at random. IC is the probability that their letters
-        match. English uses some letters much more often than others, so matches are more common
-        than in uniform random letters. Typical reference values are about{" "}
-        <strong>0.066 for English</strong> and <strong>1/26 ≈ 0.0385</strong> for uniform A–Z.
-      </p>
-      <details>
-        <summary>See a small IC calculation</summary>
-        <p>
-          For AAB there are six ordered ways to pick two different positions. Two choices give the
-          two A’s, so IC = 2/6 ≈ 0.3333. For a whole message, add count × (count − 1) for each
-          letter, then divide by N × (N − 1), where N is the number of letters. Tiny samples can be
-          far from the English reference.
-        </p>
-      </details>
-      <p>
-        Try a candidate length. For length 3, put positions 1,4,7,… in stream 1; 2,5,8,… in stream
-        2; and 3,6,9,… in stream 3. If the length is right, each stream uses just one Caesar shift,
-        which preserves IC. Average the stream IC values and compare several candidate lengths.
+        For a three-letter key, that happens after 3, 6, 9, 12… letters: a whole number of complete
+        key cycles. So the distance between repeated group starts may be a multiple of the key
+        length. Looking for those distances is called <strong>Kasiski examination</strong>.
       </p>
       <p>
-        In our original worked example, length 1 scores <strong>{scores[0].ic.toFixed(4)}</strong>,
-        length 3 scores <strong>{scores[2].ic.toFixed(4)}</strong>, and length 6 scores{" "}
-        <strong>{scores[5].ic.toFixed(4)}</strong>. Both 3 and its multiple 6 are promising. Use the
-        shorter period first and confirm by reading the message. For long keys there may be too few
-        letters in each stream to decide.
+        We made a short example from “THE CAT SAT THE CAT RAN THE CAT HID” with key MAP. Its
+        repeated THE groups become FHT at letter positions 1, 10 and 19. Count from the start of one
+        copy to the start of the next, not just the blank space between them.
       </p>
-      <h2 id="solve">Put the clues together, then solve the streams</h2>
+      <KasiskiMini client:load />
+      <p>
+        A gap of 9 could contain three cycles of a length-3 key, or one cycle of a length-9 key: 9 =
+        3 × 3 = 1 × 9. Length 1 divides every gap, so it does not help narrow our search.
+      </p>
       <ol>
-        <li>Compare the Kasiski factors and IC peaks. Try length 3 below.</li>
+        <li>Find several repeated groups, usually 3 or more letters long.</li>
+        <li>Write down their start positions and subtract to find gaps.</li>
         <li>
-          Select key position 1 and adjust its Caesar shift until the letter frequencies and partial
-          message look plausible. The shift suggestions can help.
+          Try lengths that divide several gaps exactly. A length explaining repeats in several
+          different groups is more interesting than one accidental pair.
         </li>
-        <li>Repeat for key positions 2 and 3. Check the whole passage after every change.</li>
         <li>
-          Use the reveal only after you have tested your idea. If the result is nonsense, revisit
-          your length and crib guesses.
+          Keep more than one candidate. Our gaps of 9 allow both 3 and 9; use the next method to
+          help compare them.
+        </li>
+      </ol>
+      <p>
+        Not every repeat comes from the same plaintext, and overlapping groups can describe one
+        underlying repeat. Longer groups reduce some accidental matches, but may give fewer results.
+        No repeats does not rule out Vigenère: you may need more ciphertext or a different way into
+        the key.
+      </p>
+
+      <h2 id="ic">Method 3: which length brings the English pattern back?</h2>
+      <p>
+        Recall <strong>IC</strong>, the Index of Coincidence: the chance that two different
+        positions you pick contain the same letter. English tends to use some letters much more than
+        others, so a longer English passage often scores about <strong>0.066</strong>. Uniform
+        random A–Z letters score about <strong>0.0385</strong>. Mixing shifts often spreads counts
+        out and lowers the score.
+      </p>
+      <p>Suppose the key length is 3. Put every third ciphertext letter in the same pile:</p>
+      <div class="table-scroll">
+        <table>
+          <caption>Separate a possible three-letter key into three streams</caption>
+          <thead>
+            <tr>
+              <th>Stream</th>
+              <th>Message positions</th>
+              <th>If the key is MAP</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>1</th>
+              <td>1, 4, 7, 10, …</td>
+              <td>Every letter used M: shift 12</td>
+            </tr>
+            <tr>
+              <th>2</th>
+              <td>2, 5, 8, 11, …</td>
+              <td>Every letter used A: shift 0</td>
+            </tr>
+            <tr>
+              <th>3</th>
+              <td>3, 6, 9, 12, …</td>
+              <td>Every letter used P: shift 15</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Each stream is now a separate Caesar cipher. Caesar moves the letter labels but keeps
+        matching pairs, so each stream’s IC should move back towards an English-like value, provided
+        there is enough text. Calculate the three IC values and average them.
+      </p>
+      <p>
+        Now try length 2 instead. Positions 1, 3, 5, 7… actually used M, P, A, M… . We have mixed
+        different shifts again, so the streams tend to stay flatter and score lower. We can compare
+        several guessed lengths without knowing their key letters.
+      </p>
+      <div class="table-scroll">
+        <table>
+          <caption>Actual average-stream IC values for our longer MAP example</caption>
+          <thead>
+            <tr>
+              <th>Assumed length</th>
+              <th>Average IC</th>
+              <th>How to interpret it</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[1, 2, 3, 6].map((n) => (
+              <tr>
+                <th>{n}</th>
+                <td>{scores[n - 1].ic.toFixed(4)}</td>
+                <td>
+                  {n === 1
+                    ? "Whole message: all three shifts mixed"
+                    : n === 2
+                      ? "Wrong grouping: still mixes the shifts"
+                      : n === 3
+                        ? "Promising: each stream uses one shift"
+                        : "Also promising: a multiple of the true length"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Length 6 can also score highly: its streams are smaller pieces of the length-3 streams, each
+        still using only one shift. Try the <strong>shortest repeating length</strong> that gives a
+        consistent readable result. A key written as MAPMAP behaves like MAP.
+      </p>
+      <p>
+        Do not choose the tallest bar blindly. Very short streams can produce high scores by
+        accident. Check their sizes, combine IC with repeated-group gaps, and finally try reading
+        the message.
+      </p>
+
+      <h2 id="solve">Put the methods together on a complete example</h2>
+      <p>
+        The workshop below contains a longer original story. We encrypted it with a three-letter
+        word. You can copy its ciphertext into the workbench or investigate it here.
+      </p>
+      <ol>
+        <li>
+          Look at the repeated-group factors and IC chart. Select length 3 to prepare three unknown
+          key letters, initially AAA (all shift zero).
+        </li>
+        <li>
+          Select key position 1. Its letters all share one shift. Adjust that Caesar shift and
+          compare the decoded stream’s letter chart with English. The suggested shifts are useful
+          starting points, not answers you must accept.
+        </li>
+        <li>
+          Try positions 2 and 3 in the same way. Watch the full decoded message after each change.
+          Even a few recovered words can help you choose between close statistical guesses.
+        </li>
+        <li>
+          If the message stays unreadable, revisit the length or the shifts. Reveal the worked
+          solution after testing your own idea, then explain why its three shifts work together.
         </li>
       </ol>
       <VigenereLab part="break" client:load />
-      <p>
-        The same analysis works on your own ciphertext in the workbench. Choose Vigenère, compare
-        key lengths, then use each key position’s shift control and frequency chart. A readable
-        opening is useful; a readable whole message is stronger evidence.
-      </p>
       <div class="actions">
         <a class="button primary" href={`${base}/tools/#vigenere`}>
-          Open Vigenère tools ↗
+          Investigate your own ciphertext ↗
         </a>
       </div>
-      <p class="small">
-        Examples, calculations and ciphertexts were created for this guide. Method references:{" "}
-        <a href="https://www.cs.trincoll.edu/cryptography/vigenere.html">
-          Trinity College’s Vigenère tutorial
-        </a>{" "}
-        (repeating alphabets and separating streams),{" "}
-        <a href="https://cs.uri.edu/cryptography/classical-ciphers/vigenere/cryptanalysis-article.html">
-          University of Rhode Island’s cryptanalysis notes
-        </a>{" "}
-        (Kasiski and IC). English group reference ranks elsewhere on this site:{" "}
-        <a href="https://www.norvig.com/mayzner.html">Peter Norvig</a>.
-      </p>
+      <aside class="source-notes">
+        <h3>Sources and practice material</h3>
+        <p>
+          All teaching messages and calculations are original to this site. History:{" "}
+          <a href="https://www.nsa.gov/portals/75/documents/news-features/declassified-documents/friedman-documents/lectures-speeches/FOLDER_175/41758839079798.pdf">
+            William F. Friedman, Introduction to Cryptology IV, NSA Technical Journal (1961)
+          </a>
+          , especially printed pages 51 and 60, discusses diplomatic, military and agent use and
+          Kasiski’s 1863 publication.{" "}
+          <a href="https://www.nku.edu/~christensen/1901csscmat483%20section%2013%20vigenere%20cryptography.pdf">
+            Chris Christensen’s Northern Kentucky University notes
+          </a>{" "}
+          discuss alternating alphabets, Vigenère’s diplomatic work and the cipher’s long-lived
+          reputation. Method references:{" "}
+          <a href="https://cs.uri.edu/cryptography/classical-ciphers/vigenere/cryptanalysis-article.html">
+            University of Rhode Island
+          </a>{" "}
+          and <a href="https://www.cs.trincoll.edu/cryptography/vigenere.html">Trinity College</a>.
+          English group comparisons use{" "}
+          <a href="https://www.norvig.com/mayzner.html">Peter Norvig’s within-word counts</a>.
+        </p>
+      </aside>
     </article>
   </div>
 </BaseLayout>

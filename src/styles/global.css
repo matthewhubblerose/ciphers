@@ -2800,6 +2800,9 @@ summary {
   outline: 3px solid var(--green);
   outline-offset: 1px;
 }
+.letter-buttons button.active-row {
+  background: var(--lime);
+}
 .letter-buttons small {
   font-size: 0.65rem;
   margin-bottom: 0.4rem;
@@ -2945,4 +2948,56 @@ summary {
   .emoji-celebration {
     animation: none;
   }
+}
+
+.clickable-cipher-grid {
+  min-width: 0;
+}
+.clickable-cipher-grid td,
+.clickable-cipher-grid th {
+  text-align: center;
+  padding: 0.5rem;
+}
+.clickable-cipher-grid th:first-child {
+  text-align: left;
+}
+.clickable-cipher-grid button {
+  min-width: 2rem;
+  padding: 0.45rem;
+  background: var(--white);
+  color: var(--ink);
+  border: 1px solid var(--green);
+  font-family: var(--mono);
+}
+.clickable-cipher-grid button[aria-pressed="true"] {
+  background: var(--lime);
+  outline: 2px solid var(--green);
+}
+.shift-odd {
+  background: #e0ecc6;
+}
+.shift-even {
+  background: #dceaf5;
+}
+.key-number-reference {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 1.2rem 0;
+}
+.key-number-reference > span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.45rem;
+  min-width: 2.6rem;
+  border: 1px solid var(--line);
+  background: var(--white);
+  font-family: var(--mono);
+}
+.key-number-reference small {
+  margin-top: 0.3rem;
+}
+.ic-reading {
+  font-size: 1.6rem;
 }

@@ -127,9 +127,39 @@ test("Vigenère guide teaches shifts, crib conflicts and stream solving", async 
   page,
 }, testInfo) => {
   await page.goto("/ciphers/guides/vigenere/");
+  const recap = page.getByRole("region", { name: "Caesar recap playground" });
+  await expect(recap.getByLabel("Caesar recap output")).toHaveText(/^TLLA/);
+  const alternating = page.getByRole("region", { name: "Two alternating shifts" });
+  await alternating.getByRole("button", { name: "Inspect recap letter 2, e", exact: true }).click();
+  await expect(alternating.locator(".guide-callout")).toContainText("22 places forward to get A");
+  await alternating.getByRole("button", { name: "Inspect recap letter 3, e", exact: true }).click();
+  await expect(alternating.locator(".guide-callout")).toContainText("7 places forward to get L");
+  await alternating.getByRole("button", { name: "Record these shifts with letters" }).click();
+  await expect(alternating).toContainText("HW");
+  const effects = page.getByRole("region", { name: "Compare Vigenère frequency effects" });
+  const originalE = await effects
+    .locator('.cipher-bar[data-letter="E"]')
+    .getAttribute("data-count");
+  await effects.getByRole("button", { name: "After MAP encryption" }).click();
+  expect(await effects.locator('.cipher-bar[data-letter="E"]').getAttribute("data-count")).not.toBe(
+    originalE,
+  );
+  const gaps = page.getByRole("region", { name: "Try a Kasiski gap" });
+  await gaps.getByLabel("Second repeated group starts at").selectOption("19");
+  await expect(gaps.getByLabel("Selected Kasiski gap")).toHaveText("18");
+  await gaps.getByLabel("Try a possible key length").fill("6");
+  await expect(gaps.getByRole("status")).toContainText("6 divides this gap of 18 exactly");
+  await expect(gaps.getByRole("status")).toContainText(
+    "does not divide the two consecutive gaps of 9",
+  );
   const play = page.getByRole("region", { name: "Vigenère playground" });
   await play.getByLabel("Playground message", { exact: true }).fill("MEET!");
   await expect(play.getByLabel("Playground output")).toHaveValue("YETF!");
+  await play.getByRole("button", { name: "Inspect message letter 3, e", exact: true }).click();
+  await expect(
+    play.getByRole("button", { name: "Inspect message letter 3, e", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(play.locator('input[type="range"]')).toHaveCount(0);
   await play.getByLabel("Playground operation").selectOption("decode");
   await play.getByLabel("Playground message", { exact: true }).fill("YETF!");
   await expect(play.getByLabel("Playground output")).toHaveValue("meet!");
@@ -139,7 +169,8 @@ test("Vigenère guide teaches shifts, crib conflicts and stream solving", async 
   const crib = page.getByRole("region", { name: "Vigenère crib workshop" });
   await expect(crib.getByLabel("Crib key hypothesis")).toHaveText("MAP");
   await expect(crib.getByLabel("Crib decoded message")).toHaveText("meetattheoaktree");
-  await crib.getByLabel("Assumed key length").fill("2");
+  await crib.getByLabel("Assumed key length").fill("2.5");
+  await expect(crib.getByLabel("Assumed key length")).toHaveValue("2");
   await expect(crib.locator('p[role="status"]')).toContainText("Conflict");
   await crib.getByLabel("Assumed key length").fill("3");
   const workshop = page.getByRole("region", { name: "Vigenère breaking workshop" });
