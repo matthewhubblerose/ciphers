@@ -98,17 +98,53 @@ const cipher = vigenere(PRACTICE, "MAP", false),
         word is often easier to remember, though: <strong>MAP</strong> records{" "}
         <strong>12, 0, 15</strong>.
       </p>
-      <pre>message: m e e t a t t h e …
-key:     M A P M A P M A P …
-shift:  12 0 15 12 0 15 12 0 15 …</pre>
+      <div class="table-scroll">
+        <table class="clickable-cipher-grid">
+          <caption>Line up each message letter with its key letter and shift</caption>
+          <thead>
+            <tr>
+              <th scope="col">Letter position</th>
+              {Array.from({ length: 9 }, (_, i) => (
+                <th scope="col">{i + 1}</th>
+              ))}
+              <th scope="col">…</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Message</th>
+              {[..."meetatthe"].map((c) => (
+                <td>{c}</td>
+              ))}
+              <td>…</td>
+            </tr>
+            <tr>
+              <th scope="row">Key</th>
+              {[..."MAPMAPMAP"].map((c) => (
+                <td>{c}</td>
+              ))}
+              <td>…</td>
+            </tr>
+            <tr>
+              <th scope="row">Shift</th>
+              {[12, 0, 15, 12, 0, 15, 12, 0, 15].map((n) => (
+                <td>{n}</td>
+              ))}
+              <td>…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <p>
         Now there are three shifts in the repeating cycle. The key length is 3. Letter 4 starts the
         key again at M. Spaces and punctuation do not use up a key letter in our tools.
       </p>
       <p>
         This repeating-key method is usually called the <strong>Vigenère cipher</strong>. Try MAP
-        below. Click an input letter in the grid to follow its calculation, then change a key letter
-        and see which message positions change.
+        below. Click a key position to highlight every message letter it controls. With MAP, choose
+        the A at key position 2: letters 2, 5, 8, … all use its shift of zero. Click an individual
+        message letter to follow its calculation, then change a key letter and see which positions
+        change.
       </p>
       <VigenereLab part="play" client:load />
       <p class="checkpoint">

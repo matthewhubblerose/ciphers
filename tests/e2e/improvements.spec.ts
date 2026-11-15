@@ -1,5 +1,42 @@
 import { expect, test } from "@playwright/test";
 
+test("Vigenère highlights key positions through punctuation and repeated key letters", async ({
+  page,
+}, testInfo) => {
+  await page.goto("/ciphers/tools/#vigenere");
+  const message = "ab cd! ef\ngh ij";
+  await page.getByLabel("Your message", { exact: true }).fill(message);
+  await page.getByLabel("Key", { exact: true }).fill("MAP");
+  await page.getByRole("button", { name: "Select key position 2", exact: true }).click();
+  const input = page.getByRole("region", { name: "Message key-position highlights" });
+  const output = page.getByRole("region", { name: "Output key-position highlights" });
+  await expect(input.locator(".key-stream-text")).toHaveText(message);
+  await expect(input.locator("mark")).toHaveText(["b", "e", "h"]);
+  expect(
+    await input
+      .locator("mark")
+      .evaluateAll((marks) =>
+        marks.map((mark) => Number(mark.getAttribute("data-letter-position"))),
+      ),
+  ).toEqual([2, 5, 8]);
+  await expect(output.locator("mark")).toHaveText(["B", "E", "H"]);
+  await page.getByLabel("Key operation").selectOption("add");
+  await expect(output.locator("mark")).toHaveText(["B", "E", "H"]);
+  await input.screenshot({ path: `artifacts/${testInfo.project.name}-tool-key-highlights.png` });
+  await page.getByLabel("Key", { exact: true }).fill("MAM");
+  await page.getByRole("button", { name: "Select key position 3", exact: true }).click();
+  await expect(input.locator("mark")).toHaveText(["c", "f", "i"]);
+  await page.getByRole("button", { name: "Select key position 1", exact: true }).click();
+  await expect(input.locator("mark")).toHaveText(["a", "d", "g", "j"]);
+  await page.getByLabel("Key", { exact: true }).fill("MAPMAPMAPMAP");
+  await page.getByRole("button", { name: "Select key position 12", exact: true }).click();
+  await expect(input.locator("mark")).toHaveCount(0);
+  await expect(input).toContainText("no letters at this position yet");
+  await page.getByLabel("Key", { exact: true }).fill("");
+  await expect(input).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
 test("partial substitutions keep cipher letters and distinguish guesses", async ({ page }) => {
   await page.goto("/ciphers/tools/#substitution");
   await page.getByLabel("Your message", { exact: true }).fill("QEB QEXQ!");

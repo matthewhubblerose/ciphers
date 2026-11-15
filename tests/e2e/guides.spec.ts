@@ -136,6 +136,28 @@ test("Vigenère guide teaches shifts, crib conflicts and stream solving", async 
   page,
 }, testInfo) => {
   await page.goto("/ciphers/guides/vigenere/");
+  const alignment = page.getByRole("table", {
+    name: "Line up each message letter with its key letter and shift",
+  });
+  await expect(alignment.getByRole("row").nth(3).getByRole("cell")).toHaveText([
+    "12",
+    "0",
+    "15",
+    "12",
+    "0",
+    "15",
+    "12",
+    "0",
+    "15",
+    "…",
+  ]);
+  const columns = await alignment
+    .locator("tr")
+    .evaluateAll((rows) =>
+      rows.map((row) => [...row.children].map((cell) => cell.getBoundingClientRect().x)),
+    );
+  for (const row of columns.slice(1))
+    for (let j = 0; j < row.length; j++) expect(Math.abs(row[j] - columns[0][j])).toBeLessThan(1);
   const recap = page.getByRole("region", { name: "Caesar recap playground" });
   await expect(recap.getByLabel("Caesar recap output")).toHaveText(/^TLLA/);
   const alternating = page.getByRole("region", { name: "Two alternating shifts" });
@@ -162,8 +184,25 @@ test("Vigenère guide teaches shifts, crib conflicts and stream solving", async 
     "does not divide the two consecutive gaps of 9",
   );
   const play = page.getByRole("region", { name: "Vigenère playground" });
+  await play
+    .getByRole("button", { name: "Highlight playground key position 2, A", exact: true })
+    .focus();
+  await page.keyboard.press("Space");
+  const highlightedInput = play.getByRole("region", { name: "Playground input highlights" });
+  await expect(highlightedInput.locator("mark")).toHaveText(["E", "A", "H", "A", "R"]);
+  expect(
+    await highlightedInput
+      .locator("mark")
+      .evaluateAll((marks) =>
+        marks.map((mark) => Number(mark.getAttribute("data-letter-position"))),
+      ),
+  ).toEqual([2, 5, 8, 11, 14]);
+  await expect(play.locator(".key-stream-cell button")).toHaveCount(5);
+  await highlightedInput.screenshot({
+    path: `artifacts/${testInfo.project.name}-guide-key-highlights.png`,
+  });
   await play.getByLabel("Playground message", { exact: true }).fill("MEET!");
-  await expect(play.getByLabel("Playground output")).toHaveValue("YETF!");
+  await expect(play.getByLabel("Playground output", { exact: true })).toHaveValue("YETF!");
   await play.getByRole("button", { name: "Inspect message letter 3, e", exact: true }).click();
   await expect(
     play.getByRole("button", { name: "Inspect message letter 3, e", exact: true }),
@@ -171,10 +210,10 @@ test("Vigenère guide teaches shifts, crib conflicts and stream solving", async 
   await expect(play.locator('input[type="range"]')).toHaveCount(0);
   await play.getByLabel("Playground operation").selectOption("decode");
   await play.getByLabel("Playground message", { exact: true }).fill("YETF!");
-  await expect(play.getByLabel("Playground output")).toHaveValue("meet!");
-  await play.getByLabel("Playground key").fill("");
+  await expect(play.getByLabel("Playground output", { exact: true })).toHaveValue("meet!");
+  await play.getByLabel("Playground key", { exact: true }).fill("");
   await expect(play.getByRole("alert")).toContainText("at least one");
-  await play.getByLabel("Playground key").fill("MAP");
+  await play.getByLabel("Playground key", { exact: true }).fill("MAP");
   const crib = page.getByRole("region", { name: "Vigenère crib workshop" });
   await expect(crib.getByLabel("Crib key hypothesis")).toHaveText("MAP");
   await expect(crib.getByLabel("Crib decoded message")).toHaveText("meetattheoaktree");
@@ -192,10 +231,21 @@ test("Vigenère guide teaches shifts, crib conflicts and stream solving", async 
     await workshop.getByLabel("Inspect key position").selectOption(String(position));
     await workshop.getByLabel("Workshop Caesar shift", { exact: true }).fill(String(shift));
   }
-  await expect(workshop.getByLabel("Workshop key")).toHaveText("MAP");
+  await expect(workshop.getByLabel("Workshop key", { exact: true })).toHaveText("MAP");
+  await workshop
+    .getByRole("button", { name: "Highlight workshop key position 2, A", exact: true })
+    .click();
+  expect(
+    await workshop
+      .getByRole("region", { name: "Workshop ciphertext highlights" })
+      .locator("mark")
+      .evaluateAll((marks) =>
+        marks.slice(0, 3).map((mark) => Number(mark.getAttribute("data-letter-position"))),
+      ),
+  ).toEqual([2, 5, 8]);
   await expect(workshop.getByLabel("Workshop decoded message")).toHaveValue(/^theotherexplorers/);
   await workshop.getByRole("button", { name: "Restart with three A shifts" }).click();
-  await expect(workshop.getByLabel("Workshop key")).toHaveText("AAA");
+  await expect(workshop.getByLabel("Workshop key", { exact: true })).toHaveText("AAA");
   await workshop.getByRole("button", { name: "Reveal worked solution" }).click();
   await expect(workshop.getByRole("status")).toContainText("MAP means shifts 12, 0, 15");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

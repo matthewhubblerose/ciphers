@@ -25,6 +25,7 @@ import FrequencyPlot from "./FrequencyPlot";
 import GroupChart from "./GroupChart";
 import { englishGroups, englishGroupPercent } from "../../utils/englishGroups";
 import KeyLengthAnalysis from "./KeyLengthAnalysis";
+import KeyStreamText from "./KeyStreamText";
 
 const TOOLS = [
   ["frequency", "Frequency", "01"],
@@ -739,6 +740,18 @@ export default function Workbench() {
               {vigKey && (
                 <section class="column-analysis">
                   <h3>Key position {selectedColumn + 1}</h3>
+                  <KeyStreamText
+                    text={text}
+                    keyLength={vigKey.length}
+                    position={selectedColumn}
+                    label="Message key-position highlights"
+                  />
+                  <KeyStreamText
+                    text={display(result)}
+                    keyLength={vigKey.length}
+                    position={selectedColumn}
+                    label="Output key-position highlights"
+                  />
                   <p class="hint">
                     Letters {selectedColumn + 1}, {selectedColumn + 1 + vigKey.length},{" "}
                     {selectedColumn + 1 + 2 * vigKey.length}, … use this key position. Adjust its

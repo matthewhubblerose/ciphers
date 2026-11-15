@@ -2953,6 +2953,34 @@ summary {
 .clickable-cipher-grid {
   min-width: 0;
 }
+.key-stream-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 2;
+  max-height: 14rem;
+  overflow-y: auto;
+  padding: 1rem;
+  background: #f5f6ee;
+  color: #172e23;
+  border: 1px solid #bbc6b4;
+}
+.key-stream-letter,
+.key-stream-cell {
+  background: #e0ecc6;
+  color: #172e23;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+  font-weight: 700;
+}
+.clickable-cipher-grid .key-stream-cell button {
+  text-decoration: inherit;
+  background: #e0ecc6;
+}
+.inspected-cell {
+  outline: 2px solid var(--green);
+  outline-offset: -2px;
+}
 .clickable-cipher-grid td,
 .clickable-cipher-grid th {
   text-align: center;

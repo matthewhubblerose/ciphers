@@ -5,6 +5,7 @@ import { keyColumn } from "../../utils/workbench";
 import { PRACTICE } from "../../utils/samples";
 import FrequencyPlot from "../tools/FrequencyPlot";
 import KeyLengthAnalysis from "../tools/KeyLengthAnalysis";
+import KeyStreamText from "../tools/KeyStreamText";
 
 const shortPlain = "MEET AT THE OAK TREE";
 const shortCipher = vigenere(shortPlain, "MAP", false);
@@ -15,7 +16,8 @@ export default function VigenereLab({ part }: { part: "play" | "crib" | "break" 
   const [text, setText] = useState(shortPlain),
     [key, setKey] = useState("MAP"),
     [decode, setDecode] = useState(false),
-    [cursor, setCursor] = useState(0);
+    [cursor, setCursor] = useState(0),
+    [playSlot, setPlaySlot] = useState(0);
   const [crib, setCrib] = useState("MEET"),
     [start, setStart] = useState(0),
     [cribLength, setCribLength] = useState(3);
@@ -26,6 +28,9 @@ export default function VigenereLab({ part }: { part: "play" | "crib" | "break" 
     safeKey = letters(key),
     out = safeKey ? vigenere(text, safeKey, decode, true) : "";
   const i = Math.min(cursor, Math.max(0, clean.length - 1));
+  const selectedPlaySlot = Math.max(0, Math.min(playSlot, safeKey.length - 1));
+  const cellClass = (j: number) =>
+    `${j % safeKey.length === selectedPlaySlot ? "key-stream-cell" : ""} ${j === i ? "inspected-cell" : ""}`;
   const shifts = cribKey(shortCipher, crib, start, cribLength);
   const stream = keyColumn(longCipher, solveKey.length, slot),
     shift = ABC.indexOf(solveKey[slot]);
@@ -61,6 +66,7 @@ export default function VigenereLab({ part }: { part: "play" | "crib" | "break" 
                 onInput={(e) => {
                   setText(e.currentTarget.value);
                   setCursor(0);
+                  setPlaySlot(0);
                 }}
               />
             </label>
@@ -68,7 +74,11 @@ export default function VigenereLab({ part }: { part: "play" | "crib" | "break" 
               Playground key
               <input
                 value={key}
-                onInput={(e) => setKey(letters(e.currentTarget.value).slice(0, 20))}
+                onInput={(e) => {
+                  setKey(letters(e.currentTarget.value).slice(0, 20));
+                  setCursor(0);
+                  setPlaySlot(0);
+                }}
                 maxLength={20}
               />
             </label>
@@ -91,11 +101,39 @@ export default function VigenereLab({ part }: { part: "play" | "crib" | "break" 
                   </strong>
                   .
                 </p>
+                <p>Choose a key position to highlight all the letters that share its shift.</p>
+                <div
+                  class="letter-buttons"
+                  role="group"
+                  aria-label="Highlight a playground key position"
+                >
+                  {[...safeKey].map((c, j) => (
+                    <button
+                      key={j}
+                      aria-label={`Highlight playground key position ${j + 1}, ${c}`}
+                      aria-pressed={selectedPlaySlot === j}
+                      onClick={() => {
+                        setPlaySlot(j);
+                        if (j < clean.length) setCursor(j);
+                      }}
+                    >
+                      <small>Position {j + 1}</small>
+                      {c} ({ABC.indexOf(c)})
+                    </button>
+                  ))}
+                </div>
+                <KeyStreamText
+                  text={text}
+                  keyLength={safeKey.length}
+                  position={selectedPlaySlot}
+                  label="Playground input highlights"
+                />
                 {clean.length > 0 && (
                   <>
                     <p>
                       Click an input letter in the first 24 positions below to follow its shift. The
-                      selected column is highlighted.
+                      outlined column shows one calculation; the shaded, underlined columns share
+                      the selected key position.
                     </p>
                     <p class="guide-callout">
                       Letter {i + 1}: {clean[i]} ({ABC.indexOf(clean[i])}) {decode ? "−" : "+"}{" "}
@@ -110,7 +148,7 @@ export default function VigenereLab({ part }: { part: "play" | "crib" | "break" 
                           <tr>
                             <th>Position</th>
                             {[...clean.slice(0, 24)].map((_, j) => (
-                              <th class={j === i ? "active-row" : ""} key={j}>
+                              <th class={cellClass(j)} key={j}>
                                 {j + 1}
                               </th>
                             ))}
@@ -120,11 +158,14 @@ export default function VigenereLab({ part }: { part: "play" | "crib" | "break" 
                           <tr>
                             <th>Input</th>
                             {[...clean.slice(0, 24)].map((c, j) => (
-                              <td class={j === i ? "active-row" : ""} key={j}>
+                              <td class={cellClass(j)} key={j}>
                                 <button
                                   aria-label={`Inspect message letter ${j + 1}, ${decode ? c : c.toLowerCase()}`}
                                   aria-pressed={j === i}
-                                  onClick={() => setCursor(j)}
+                                  onClick={() => {
+                                    setCursor(j);
+                                    setPlaySlot(j % safeKey.length);
+                                  }}
                                 >
                                   {decode ? c : c.toLowerCase()}
                                 </button>
@@ -134,7 +175,7 @@ export default function VigenereLab({ part }: { part: "play" | "crib" | "break" 
                           <tr>
                             <th>Key</th>
                             {[...clean.slice(0, 24)].map((_, j) => (
-                              <td class={j === i ? "active-row" : ""} key={j}>
+                              <td class={cellClass(j)} key={j}>
                                 {safeKey[j % safeKey.length]}
                               </td>
                             ))}
@@ -142,7 +183,7 @@ export default function VigenereLab({ part }: { part: "play" | "crib" | "break" 
                           <tr>
                             <th>Output</th>
                             {[...letters(out).slice(0, 24)].map((c, j) => (
-                              <td class={j === i ? "active-row" : ""} key={j}>
+                              <td class={cellClass(j)} key={j}>
                                 {decode ? c.toLowerCase() : c}
                               </td>
                             ))}
@@ -156,6 +197,12 @@ export default function VigenereLab({ part }: { part: "play" | "crib" | "break" 
                   Playground output
                   <textarea readOnly rows={3} value={decode ? out.toLowerCase() : out} />
                 </label>
+                <KeyStreamText
+                  text={decode ? out.toLowerCase() : out}
+                  keyLength={safeKey.length}
+                  position={selectedPlaySlot}
+                  label="Playground output highlights"
+                />
               </>
             ) : (
               <p role="alert">Enter at least one A–Z letter in the key.</p>
@@ -328,6 +375,25 @@ export default function VigenereLab({ part }: { part: "play" | "crib" | "break" 
                 ))}
               </select>
             </label>
+            <div class="letter-buttons" role="group" aria-label="Highlight a workshop key position">
+              {[...solveKey].map((c, j) => (
+                <button
+                  key={j}
+                  aria-label={`Highlight workshop key position ${j + 1}, ${c}`}
+                  aria-pressed={slot === j}
+                  onClick={() => setSlot(j)}
+                >
+                  <small>Position {j + 1}</small>
+                  {c} ({ABC.indexOf(c)})
+                </button>
+              ))}
+            </div>
+            <KeyStreamText
+              text={longCipher}
+              keyLength={solveKey.length}
+              position={slot}
+              label="Workshop ciphertext highlights"
+            />
             <label class="field">
               Workshop Caesar shift: {shift} ({solveKey[slot]})
               <input
