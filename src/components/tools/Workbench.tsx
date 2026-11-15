@@ -741,12 +741,6 @@ export default function Workbench() {
                 <section class="column-analysis">
                   <h3>Key position {selectedColumn + 1}</h3>
                   <KeyStreamText
-                    text={text}
-                    keyLength={vigKey.length}
-                    position={selectedColumn}
-                    label="Message key-position highlights"
-                  />
-                  <KeyStreamText
                     text={display(result)}
                     keyLength={vigKey.length}
                     position={selectedColumn}

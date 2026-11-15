@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("Vigenère highlights key positions through punctuation and repeated key letters", async ({
+test("Vigenère highlights output key positions without a duplicate message preview", async ({
   page,
 }, testInfo) => {
   await page.goto("/ciphers/tools/#vigenere");
@@ -8,32 +8,39 @@ test("Vigenère highlights key positions through punctuation and repeated key le
   await page.getByLabel("Your message", { exact: true }).fill(message);
   await page.getByLabel("Key", { exact: true }).fill("MAP");
   await page.getByRole("button", { name: "Select key position 2", exact: true }).click();
-  const input = page.getByRole("region", { name: "Message key-position highlights" });
+  await expect(page.getByRole("region", { name: "Message key-position highlights" })).toHaveCount(
+    0,
+  );
   const output = page.getByRole("region", { name: "Output key-position highlights" });
-  await expect(input.locator(".key-stream-text")).toHaveText(message);
-  await expect(input.locator("mark")).toHaveText(["b", "e", "h"]);
   expect(
-    await input
+    await output
       .locator("mark")
       .evaluateAll((marks) =>
         marks.map((mark) => Number(mark.getAttribute("data-letter-position"))),
       ),
   ).toEqual([2, 5, 8]);
   await expect(output.locator("mark")).toHaveText(["B", "E", "H"]);
+  expect(
+    await output
+      .locator("mark")
+      .first()
+      .evaluate((el) => getComputedStyle(el).textDecorationLine),
+  ).toContain("underline");
   await page.getByLabel("Key operation").selectOption("add");
   await expect(output.locator("mark")).toHaveText(["B", "E", "H"]);
-  await input.screenshot({ path: `artifacts/${testInfo.project.name}-tool-key-highlights.png` });
+  await output.screenshot({ path: `artifacts/${testInfo.project.name}-tool-key-highlights.png` });
   await page.getByLabel("Key", { exact: true }).fill("MAM");
   await page.getByRole("button", { name: "Select key position 3", exact: true }).click();
-  await expect(input.locator("mark")).toHaveText(["c", "f", "i"]);
+  await expect(output.locator(".key-stream-text")).toHaveText("MB OP! ER\nSH UV");
+  await expect(output.locator("mark")).toHaveText(["O", "R", "U"]);
   await page.getByRole("button", { name: "Select key position 1", exact: true }).click();
-  await expect(input.locator("mark")).toHaveText(["a", "d", "g", "j"]);
+  await expect(output.locator("mark")).toHaveText(["M", "P", "S", "V"]);
   await page.getByLabel("Key", { exact: true }).fill("MAPMAPMAPMAP");
   await page.getByRole("button", { name: "Select key position 12", exact: true }).click();
-  await expect(input.locator("mark")).toHaveCount(0);
-  await expect(input).toContainText("no letters at this position yet");
+  await expect(output.locator("mark")).toHaveCount(0);
+  await expect(output).toContainText("no letters at this position yet");
   await page.getByLabel("Key", { exact: true }).fill("");
-  await expect(input).toHaveCount(0);
+  await expect(output).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
