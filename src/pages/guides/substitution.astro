@@ -1,8 +1,12 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import SubstitutionLab from "../../components/guides/SubstitutionLab";
-import { encodedGroup } from "../../data/substitutionPractice";
+import { encodedGroup, SUBSTITUTION_CIPHER } from "../../data/substitutionPractice";
+import { partialDecode } from "../../utils/substitutionLearning";
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const opening = SUBSTITUTION_CIPHER.split(".")[0] + ".";
+const justE = { [encodedGroup("E")]: "E" };
+const the = Object.fromEntries([..."THE"].map((c) => [encodedGroup(c), c]));
 ---
 
 <BaseLayout title="Break substitution ciphers with linked clues">
@@ -14,18 +18,67 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
       Unlock more letters<span class="accent">.</span>
     </h1>
     <p>
-      Use THE, THA and HER as a chain of clues. Test each guess across the message and keep a way
-      back.
+      Letter-by-letter guessing can work, but each guess can leave you with several possibilities.
+      Use linked groups to make each trial more useful, then check it across the message.
     </p>
   </header>
   <div class="wrap article-layout">
     <nav class="article-toc" aria-label="Guide contents">
+      <a href="#why">Why try groups?</a>
       <a href="#groups">01 / Start with groups</a>
       <a href="#chain">02 / THE → THA → HER</a>
       <a href="#practice">03 / Practise the chain</a>
       <a href="#habits">04 / Work faster</a>
     </nav>
     <article class="guide-content">
+      <h2 id="why">Make each guess do more work</h2>
+      <p>
+        Suppose the most common cipher letter is G. It might mean e, but in a particular passage it
+        could be another common letter. You try e, scan the message, try another letter, scan again…
+        . This is a valid way to solve a substitution, but it can be slow, and it is easy to forget
+        which guess caused a problem.
+      </p>
+      <p>
+        A group gives you a bigger idea to test. If the frequent triple TCG might mean THE, that one
+        hypothesis proposes three letter mappings. It also predicts that TC will behave like TH and
+        CG like HE. You can check all of those predictions in several places before adding another
+        guess.
+      </p>
+      <div class="table-scroll">
+        <table>
+          <caption>The same opening after one letter guess or one linked-group guess</caption>
+          <thead>
+            <tr>
+              <th>What we tried</th>
+              <th>What we can now read</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Only G → e</th>
+              <td class="mono">{partialDecode(opening, justE)}</td>
+            </tr>
+            <tr>
+              <th>TCG → the</th>
+              <td class="mono">{partialDecode(opening, the)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Lowercase letters are guesses; uppercase letters are still ciphertext. The second row gives
+        us recognisable pieces such as <code>the</code> in several places. That is more evidence to
+        test, and it gives the next unknown letters some context. It does not prove the guess yet.
+      </p>
+      <p>
+        We’ll build a short chain: test THE, use its TH to suggest an a, then its HE to suggest an
+        r. Change one hypothesis at a time and use Undo when it makes other words worse. If counts
+        and groups are new,{" "}
+        <a href={`${base}/guides/identify/#starter`}>
+          try the frequency, bigram and trigram starter first
+        </a>
+        .
+      </p>
       <h2 id="groups">A group gives you several letters at once</h2>
       <p>
         In a simple substitution, each ciphertext letter always means the same plaintext letter. The

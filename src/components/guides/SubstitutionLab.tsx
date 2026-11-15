@@ -74,8 +74,9 @@ export default function SubstitutionLab() {
       <fieldset class="lab-controls" disabled={!ready}>
         <h3>Build a chain of guesses</h3>
         <p>
-          This original practice story was written to make the linked clues easy to see. Your
-          challenge text may have a different ranking.
+          One useful group guess can reveal three letters at once. Start by testing THE, check where
+          it appears, then use the letters you know to narrow the next guess. Undo is here because
+          revising a hypothesis is part of solving the puzzle.
         </p>
         <div class="choice-buttons" role="group" aria-label="Substitution learning steps">
           {stages.map((s, i) => (
