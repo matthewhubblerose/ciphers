@@ -6,17 +6,19 @@ export default function GroupChart({
   n,
   compare = false,
   ranked = true,
+  limit = 10,
 }: {
   text: string;
   n: number;
   compare?: boolean;
   ranked?: boolean;
+  limit?: number;
 }) {
   const groups = ngrams(text, n).slice(0, 10);
   const total = Math.max(0, letters(text).length - n + 1);
   const max = Math.max(1, ...groups.map((g) => g.percent));
   if (compare) {
-    const rows = groupComparison(text, n, ranked),
+    const rows = groupComparison(text, n, ranked, limit),
       maximum = Math.max(1, ...rows.flatMap((r) => [r.cipherPercent, r.englishPercent]));
     return (
       <div

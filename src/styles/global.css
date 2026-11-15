@@ -2850,3 +2850,99 @@ summary {
 .lesson-column.colour-4 {
   background: #f1d9d7;
 }
+
+.guide-content .guide-animation code {
+  background: #163e31;
+  color: #f1f5e9;
+}
+.guide-content .guide-animation .group-token {
+  background: #f0f4e5;
+  color: #795016;
+}
+.guide-content .guide-animation .cipher-token {
+  background: #d7e59f;
+  color: #174b36;
+}
+.stat-card {
+  padding: 1rem;
+  background: #edf2df;
+  border-radius: 5px;
+}
+.stat-card > strong {
+  font-size: 1.3rem;
+}
+.question-step {
+  padding: 1.2rem;
+  border: 2px solid var(--green);
+  border-radius: 6px;
+  margin: 1.5rem 0;
+}
+.question-step h3 {
+  margin-top: 0.5rem;
+}
+.clue-cheatsheet {
+  min-width: 720px;
+}
+.clue-grid-scroll {
+  max-height: none;
+}
+.clue-cheatsheet tbody th {
+  position: sticky;
+  left: 0;
+  background: var(--white);
+  z-index: 1;
+}
+.clue-cheatsheet .observation-row th {
+  background: #e5edda;
+}
+.clue-cheatsheet td {
+  text-align: center;
+}
+.clue-cheatsheet th {
+  max-width: 9rem;
+  white-space: normal;
+}
+.clue-cheatsheet td small {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+}
+.observation-row {
+  background: #e5edda;
+  font-weight: 700;
+}
+.clue-agrees {
+  background: #edf3e2;
+}
+.clue-differs {
+  box-shadow: inset 0 0 0 2px #c1943e;
+  background: #fff5dd;
+}
+.mystery-feedback {
+  padding: 1.2rem;
+  border-radius: 6px;
+  background: #edf2df;
+  margin: 1rem 0;
+}
+.success-feedback {
+  border: 2px solid #557c37;
+}
+.emoji-celebration {
+  font-size: 2rem;
+  animation: clue-celebration 1.4s ease-out both;
+}
+@keyframes clue-celebration {
+  from {
+    transform: translateY(15px);
+    opacity: 0.3;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .emoji-celebration {
+    animation: none;
+  }
+}

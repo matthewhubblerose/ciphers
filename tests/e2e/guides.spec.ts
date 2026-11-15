@@ -8,29 +8,76 @@ test("cipher identification guide connects animations, clues and practice", asyn
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/ciphers/guides/identify/");
   const patterns = page.getByRole("group", { name: "Cipher pattern choices" });
+  const starter = page.getByRole("region", { name: "Learn frequency analysis" });
+  await starter
+    .getByRole("group", { name: "What shall we count?" })
+    .getByRole("button", { name: "2. Bigrams" })
+    .click();
+  await expect(starter).toContainText("2 ÷ 5 = 40%");
+  await starter.getByLabel("First picked position").selectOption("3");
+  await expect(starter.getByRole("status")).toContainText("a matching pair");
+  await patterns.getByRole("button", { name: "Caesar", exact: true }).click();
+  const caesarCode = page.locator(".guide-animation .caesar-working code").first();
+  const colours = await caesarCode.evaluate((el) => ({
+    foreground: getComputedStyle(el).color,
+    background: getComputedStyle(el).backgroundColor,
+  }));
+  const luminance = (colour: string) => {
+    const c = colour
+      .match(/\d+/g)!
+      .slice(0, 3)
+      .map(Number)
+      .map((v) => v / 255)
+      .map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return c[0] * 0.2126 + c[1] * 0.7152 + c[2] * 0.0722;
+  };
+  const l1 = luminance(colours.foreground),
+    l2 = luminance(colours.background);
+  expect((Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05)).toBeGreaterThan(4.5);
+  await page
+    .locator(".caesar-working")
+    .screenshot({ path: `artifacts/${testInfo.project.name}-caesar-readable.png` });
   await patterns.getByRole("button", { name: "Transposition", exact: true }).click();
   await page.getByRole("button", { name: "Reorder 5, 2, 4, 1, 3" }).click();
   await expect(page.getByLabel("Block transposition output")).toHaveText("BRING YOURM APNOW");
   await patterns.getByRole("button", { name: "Vigenère", exact: true }).click();
   await expect(page.getByRole("region", { name: "Explore cipher patterns" })).toContainText(
-    "Several Caesar shifts",
+    "one letter can have several replacements",
   );
   await page
     .getByRole("group", { name: "Mystery selection" })
     .getByRole("button", { name: "Mystery 4" })
     .click();
-  await page
-    .getByRole("group", { name: "Identify the mystery" })
-    .getByRole("button", { name: "Caesar", exact: true })
-    .click();
-  await expect(page.getByRole("status")).toContainText("Try another clue");
-  await page
-    .getByRole("group", { name: "Identify the mystery" })
-    .getByRole("button", { name: "Vigenère", exact: true })
-    .click();
-  await expect(page.getByRole("status")).toContainText("Yes");
+  const mystery = page.getByRole("region", { name: "Mystery cipher practice" });
+  for (let i = 1; i <= 5; i++)
+    await mystery
+      .getByRole("group", { name: `Observation ${i}`, exact: true })
+      .getByRole("button", { name: "No ❌", exact: true })
+      .click();
+  const comparison = mystery.getByRole("table");
+  await expect(
+    comparison
+      .getByRole("row")
+      .filter({ has: page.getByRole("rowheader", { name: "Your observations", exact: true }) })
+      .getByRole("cell")
+      .first(),
+  ).toHaveText("❌");
+  await mystery.getByRole("button", { name: "Choose Caesar", exact: true }).click();
+  await expect(mystery.getByRole("status")).toContainText("Another clue");
+  await mystery.getByRole("button", { name: "Choose Vigenère", exact: true }).click();
+  await expect(mystery.getByRole("status")).toContainText("🎉 Case solved");
+  expect(
+    await mystery
+      .locator(".clue-grid-scroll")
+      .evaluate((el) => el.scrollHeight <= el.clientHeight + 1),
+  ).toBe(true);
+  await mystery
+    .locator(".clue-cheatsheet")
+    .screenshot({ path: `artifacts/${testInfo.project.name}-mystery-clue-grid.png` });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await page.getByRole("heading", { name: "1. Compare four patterns" }).scrollIntoViewIfNeeded();
+  await page
+    .getByRole("heading", { name: "Explore what each cipher changes" })
+    .scrollIntoViewIfNeeded();
   await page.screenshot({ path: `artifacts/${testInfo.project.name}-identify-guide.png` });
 });
 
