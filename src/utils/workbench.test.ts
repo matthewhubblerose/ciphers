@@ -7,7 +7,7 @@ import {
   keyColumn,
   ENGLISH_GROUPS,
 } from "./workbench";
-import { challenge3, challenge3Order, challenge3Opening } from "../../tests/fixtures/challenge3";
+import { blockDemo, blockDemoOrder, blockDemoOpening } from "../../tests/fixtures/challenge3";
 
 describe("output formatting", () => {
   const source = "Ab cde! fg\nhij?",
@@ -90,9 +90,9 @@ describe("visible transposition order", () => {
     ).toBe("EbdAC");
     expect(transpose(shuffled, order, true, false, true)).toBe(source);
   });
-  it("reads the Challenge 3 B grid directly in order 52413", () => {
-    const output = transpose(challenge3, parseOrder(challenge3Order, 5));
-    expect(output.startsWith(challenge3Opening)).toBe(true);
+  it("reads the original practice example grid directly in order 52413", () => {
+    const output = transpose(blockDemo, parseOrder(blockDemoOrder, 5));
+    expect(output.startsWith(blockDemoOpening)).toBe(true);
     expect(output.slice(0, 15)).not.toBe("EEMZTTNIEHNIDRE");
   });
 });

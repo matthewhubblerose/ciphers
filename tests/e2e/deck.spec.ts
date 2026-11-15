@@ -2,6 +2,17 @@ import { test, expect } from "@playwright/test";
 import { decks, type VisualKind } from "../../src/data/decks";
 
 const url = "/ciphers/decks/cipher-analysis/";
+test("deck shortcuts handle document targets without runtime errors", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto(url);
+  await expect(page.locator(".deck-root")).toHaveAttribute("aria-busy", "false");
+  await page.evaluate(() =>
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })),
+  );
+  await expect(page).toHaveURL(/#slide-2$/);
+  expect(errors).toEqual([]);
+});
 test("typing holds characters still and scrolls one complete line at a time", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto(url);
@@ -102,7 +113,7 @@ test("demonstrations run on entry and connect the graphs to real text", async ({
       .evaluateAll((els) => els.map((el) => el.getAttribute("data-value"))),
   ).not.toEqual(scrambled);
   await page.goto(slide("blocks"));
-  await expect(live.getByLabel("Block transposition output")).toHaveText("MEETZ INTHE DINER", {
+  await expect(live.getByLabel("Block transposition output")).toHaveText("BRING YOURM APNOW", {
     timeout: 8000,
   });
   await page.goto(slide("routes"));
@@ -138,35 +149,46 @@ test("Caesar alignment, ranked substitution and block movement recover their exa
   ).toBe(true);
   await page.goto(slide("blocks"));
   await live.getByRole("button", { name: "Reorder 5, 2, 4, 1, 3" }).click();
-  await expect(live.getByLabel("Block transposition output")).toHaveText("MEETZ INTHE DINER");
+  await expect(live.getByLabel("Block transposition output")).toHaveText("BRING YOURM APNOW");
   await expect(live.getByLabel("Five-column transposition grid")).toHaveAttribute(
     "data-order",
     "52413",
   );
 });
 
-test("guide screenshots load and only one guide and deck are listed", async ({
-  page,
-}, testInfo) => {
+test("spreadsheet guide model works and the deck is listed", async ({ page }, testInfo) => {
   await page.goto("/ciphers/guides/");
-  await expect(page.locator(".resource-card")).toHaveCount(1);
-  await page.locator(".resource-card").click();
-  const images = page.locator(".excel-figure img");
-  await expect(images).toHaveCount(9);
+  await page.getByRole("link", { name: /Transposition in Excel and Google Sheets/ }).click();
   await expect(page.locator(".guide-content")).not.toContainText(/Challenge 3|TEZEM|MEETZ/i);
-  await expect(page.locator(".guide-content")).toContainText("TSEML ELVEO ERTST");
+  await expect(page.locator(".guide-content")).toContainText("SEMTL LVEEO RTSET");
+  for (let i = 0; i < 4; i++)
+    await page.getByRole("button", { name: "Move practice column 5 left", exact: true }).click();
+  await page.getByRole("button", { name: "Move practice column 2 left", exact: true }).click();
+  for (let i = 0; i < 2; i++)
+    await page.getByRole("button", { name: "Move practice column 4 left", exact: true }).click();
+  await expect(page.getByLabel("Spreadsheet model output")).toHaveText("LETSMOVELETTERS");
+  await page.getByRole("button", { name: "Worksheet row 4, column E", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Explore grid positions" })).toContainText(
+    "Character 15 is T",
+  );
+  const mid = page.getByRole("region", { name: "Try the MID function" });
+  await mid.getByLabel("Start at character", { exact: true }).fill("2");
+  await mid.getByLabel("How many characters?").fill("3");
+  await expect(mid.getByLabel("MID result")).toHaveText("EMT");
+  const images = page.locator(".excel-figure img");
+  expect(await images.count()).toBeGreaterThanOrEqual(18);
   for (const img of await images.all()) {
     await img.scrollIntoViewIfNeeded();
     await expect
       .poll(() =>
         img.evaluate(
           (el: HTMLImageElement) =>
-            el.complete && el.naturalWidth === 914 && el.naturalHeight === 463,
+            el.complete && el.naturalWidth === 925 && el.naturalHeight === 465,
         ),
       )
       .toBe(true);
-    await expect(img.locator("..")).toHaveAttribute("href", /window-.*\.png$/);
   }
+  await expect(page.locator(".guide-content")).not.toContainText(/\w\d+#/);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
@@ -193,7 +215,7 @@ test("reduced motion supports manual steps and print contains completed examples
   await page.emulateMedia({ media: "print" });
   const printed = page.locator(".print-slides");
   await expect(printed.locator('[data-correct="true"]')).toHaveCount(1);
-  await expect(printed.getByLabel("Block transposition output")).toHaveText("MEETZ INTHE DINER");
+  await expect(printed.getByLabel("Block transposition output")).toHaveText("BRING YOURM APNOW");
   expect(await printed.locator(".typing-demo").first().getAttribute("data-position")).not.toBe("0");
   await expect(printed.locator("[data-animation-controls]")).toHaveCount(0);
   await printed

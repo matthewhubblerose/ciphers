@@ -5,7 +5,6 @@ import {
   coincidence,
   format,
   keyedAlphabet,
-  keyLengths,
   letters,
   mod,
   ngrams,
@@ -17,13 +16,16 @@ import {
 import {
   ENGLISH_GROUPS,
   formatOutput,
-  gapSummary,
   IC_HELP,
   keyColumn,
   type Spacing,
 } from "../../utils/workbench";
 import { SAMPLES } from "../../utils/samples";
 import FrequencyPlot from "./FrequencyPlot";
+import GroupChart from "./GroupChart";
+import { englishGroups, englishGroupPercent } from "../../utils/englishGroups";
+import KeyLengthAnalysis from "./KeyLengthAnalysis";
+import KeyStreamText from "./KeyStreamText";
 
 const TOOLS = [
   ["frequency", "Frequency", "01"],
@@ -101,14 +103,13 @@ export default function Workbench() {
   const columnCipher = vigKey ? keyColumn(text, vigKey.length, selectedColumn) : "";
   const selectedShift = vigKey ? ABC.indexOf(vigKey[selectedColumn]) : 0;
   const shiftedColumn = caesar(columnCipher, selectedShift, vigDecode);
-  const lengths = tool === "vigenere" ? keyLengths(text) : [],
-    gaps = tool === "vigenere" ? gapSummary(text) : [];
   const display = (raw: string) =>
     formatOutput(raw, text, {
       spacing,
       keepPunctuation: punctuation,
-      uppercase,
-      preserveOutputCase: tool === "transposition",
+      uppercase: tool === "substitution" && subMode === "manual" ? false : uppercase,
+      preserveOutputCase:
+        tool === "transposition" || (tool === "substitution" && subMode === "manual"),
     });
   let order: number[] = [],
     result = "",
@@ -119,7 +120,7 @@ export default function Workbench() {
     if (tool === "substitution")
       result =
         subMode === "manual"
-          ? [...clean].map((c) => mapping[c] || "·").join("")
+          ? [...clean].map((c) => mapping[c]?.toLowerCase() || c).join("")
           : substitute(clean, alphabet, subMode === "decode");
     if (tool === "transposition") {
       order = parseOrder(orderKey, size);
@@ -315,14 +316,15 @@ export default function Workbench() {
               </label>
               {[2, 3].map((n) => {
                 const cipher = ngrams(text, n).slice(0, 30);
-                const english = [...ENGLISH_GROUPS[n]];
+                const english = englishGroups(n).slice(0, 30);
                 if (!gramSort) {
                   cipher.sort((a, b) => a.gram.localeCompare(b.gram));
-                  english.sort();
+                  english.sort((a, b) => a.gram.localeCompare(b.gram));
                 }
                 return (
                   <section class="ngram-panel" key={n}>
                     <h3>{n === 2 ? "Bigrams" : "Trigrams"}</h3>
+                    <GroupChart text={text} n={n} compare ranked={gramSort} />
                     <div class="ngram-comparison">
                       <div class="table-scroll ngram-table ciphertext-groups">
                         <table>
@@ -333,6 +335,7 @@ export default function Workbench() {
                               <th>Ciphertext group</th>
                               <th>Count</th>
                               <th>Ciphertext %</th>
+                              <th>Same group in English %</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -342,6 +345,7 @@ export default function Workbench() {
                                 <th class="mono">{group.gram}</th>
                                 <td>{group.count}</td>
                                 <td>{group.percent.toFixed(2)}</td>
+                                <td>{englishGroupPercent(group.gram).toFixed(2)}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -357,13 +361,15 @@ export default function Workbench() {
                             <tr>
                               <th>English rank</th>
                               <th>Group</th>
+                              <th>English %</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {english.map((gram) => (
-                              <tr key={gram}>
-                                <td>{ENGLISH_GROUPS[n].indexOf(gram) + 1}</td>
-                                <th class="mono">{gram}</th>
+                            {english.map((group) => (
+                              <tr key={group.gram}>
+                                <td>{ENGLISH_GROUPS[n].indexOf(group.gram) + 1}</td>
+                                <th class="mono">{group.gram}</th>
+                                <td>{group.percent.toFixed(2)}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -378,8 +384,10 @@ export default function Workbench() {
                 <a href="https://www.norvig.com/mayzner.html">
                   Peter Norvig’s Google Books analysis
                 </a>
-                , ranked within words. Your ciphertext counts include groups across removed word
-                spaces, so ranks can differ. Alphabetical mode sorts each top-30 list separately.
+                , counting within words. English % = that group’s count divided by all groups of the
+                same length. Your ciphertext includes groups across removed spaces, so the
+                percentages are a reference, not a target to match exactly. Alphabetical mode aligns
+                the chart by group name and sorts each top-30 table separately.
               </p>
             </>
           )}
@@ -452,8 +460,8 @@ export default function Workbench() {
               {subMode === "manual" ? (
                 <>
                   <p class="hint">
-                    Enter the plaintext letter beneath each ciphertext letter. Unsolved letters
-                    appear as ·.
+                    Enter the plaintext letter beneath each ciphertext letter. Unsolved letters stay
+                    UPPERCASE. Guesses appear lowercase, highlighted and underlined.
                   </p>
                   <div class="alphabet-grid">
                     {[...ABC].map((c) => (
@@ -732,6 +740,12 @@ export default function Workbench() {
               {vigKey && (
                 <section class="column-analysis">
                   <h3>Key position {selectedColumn + 1}</h3>
+                  <KeyStreamText
+                    text={display(result)}
+                    keyLength={vigKey.length}
+                    position={selectedColumn}
+                    label="Output key-position highlights"
+                  />
                   <p class="hint">
                     Letters {selectedColumn + 1}, {selectedColumn + 1 + vigKey.length},{" "}
                     {selectedColumn + 1 + 2 * vigKey.length}, … use this key position. Adjust its
@@ -784,66 +798,13 @@ export default function Workbench() {
                   />
                 </section>
               )}
-              <details>
-                <summary>Possible key lengths</summary>
-                <p class="hint">
-                  Average Index of Coincidence for each candidate length. Peaks near English (about
-                  0.066) are worth trying; random letters average about 0.038. Multiples can also
-                  peak.
-                </p>
-                <div class="length-chart">
-                  {lengths.map((k) => (
-                    <button
-                      key={k.length}
-                      style={{ "--score": `${Math.min(100, (k.ic / 0.12) * 100)}%` }}
-                      title={`Length ${k.length}: ${k.ic.toFixed(4)}`}
-                      onClick={() => {
-                        setVigKey("A".repeat(k.length));
-                        setColumn(0);
-                      }}
-                    >
-                      <span>{k.ic.toFixed(3)}</span>
-                      <i />
-                      <b>{k.length}</b>
-                    </button>
-                  ))}
-                </div>
-                <p class="small muted">
-                  Select a length to start with A (shift 0) in each key position.
-                </p>
-              </details>
-              <details>
-                <summary>Repeated-group gaps</summary>
-                <p class="hint">
-                  The ten most frequent gaps between repeated trigrams. Gaps count letters, ignoring
-                  spaces. A key length may divide several gaps; accidental repeats also occur.
-                </p>
-                {gaps.length ? (
-                  <div class="table-scroll">
-                    <table>
-                      <caption>Repeated trigram gap summary</caption>
-                      <thead>
-                        <tr>
-                          <th>Gap (letters)</th>
-                          <th>Occurrences</th>
-                          <th>Example groups</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {gaps.map((g) => (
-                          <tr key={g.gap}>
-                            <th>{g.gap}</th>
-                            <td>{g.count}</td>
-                            <td class="mono">{g.groups}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <p>No repeated trigrams yet.</p>
-                )}
-              </details>
+              <KeyLengthAnalysis
+                text={text}
+                onSelectLength={(n) => {
+                  setVigKey("A".repeat(n));
+                  setColumn(0);
+                }}
+              />
             </>
           )}
           {!["frequency", "ngrams"].includes(tool) && (
@@ -869,14 +830,16 @@ export default function Workbench() {
                   />
                   Keep punctuation
                 </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={uppercase}
-                    onChange={(e) => setUppercase(e.currentTarget.checked)}
-                  />
-                  Uppercase <span class="muted">(off: preserve case)</span>
-                </label>
+                {!(tool === "substitution" && subMode === "manual") && (
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={uppercase}
+                      onChange={(e) => setUppercase(e.currentTarget.checked)}
+                    />
+                    Uppercase <span class="muted">(off: preserve case)</span>
+                  </label>
+                )}
               </div>
               {error && (
                 <p class="error" role="alert">
@@ -893,14 +856,35 @@ export default function Workbench() {
                   Copy output
                 </button>
               </div>
-              <textarea
-                id="cipher-output"
-                class="output"
-                readOnly
-                value={error ? "" : display(result)}
-                placeholder="Result"
-                rows={6}
-              />
+              {tool === "substitution" && subMode === "manual" ? (
+                <div
+                  id="cipher-output"
+                  class="output mixed-output"
+                  role="textbox"
+                  aria-label="Output"
+                  aria-readonly="true"
+                  tabIndex={0}
+                >
+                  {[...display(result)].map((c, i) =>
+                    /[a-z]/.test(c) ? (
+                      <mark class="solved-letter" key={i}>
+                        {c}
+                      </mark>
+                    ) : (
+                      <span key={i}>{c}</span>
+                    ),
+                  )}
+                </div>
+              ) : (
+                <textarea
+                  id="cipher-output"
+                  class="output"
+                  readOnly
+                  value={error ? "" : display(result)}
+                  placeholder="Result"
+                  rows={6}
+                />
+              )}
             </>
           )}
           <p class="status" role="status">

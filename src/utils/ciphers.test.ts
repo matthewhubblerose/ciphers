@@ -17,7 +17,7 @@ import {
   vigenere,
 } from "./ciphers";
 import { PRACTICE, SAMPLES } from "./samples";
-import { challenge3 } from "../../tests/fixtures/challenge3";
+import { blockDemo } from "../../tests/fixtures/challenge3";
 
 describe("classical ciphers", () => {
   it("matches known Caesar and Vigenère vectors", () => {
@@ -73,14 +73,14 @@ describe("classical ciphers", () => {
   });
 });
 describe("analysis", () => {
-  it("handles a real grouped Challenge 3 Part B excerpt without losing letters", () => {
-    expect(letters(challenge3)).toHaveLength(200);
-    expect(frequencies(challenge3).reduce((sum, f) => sum + f.count, 0)).toBe(200);
+  it("handles a grouped original practice example without losing letters", () => {
+    expect(letters(blockDemo)).toHaveLength(200);
+    expect(frequencies(blockDemo).reduce((sum, f) => sum + f.count, 0)).toBe(200);
     const order = parseOrder("HOTEL", 5);
     for (const columnar of [true, false]) {
-      const rearranged = transpose(challenge3, order, true, columnar);
-      expect(frequencies(rearranged)).toEqual(frequencies(challenge3));
-      expect(transpose(rearranged, order, false, columnar)).toBe(letters(challenge3));
+      const rearranged = transpose(blockDemo, order, true, columnar);
+      expect(frequencies(rearranged)).toEqual(frequencies(blockDemo));
+      expect(transpose(rearranged, order, false, columnar)).toBe(letters(blockDemo));
     }
   });
   it("counts overlapping groups across presentation spaces", () => {

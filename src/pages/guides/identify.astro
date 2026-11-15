@@ -1,0 +1,91 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AnalysisStarter from "../../components/guides/AnalysisStarter";
+import CipherDetective from "../../components/guides/CipherDetective";
+import CipherClueGrid from "../../components/guides/CipherClueGrid";
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<BaseLayout title="Which cipher is it?">
+  <header class="wrap page-intro">
+    <p class="eyebrow">GUIDE 02 / INVESTIGATE</p>
+    <h1>
+      Which cipher
+      <br />
+      is it<span class="accent">?</span>
+    </h1>
+    <p>
+      Learn to read the clues before guessing. Count letters and groups, compare patterns, then
+      investigate a mystery step by step.
+    </p>
+  </header>
+  <div class="wrap article-layout">
+    <nav class="article-toc" aria-label="Guide contents">
+      <a href="#starter">Start with counting</a>
+      <a href="#explore">Explore four patterns</a>
+      <a href="#cheat-sheet">Keep a clue grid</a>
+      <a href="#next">Choose your next test</a>
+    </nav>
+    <article class="guide-content">
+      <div id="starter">
+        <AnalysisStarter client:load />
+      </div>
+      <p>
+        Ready to investigate? Use plenty of text if you can. Cipher blocks of five letters usually
+        make a message easier to copy; they do not normally mark five-letter words. Our analysis
+        removes those display spaces.
+      </p>
+      <div id="explore">
+        <CipherDetective client:load />
+      </div>
+      <h2 id="cheat-sheet">Keep this clue grid beside your puzzle</h2>
+      <p>
+        ✅ means “usually yes to this clue”; ❌ means “usually no”. It does not mean that a cipher
+        is good or bad. Read along a row to see the combination of clues, rather than deciding from
+        one tick.
+      </p>
+      <CipherClueGrid />
+      <p>
+        A Caesar cipher with shift zero is unchanged, and a one-letter Vigenère key behaves like
+        Caesar. Very short messages and unusual vocabulary can blur these patterns. If a clue does
+        not fit, keep another possibility open.
+      </p>
+      <h2 id="next">Choose one experiment you can check</h2>
+      <p>
+        For Caesar, try a shared shift and read the result. For substitution, test a few linked
+        letter guesses everywhere. For transposition, keep the letters and try moving their
+        positions. For Vigenère, investigate a repeating key length. Each experiment should give you
+        evidence you can explain to a partner.
+      </p>
+      <div class="actions">
+        <a class="button primary" href={`${base}/tools/#frequency`}>
+          Test your own message ↗
+        </a>
+        <a class="text-link" href={`${base}/guides/vigenere/`}>
+          Learn to break Vigenère →
+        </a>
+        <a class="text-link" href={`${base}/decks/cipher-analysis/`}>
+          Present the deck →
+        </a>
+      </div>
+      <aside class="source-notes">
+        <h3>Sources and practice material</h3>
+        <p>
+          The examples were written for this site, and the animations are shared with its
+          cipher-analysis deck. English group percentages use{" "}
+          <a href="https://www.norvig.com/mayzner.html">Peter Norvig’s Google Books counts</a>,
+          which count within words. Our tools also include groups across removed spaces. Method
+          references:{" "}
+          <a href="https://cs.uri.edu/cryptography/classical-ciphers/vigenere/cryptanalysis-article.html">
+            University of Rhode Island’s cryptanalysis notes
+          </a>{" "}
+          and{" "}
+          <a href="https://www.cs.trincoll.edu/cryptography/vigenere.html">
+            Trinity College’s Vigenère tutorial
+          </a>
+          .
+        </p>
+      </aside>
+    </article>
+  </div>
+</BaseLayout>

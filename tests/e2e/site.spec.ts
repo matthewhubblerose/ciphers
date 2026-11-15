@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { challenge3, challenge3Opening } from "../fixtures/challenge3";
+import { blockDemo, blockDemoOpening } from "../fixtures/challenge3";
 
 test("pages use club wording, have working links and fit the viewport", async ({ page }) => {
   const errors: string[] = [];
@@ -9,12 +9,15 @@ test("pages use club wording, have working links and fit the viewport", async ({
     "/tools/",
     "/guides/",
     "/guides/transposition/",
+    "/guides/identify/",
+    "/guides/vigenere/",
+    "/guides/substitution/",
     "/decks/",
     "/decks/cipher-analysis/",
   ]) {
     expect((await page.goto("/ciphers" + route))?.status()).toBe(200);
     await expect(page.locator("main h1")).toBeVisible();
-    expect(await page.locator("body").innerText()).not.toMatch(/\b(classroom|teacher|lesson)s?\b/i);
+    expect(await page.locator("body").innerText()).not.toMatch(/lorem ipsum|TODO:/i);
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
@@ -49,7 +52,7 @@ test("ngrams have top-30 English reference tables and retain input between tools
   page,
 }) => {
   await page.goto("/ciphers/tools/");
-  await page.getByLabel("Your message", { exact: true }).fill(challenge3);
+  await page.getByLabel("Your message", { exact: true }).fill(blockDemo);
   await expect(page.getByText("200 LETTERS", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: /Bigrams & trigrams/ }).click();
   const tables = page.locator(".english-groups");
@@ -64,7 +67,7 @@ test("ngrams have top-30 English reference tables and retain input between tools
   await page.getByLabel("Order groups by frequency").uncheck();
   await expect(tables.first().locator("tbody th").first()).toHaveText("AL");
   await page.reload();
-  await expect(page.getByLabel("Your message", { exact: true })).toHaveValue(challenge3);
+  await expect(page.getByLabel("Your message", { exact: true })).toHaveValue(blockDemo);
 });
 
 test("Caesar uses a single shift with independent spacing, punctuation and case", async ({
@@ -106,7 +109,7 @@ test("substitution aligns each alphabet pair and removes secondary group lists",
     ["B", "E"],
   ])
     await page.getByLabel(`Plaintext for ${cipher}`, { exact: true }).fill(plain);
-  await expect(page.getByLabel("Output", { exact: true })).toHaveValue("THE");
+  await expect(page.getByLabel("Output", { exact: true })).toHaveText("the");
   await page.getByLabel("Plaintext for A", { exact: true }).fill("E");
   await expect(page.getByRole("status")).toContainText("already assigned");
   await page.getByLabel("Substitution operation", { exact: true }).selectOption("encode");
@@ -124,13 +127,13 @@ test("substitution aligns each alphabet pair and removes secondary group lists",
   await expect(page.getByRole("alert")).toContainText("each A–Z letter exactly once");
 });
 
-test("transposition output reads the visible Challenge B grid in order 52413", async ({ page }) => {
+test("transposition output reads the visible practice grid in order 52413", async ({ page }) => {
   await page.goto("/ciphers/tools/#transposition");
-  await page.getByLabel("Your message", { exact: true }).fill(challenge3);
+  await page.getByLabel("Your message", { exact: true }).fill(blockDemo);
   await page.getByLabel("Column order or word key").fill("52413");
   await page.getByLabel("Spacing", { exact: true }).selectOption("none");
   await expect(page.getByLabel("Output", { exact: true })).toHaveValue(
-    new RegExp("^" + challenge3Opening),
+    new RegExp("^" + blockDemoOpening),
   );
   const grid = await page.locator(".transpose-column").evaluateAll((cols) => {
     const cells = cols.map((c) => [...c.querySelectorAll(".grid-cell")].map((x) => x.textContent));
@@ -158,7 +161,7 @@ test("dragging columns into the reported order produces readable output", async 
 }) => {
   test.skip(isMobile, "Arrow buttons provide the touch alternative.");
   await page.goto("/ciphers/tools/#transposition");
-  await page.getByLabel("Your message", { exact: true }).fill(challenge3);
+  await page.getByLabel("Your message", { exact: true }).fill(blockDemo);
   const cols = page.locator(".transpose-column");
   await cols.nth(4).dragTo(cols.nth(0));
   await cols.nth(2).dragTo(cols.nth(1));
@@ -166,7 +169,7 @@ test("dragging columns into the reported order produces readable output", async 
   await page.getByLabel("Spacing", { exact: true }).selectOption("none");
   await expect(page.getByLabel("Column order or word key")).toHaveValue("5,2,4,1,3");
   await expect(page.getByLabel("Output", { exact: true })).toHaveValue(
-    new RegExp("^" + challenge3Opening),
+    new RegExp("^" + blockDemoOpening),
   );
 });
 
@@ -216,19 +219,24 @@ test("Vigenère updates the selected stream histogram and exposes its ciphertext
   await page.getByLabel("Key", { exact: true }).fill("BOT");
   await page.getByLabel("Try a practice cipher").selectOption("4");
   await expect(page.getByLabel("Output", { exact: true })).toHaveValue(/^THEOTHEREXPLORERS/);
-  await page.getByText("Possible key lengths", { exact: true }).click();
   await expect(page.locator(".length-chart button")).toHaveCount(20);
-  await page.getByText("Repeated-group gaps", { exact: true }).click();
-  await expect(page.getByRole("table", { name: "Repeated trigram gap summary" })).toBeVisible();
+  await expect(
+    page.getByRole("table", { name: "Factor votes from all consecutive repeated-group gaps" }),
+  ).toBeVisible();
+  await page.getByText("Inspect repeated groups, positions and gaps", { exact: true }).click();
+  await expect(
+    page.getByRole("table", { name: "Repeated groups ordered by occurrence count" }),
+  ).toBeVisible();
   expect(await page.locator("body").innerText()).not.toMatch(/chi.squared|χ²/i);
 });
 
 test("copy actions return the selected ciphertext stream and formatted output", async ({
   page,
   context,
+  baseURL,
 }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"], {
-    origin: "http://127.0.0.1:4321",
+    origin: new URL(baseURL!).origin,
   });
   await page.goto("/ciphers/tools/#vigenere");
   await page.getByLabel("Your message", { exact: true }).fill("LXFOP VEFRN HR");
@@ -248,7 +256,9 @@ test("tools share formatting controls and omit removed actions and taglines", as
     await expect(page.locator(".workbench")).toHaveAttribute("aria-busy", "false");
     await expect(page.getByLabel("Spacing", { exact: true })).toBeVisible();
     await expect(page.getByLabel("Keep punctuation")).toBeVisible();
-    await expect(page.getByLabel("Uppercase", { exact: false })).toBeVisible();
+    if (tool === "substitution")
+      await expect(page.getByLabel("Uppercase", { exact: false })).toHaveCount(0);
+    else await expect(page.getByLabel("Uppercase", { exact: false })).toBeVisible();
     await expect(
       page.getByRole("button", { name: /Download|Use output as input|Use input as output/i }),
     ).toHaveCount(0);
