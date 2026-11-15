@@ -16,17 +16,20 @@ Open <http://localhost:4321/ciphers/>. The `/ciphers` base path preserves the ex
 ## What's included
 
 - **Frequency:** alphabetic or independent frequency ordering for ciphertext and English, both letter labels, exact counts, percentages and an Index of Coincidence explanation.
-- **Bigrams and trigrams:** overlapping counts and percentages alongside top-30 English reference tables, with frequency or alphabetical ordering.
+- **Bigrams and trigrams:** top-ten percentage bar charts, overlapping counts and percentages, and top-30 English reference rank tables, with frequency or alphabetical ordering. Percentages use all overlapping groups, not just the displayed groups.
 - **Caesar:** one left-shift operation, all 26 candidates, and independent formatting controls.
-- **Substitution:** manual cipher-to-plain guesses, duplicate checks, keyphrase generation and editable cipher alphabets.
+- **Substitution:** unsolved ciphertext stays uppercase; guessed plaintext is lowercase, highlighted and underlined. Includes duplicate checks, keyphrase generation and editable cipher alphabets.
 - **Transposition:** block reordering and columnar routes, numeric and word keys, draggable columns and accessible arrow alternatives. Incomplete final rows need no padding.
-- **Vigenère:** adjustable keys and individual shifts, a live histogram for the selected key position, copyable column ciphertext, key-length candidates and a compact repeated-group gap table.
-- **Guide:** one beginner Excel walkthrough with an original demo, from arithmetic to cell references, copying, then fixed references in separate experiments. Nine actual Excel window screenshots show the formula bar, headings, gridlines and sheet tabs, with links to full-size images. The guide builds a grid, fixed-value column moves and a copyable result.
+- **Vigenère:** adjustable keys and individual shifts, a live histogram for the selected key position, copyable column ciphertext, average-stream IC charts and exact values for lengths up to 20, and Kasiski factor votes with repeated 3–5-letter groups, positions and gaps.
+- **Spreadsheet guide:** a fixed five-column puzzle based on the teacher-provided Wilf workbook's formula structure, followed by a reusable width 2–20 solver. Uses copied MID/ROW/COLUMN formulas and ordinary ranges, with no spill references. Includes an interactive model and check cases. Excel 2019+ and Google Sheets functions; live Excel verified at widths 2, 3, 5 and 20. Live Google Sheets UI testing was unavailable in this session.
+- **Identification guide:** shared deck animations, four mystery ciphers, a Vigenère comparison and a cipher-identification cheat sheet.
+- **Vigenère guide:** repeating-shift playground, crib alignment and conflict checks, worked Kasiski and IC examples, and a full stream-by-stream Caesar workshop.
+- **Substitution guide:** THE → THA → HER practice with original text, atomic group guesses, contradiction checks, undo, individual clearing, optional word spaces and a solution reveal.
 - **Deck:** one independent 10-slide cipher-analysis presentation. Demonstrations start on entry: typed text builds letter and pair histograms, labelled Caesar bars slide and wrap, substitution bars animate into rank order, and coloured practice columns move in three stages. A question-led comparison introduces transposition; a readable 15-letter grid demonstrates column moves before comparing row and column routes. Includes pause, steps, replay, reduced-motion controls, fullscreen and completed print examples.
 
 ### Conventions
 
-Tools operate on English A–Z letters. Analysis ignores spaces and punctuation. Every output tool offers Preserve / Blocks of 5 / No spacing, an independent Keep punctuation toggle, and an Uppercase toggle (off preserves the original letter case). Nonletters never advance the Vigenère key. Copy buttons are available for results; there are no text-download or output-to-input actions.
+Tools operate on English A–Z letters. Analysis ignores spaces and punctuation. Every output tool offers Preserve / Blocks of 5 / No spacing and an independent Keep punctuation toggle. Manual substitution always distinguishes uppercase ciphertext from lowercase guesses; other output modes offer an Uppercase toggle (off preserves the original letter case). Nonletters never advance the Vigenère key. Copy buttons are available for results; there are no text-download or output-to-input actions.
 
 - **Caesar:** the selected shift is subtracted. Shift 3 maps D to A; shift 23 applies the opposite direction, mapping A to D.
 - **Vigenère:** A=0, so BOT means shifts 1, 14, 19.
@@ -47,7 +50,7 @@ pnpm build
 pnpm test:e2e
 ```
 
-Unit tests check standard vectors, statistical counts, key conventions, all Caesar shifts, and transposition round trips across sizes and short final rows. Playwright covers complete generation/deciphering workflows, malformed keys, local persistence, all internal page links, desktop dragging, mobile arrow controls, deck navigation and print layouts.
+Unit tests check standard vectors, statistical counts, key conventions, all Caesar shifts, transposition round trips, repeat positions and factor votes, crib phase/conflicts, and atomic substitution hypotheses. Playwright covers generation/deciphering workflows, guide experiments and reveals, malformed keys, local persistence, all internal page links, desktop dragging, mobile arrow controls, deck navigation and print layouts.
 
 Browser tests use an installed Google Chrome in an isolated headless profile; they never attach to your personal browser session. They start their own local server when needed. Install Google Chrome before running them, or change `channel` in `playwright.config.ts` to use Playwright's bundled Chromium. Browser artifacts go into ignored `test-results/`.
 

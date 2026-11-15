@@ -1,0 +1,133 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SubstitutionLab from "../../components/guides/SubstitutionLab";
+import { encodedGroup } from "../../data/substitutionPractice";
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<BaseLayout title="Break substitution ciphers with linked clues">
+  <header class="wrap page-intro">
+    <p class="eyebrow">GUIDE 04 / LINK THE CLUES</p>
+    <h1>
+      Guess a group.
+      <br />
+      Unlock more letters<span class="accent">.</span>
+    </h1>
+    <p>
+      Use THE, THA and HER as a chain of clues. Test each guess across the message and keep a way
+      back.
+    </p>
+  </header>
+  <div class="wrap article-layout">
+    <nav class="article-toc" aria-label="Guide contents">
+      <a href="#groups">01 / Start with groups</a>
+      <a href="#chain">02 / THE → THA → HER</a>
+      <a href="#practice">03 / Practise the chain</a>
+      <a href="#habits">04 / Work faster</a>
+    </nav>
+    <article class="guide-content">
+      <h2 id="groups">A group gives you several letters at once</h2>
+      <p>
+        In a simple substitution, each ciphertext letter always means the same plaintext letter. The
+        most common single letter may suggest e, but many guesses fit just one count. A{" "}
+        <strong>bigram</strong> (two letters) or <strong>trigram</strong> (three letters) gives you
+        linked evidence that is easier to check.
+      </p>
+      <p>
+        <strong>THE</strong> is a common English trigram; <strong>TH</strong> and{" "}
+        <strong>HE</strong> are common bigrams, and <strong>E</strong> is a common letter. If a
+        frequent cipher triple begins with a frequent pair and ends with a frequent letter, THE is a
+        promising hypothesis. Enter all three guesses and read every place they appear.
+      </p>
+      <aside class="guide-callout">
+        <strong>Common does not mean certain.</strong> THE, TH and E lead large reference
+        collections, but they need not lead your passage. HE can be more common than TH; names or a
+        repeated phrase can dominate. THA and HER are useful common groups, not guaranteed winners.
+        Keep a guess because it explains several clues.
+      </aside>
+      <h2 id="chain">Build the chain: THE → THA → HER</h2>
+      <ol>
+        <li>
+          <strong>Test THE.</strong> In our example, <code>{encodedGroup("THE")}</code> is the
+          leading trigram. Try it as <code>the</code>. Its first two cipher letters should now read{" "}
+          <code>th</code> everywhere, and its last two should read <code>he</code>.
+        </li>
+        <li>
+          <strong>Find th plus one unknown.</strong> Look for <code>{encodedGroup("THA")}</code>,
+          which will partly read <code>th{encodedGroup("A")}</code>. Try THA, a group found in THAT
+          and THAN. That gives you an a candidate. Does it improve several words?
+        </li>
+        <li>
+          <strong>Find he plus one unknown.</strong> <code>{encodedGroup("HER")}</code> will partly
+          read <code>he{encodedGroup("R")}</code>. Try HER for r. It occurs inside THERE, WHERE,
+          OTHER and TOGETHER as well as the word HER.
+        </li>
+        <li>
+          <strong>Use the new letters to test longer words.</strong> If several places now suggest
+          THERE or THAT, the guesses support each other. If they make impossible patterns, undo the
+          latest guess and try another.
+        </li>
+      </ol>
+      <p>
+        This chain gives you five plaintext letters from three overlapping groups. You are building
+        one consistent alphabet; you cannot decide that a cipher letter means e in one place and a
+        somewhere else.
+      </p>
+      <h2 id="practice">Try it on an original practice message</h2>
+      <p>
+        Start without word spaces, as you often will in a challenge. Choose a group from the table,
+        type a plaintext hypothesis and test it. The hint for each step is optional. You can undo a
+        complete guess or clear one letter.
+      </p>
+      <SubstitutionLab client:load />
+      <h2 id="habits">Habits that save time</h2>
+      <ul>
+        <li>
+          <strong>Change one idea at a time.</strong> Check the new letters across the whole message
+          before adding more. Undo records your route back.
+        </li>
+        <li>
+          <strong>Match repeated-letter patterns.</strong> THERE repeats its third letter in
+          position five. LETTER repeats its second letter in position five, and has a double letter
+          in positions three and four. A candidate must fit the exact pattern.
+        </li>
+        <li>
+          <strong>Check both directions.</strong> In a simple substitution one cipher letter has one
+          plaintext partner, and two different cipher letters cannot both mean e. The practice tool
+          catches these contradictions.
+        </li>
+        <li>
+          <strong>Look beyond the top group.</strong> AND, ING, ION, ENT, THA and HER offer more
+          starting points. ING may be a word ending, but display blocks do not mark words.
+        </li>
+        <li>
+          <strong>Question your cipher type.</strong> If a consistent mapping keeps failing, revisit{" "}
+          <a href={`${base}/guides/identify/`}>the identification guide</a>. A transposition or
+          Vigenère cipher needs a different approach.
+        </li>
+      </ul>
+      <div class="actions">
+        <a class="button primary" href={`${base}/tools/#ngrams`}>
+          Inspect groups in your own text ↗
+        </a>
+        <a class="text-link" href={`${base}/tools/#substitution`}>
+          Enter your substitutions →
+        </a>
+      </div>
+      <p class="small">
+        The teaching passage, ciphertext and worked chain are original to this site and deliberately
+        emphasise these groups. Reference ranks:{" "}
+        <a href="https://www.norvig.com/mayzner.html">
+          Peter Norvig, English Letter Frequency Counts
+        </a>{" "}
+        (within-word counts, whereas our analysis removes spaces and includes cross-word groups).
+        The THE/THA/HER practice sequence is our teaching example; its exact ranks are not a
+        prediction for other messages. For the general method, see{" "}
+        <a href="https://cs.uri.edu/cryptography/classical-ciphers/substitution/cryptanalysis-demo.html">
+          University of Rhode Island’s substitution cryptanalysis demonstration
+        </a>
+        .
+      </p>
+    </article>
+  </div>
+</BaseLayout>

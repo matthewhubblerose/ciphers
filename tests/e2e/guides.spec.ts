@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { vigenere } from "../../src/utils/ciphers";
+import { encodedGroup, SUBSTITUTION_PLAIN } from "../../src/data/substitutionPractice";
 
 test("cipher identification guide connects animations, clues and practice", async ({
   page,
@@ -31,6 +32,48 @@ test("cipher identification guide connects animations, clues and practice", asyn
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.getByRole("heading", { name: "1. Compare four patterns" }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: `artifacts/${testInfo.project.name}-identify-guide.png` });
+});
+
+test("substitution guide builds and undoes linked group guesses", async ({ page }, testInfo) => {
+  await page.goto("/ciphers/guides/substitution/");
+  const lab = page.getByRole("region", { name: "Substitution practice workshop" });
+  const output = lab.getByRole("textbox", { name: "Substitution practice output", exact: true });
+  for (const [step, plain] of [
+    [1, "THE"],
+    [2, "THA"],
+    [3, "HER"],
+  ] as const) {
+    await lab
+      .getByRole("group", { name: "Substitution learning steps" })
+      .getByRole("button", { name: new RegExp(`^${step}\\.`) })
+      .click();
+    await lab.getByLabel("Cipher group", { exact: true }).fill(encodedGroup(plain));
+    await lab.getByLabel("Plaintext hypothesis").fill(plain);
+    await lab.getByRole("button", { name: "Test this mapping" }).click();
+    await expect(lab.getByRole("status")).toContainText("Hypothesis applied");
+  }
+  await expect(lab).toContainText("5 letters guessed");
+  await expect(output).toContainText("thethree");
+  await expect(output.locator("mark")).not.toHaveCount(0);
+  await lab.getByLabel("Cipher group", { exact: true }).fill("ABC");
+  await lab.getByLabel("Plaintext hypothesis").fill("THE");
+  await lab.getByRole("button", { name: "Test this mapping" }).click();
+  await expect(lab.getByRole("status")).toContainText("already");
+  await lab.getByRole("button", { name: "Undo last guess" }).click();
+  await expect(lab).toContainText("4 letters guessed");
+  await lab.getByRole("button", { name: "Show step hint" }).click();
+  await expect(lab).toContainText(`${encodedGroup("HER")} → her`);
+  await lab.getByText("Reveal the complete practice solution", { exact: true }).click();
+  await lab.getByRole("button", { name: "Reveal practice mapping" }).click();
+  await lab.getByLabel("Show original word spaces as a hint").check();
+  await expect(output).toHaveText(SUBSTITUTION_PLAIN.toLowerCase());
+  await lab.getByRole("button", { name: "Undo last guess" }).click();
+  await expect(lab).toContainText("4 letters guessed");
+  await lab.getByRole("button", { name: "Reset all guesses" }).click();
+  await expect(output.locator("mark")).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await lab.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: `artifacts/${testInfo.project.name}-substitution-guide.png` });
 });
 
 test("Vigenère guide teaches shifts, crib conflicts and stream solving", async ({

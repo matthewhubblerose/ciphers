@@ -2742,3 +2742,21 @@ summary {
 .key-length-analysis table {
   min-width: 390px;
 }
+
+.clue-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.clue-grid h4 {
+  margin: 0.5rem 0;
+}
+.clue-grid p {
+  margin: 0.35rem 0;
+}
+.learning-lab .mixed-output {
+  max-height: 24rem;
+  overflow-y: auto;
+  line-height: 1.9;
+  font-size: 1rem;
+}

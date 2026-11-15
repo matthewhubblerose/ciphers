@@ -11,6 +11,7 @@ test("pages use club wording, have working links and fit the viewport", async ({
     "/guides/transposition/",
     "/guides/identify/",
     "/guides/vigenere/",
+    "/guides/substitution/",
     "/decks/",
     "/decks/cipher-analysis/",
   ]) {

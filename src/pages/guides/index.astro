@@ -13,16 +13,13 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
   </header>
   <section class="wrap guide-cards">
     <div class="card-grid">
-      <a class="resource-card" href={`${base}/guides/vigenere/`}>
-        <span class="card-number">GUIDE 03 / FOLLOW THE KEY</span>
-        <span class="card-icon mono">M A P</span>
-        <h3>Understand and break Vigenère</h3>
-        <p>
-          Play with repeating Caesar shifts, test a crib and follow Kasiski and IC evidence to a
-          worked solution.
-        </p>
+      <a class="resource-card" href={`${base}/guides/transposition/`}>
+        <span class="card-number">GUIDE 01 / SPREADSHEETS</span>
+        <span class="card-icon mono">5 2 4 1 3</span>
+        <h3>Transposition in Excel and Google Sheets</h3>
+        <p>Solve a fixed five-column puzzle first. Then build a reusable solver for widths 2–20.</p>
         <span class="card-bottom">
-          Interactive · Three ways into the key <b>↗</b>
+          Two short lessons · Interactive model <b>↗</b>
         </span>
       </a>
       <a class="resource-card" href={`${base}/guides/identify/`}>
@@ -37,13 +34,28 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
           Interactive · Caesar to Vigenère <b>↗</b>
         </span>
       </a>
-      <a class="resource-card" href={`${base}/guides/transposition/`}>
-        <span class="card-number">GUIDE 01 / SPREADSHEETS</span>
-        <span class="card-icon mono">5 2 4 1 3</span>
-        <h3>Transposition in Excel and Google Sheets</h3>
-        <p>Solve a fixed five-column puzzle first. Then build a reusable solver for widths 2–20.</p>
+      <a class="resource-card" href={`${base}/guides/vigenere/`}>
+        <span class="card-number">GUIDE 03 / FOLLOW THE KEY</span>
+        <span class="card-icon mono">M A P</span>
+        <h3>Understand and break Vigenère</h3>
+        <p>
+          Play with repeating Caesar shifts, test a crib and follow Kasiski and IC evidence to a
+          worked solution.
+        </p>
         <span class="card-bottom">
-          Two short lessons · Interactive model <b>↗</b>
+          Interactive · Three ways into the key <b>↗</b>
+        </span>
+      </a>
+      <a class="resource-card" href={`${base}/guides/substitution/`}>
+        <span class="card-number">GUIDE 04 / LINK THE CLUES</span>
+        <span class="card-icon mono">THE → THA</span>
+        <h3>Break substitutions with linked clues</h3>
+        <p>
+          Connect letters, bigrams and trigrams. Test THE, find a and r, and check every guess in a
+          practice story.
+        </p>
+        <span class="card-bottom">
+          Interactive · Undo and follow the evidence <b>↗</b>
         </span>
       </a>
     </div>
