@@ -2640,3 +2640,28 @@ summary {
   text-decoration: underline;
   font-weight: 700;
 }
+
+.learning-lab {
+  background: var(--white);
+  border: 1px solid var(--line);
+  padding: clamp(1rem, 3vw, 2rem);
+  margin: 1.5rem 0;
+  border-radius: 8px;
+  min-width: 0;
+}
+.learning-lab .field {
+  margin-bottom: 1rem;
+}
+.learning-lab h3:first-child {
+  margin-top: 0;
+}
+.active-row {
+  background: var(--lime);
+}
+.guide-callout {
+  background: #eaf0dc;
+  padding: 1.2rem;
+  margin: 1.5rem 0;
+  border-left: 4px solid var(--green);
+  line-height: 1.7;
+}

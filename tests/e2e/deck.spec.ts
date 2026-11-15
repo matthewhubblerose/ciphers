@@ -145,28 +145,22 @@ test("Caesar alignment, ranked substitution and block movement recover their exa
   );
 });
 
-test("guide screenshots load and only one guide and deck are listed", async ({
-  page,
-}, testInfo) => {
+test("spreadsheet guide model works and the deck is listed", async ({ page }, testInfo) => {
   await page.goto("/ciphers/guides/");
   await expect(page.locator(".resource-card")).toHaveCount(1);
   await page.locator(".resource-card").click();
-  const images = page.locator(".excel-figure img");
-  await expect(images).toHaveCount(9);
   await expect(page.locator(".guide-content")).not.toContainText(/Challenge 3|TEZEM|MEETZ/i);
-  await expect(page.locator(".guide-content")).toContainText("TSEML ELVEO ERTST");
-  for (const img of await images.all()) {
-    await img.scrollIntoViewIfNeeded();
-    await expect
-      .poll(() =>
-        img.evaluate(
-          (el: HTMLImageElement) =>
-            el.complete && el.naturalWidth === 914 && el.naturalHeight === 463,
-        ),
-      )
-      .toBe(true);
-    await expect(img.locator("..")).toHaveAttribute("href", /window-.*\.png$/);
-  }
+  await expect(page.locator(".guide-content")).toContainText("SEMTL LVEEO RTSET");
+  await page.getByLabel("Practice column order").fill("52413");
+  await expect(page.getByLabel("Spreadsheet model output")).toHaveText("LETSMOVELETTERS");
+  await page.getByLabel("Formula row").selectOption("3");
+  await expect(page.getByRole("region", { name: "Five-column spreadsheet model" })).toContainText(
+    "15",
+  );
+  await page.getByLabel("Practice column order").fill("11111");
+  await expect(page.getByRole("alert")).toContainText("exactly once");
+  await page.getByLabel("Practice column order").fill("52413");
+  await expect(page.locator(".guide-content")).not.toContainText(/\w\d+#/);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
