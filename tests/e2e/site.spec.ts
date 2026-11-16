@@ -155,6 +155,116 @@ test("transposition output reads the visible practice grid in order 52413", asyn
   await expect(page.locator(".transpose-column").first()).toContainText("COL 4");
 });
 
+test("column-first filling reorders consecutive blocks and keeps the grid in sync", async ({
+  page,
+}) => {
+  await page.goto("/ciphers/tools/#transposition");
+  // Synthetic three-row alphabet grid, encrypted using MONARCH.
+  await page.getByLabel("Your message", { exact: true }).fill("DKR FMT GNU AHO CJQ BIP ELS");
+  await page.getByLabel("Block size / columns").fill("7");
+  await page.getByLabel("Column order or word key").fill("4651723");
+  await page.getByLabel("Spacing", { exact: true }).selectOption("none");
+  await expect(page.getByLabel("Fill grid", { exact: true })).toHaveValue("rows");
+  await page.getByLabel("Fill grid", { exact: true }).selectOption("columns");
+  const output = page.getByLabel("Output", { exact: true });
+  await expect(output).toHaveValue("ABCDEFGHIJKLMNOPQRSTU");
+  const grid = page.locator(".transpose-column");
+  await expect(grid.locator(".column-header>span")).toHaveText([
+    "COL 4",
+    "COL 6",
+    "COL 5",
+    "COL 1",
+    "COL 7",
+    "COL 2",
+    "COL 3",
+  ]);
+  await expect(grid.first().locator(".grid-cell")).toHaveText(["A", "H", "O"]);
+  await expect(grid.last().locator(".grid-cell")).toHaveText(["G", "N", "U"]);
+  await page.getByRole("button", { name: "Move column 4 right", exact: true }).click();
+  await expect(page.getByLabel("Column order or word key")).toHaveValue("6,4,5,1,7,2,3");
+  await expect(output).toHaveValue("BACDEFGIHJKLMNPOQRSTU");
+  await page.getByLabel("Method", { exact: true }).selectOption("columnar");
+  await expect(output).toHaveValue("BIPAHOCJQDKRELSFMTGNU");
+  await page.getByLabel("Column order or word key").fill("MONARCH");
+  await page.getByLabel("Method", { exact: true }).selectOption("undo-columnar");
+  await expect(output).toHaveValue("ABCDEFGHIJKLMNOPQRSTU");
+  await expect(page.getByLabel("Fill grid", { exact: true })).toHaveCount(0);
+  await page.getByLabel("Method", { exact: true }).selectOption("blocks");
+  await expect(page.getByLabel("Fill grid", { exact: true })).toHaveValue("columns");
+  await page.getByLabel("Column order or word key").fill("4651723");
+  await expect(output).toHaveValue("ABCDEFGHIJKLMNOPQRSTU");
+  await page.getByLabel("Fill grid", { exact: true }).selectOption("rows");
+  await page.getByLabel("Your message", { exact: true }).fill("ABCDEFGHIJKLMNOPQRSTU");
+  await page.getByLabel("Column order or word key").fill("1234567");
+  await expect(grid.first().locator(".grid-cell")).toHaveText(["A", "H", "O"]);
+  await expect(output).toHaveValue("ABCDEFGHIJKLMNOPQRSTU");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test("column-first filling handles uneven columns, case, short input and empty input", async ({
+  page,
+}) => {
+  await page.goto("/ciphers/tools/#transposition");
+  await page.getByLabel("Block size / columns").fill("3");
+  await page.getByLabel("Column order or word key").fill("312");
+  await page.getByLabel("Fill grid", { exact: true }).selectOption("columns");
+  await page.getByLabel("Your message", { exact: true }).fill("aBcD eFg hIj!");
+  await page.getByLabel("Spacing", { exact: true }).selectOption("none");
+  await page.getByLabel("Keep punctuation").uncheck();
+  await page.getByLabel("Uppercase", { exact: false }).uncheck();
+  const output = page.getByLabel("Output", { exact: true });
+  await expect(output).toHaveValue("haeIBFjcgD");
+  const grid = page.locator(".transpose-column");
+  await expect(grid.nth(0).locator(".grid-cell")).toHaveText(["h", "I", "j", "·"]);
+  await expect(grid.nth(1).locator(".grid-cell")).toHaveText(["a", "B", "c", "D"]);
+  await expect(grid.nth(2).locator(".grid-cell")).toHaveText(["e", "F", "g", "·"]);
+  await page.getByLabel("Method", { exact: true }).selectOption("columnar");
+  await expect(output).toHaveValue("hIjaBcDeFg");
+  await page.getByLabel("Your message", { exact: true }).fill("Ab!");
+  await expect(output).toHaveValue("Ab");
+  await expect(grid.first().locator(".grid-cell")).toHaveText(["·"]);
+  await page.getByLabel("Your message", { exact: true }).fill("");
+  await expect(output).toHaveValue("");
+  await expect(grid.locator(".grid-cell")).toHaveCount(0);
+  await page.getByLabel("Column order or word key").fill("111");
+  await expect(page.getByRole("alert")).toContainText("exactly once");
+});
+
+test("transposition grid expands and collapses for both fill directions", async ({ page }) => {
+  await page.goto("/ciphers/tools/#transposition");
+  await page.getByLabel("Your message", { exact: true }).fill("ABCDE".repeat(13) + "FG");
+  await page.getByLabel("Column order or word key").fill("52413");
+  await page.getByLabel("Spacing", { exact: true }).selectOption("none");
+  const columns = page.locator(".transpose-column");
+  for (const fill of ["rows", "columns"]) {
+    await page.getByLabel("Fill grid", { exact: true }).selectOption(fill);
+    await expect(columns.first().locator(".grid-cell")).toHaveCount(12);
+    const expand = page.getByRole("button", { name: "Show all 14 rows", exact: true });
+    await expect(expand).toHaveAttribute("aria-expanded", "false");
+    await expand.click();
+    await expect(columns.first().locator(".grid-cell")).toHaveCount(14);
+    await expect(page.getByText("Showing 14 of 14 rows.", { exact: false })).toBeVisible();
+    const visibleText = await columns.evaluateAll((cols) => {
+      const cells = cols.map((col) => [...col.querySelectorAll(".grid-cell")]);
+      return Array.from({ length: cells[0].length }, (_, row) =>
+        cells
+          .map((col) => col[row].textContent)
+          .filter((c) => c !== "·")
+          .join(""),
+      ).join("");
+    });
+    await expect(page.getByLabel("Output", { exact: true })).toHaveValue(visibleText);
+    const collapse = page.getByRole("button", { name: "Show first 12 rows", exact: true });
+    await expect(collapse).toHaveAttribute("aria-expanded", "true");
+    await collapse.click();
+    await expect(columns.first().locator(".grid-cell")).toHaveCount(12);
+  }
+  await page.getByLabel("Your message", { exact: true }).fill("ABCDEFGHIJ");
+  await expect(columns.first().locator(".grid-cell")).toHaveCount(2);
+  await expect(page.getByRole("button", { name: /Show (all|first).*rows/ })).toHaveCount(0);
+  await expect(page.getByText("Showing 2 of 2 rows.", { exact: true })).toBeVisible();
+});
+
 test("dragging columns into the reported order produces readable output", async ({
   page,
   isMobile,

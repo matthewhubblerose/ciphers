@@ -55,6 +55,8 @@ export default function Workbench() {
     [mapping, setMapping] = useState<Record<string, string>>({});
   const [size, setSize] = useState(5),
     [orderKey, setOrderKey] = useState("12345"),
+    [fill, setFill] = useState<"rows" | "columns">("rows"),
+    [expandedGrid, setExpandedGrid] = useState(false),
     [route, setRoute] = useState<Route>("blocks"),
     [drag, setDrag] = useState<number | null>(null);
   const [vigKey, setVigKey] = useState("BOT"),
@@ -113,7 +115,8 @@ export default function Workbench() {
     });
   let order: number[] = [],
     result = "",
-    error = "";
+    error = "",
+    gridInput = text.replace(/[^A-Za-z]/g, "");
   const reverseRoute = route.startsWith("undo-");
   try {
     if (tool === "caesar") result = caesar(clean, shift);
@@ -124,15 +127,33 @@ export default function Workbench() {
           : substitute(clean, alphabet, subMode === "decode");
     if (tool === "transposition") {
       order = parseOrder(orderKey, size);
-      result = transpose(text, order, reverseRoute, route.endsWith("columnar"), true);
+      if (!reverseRoute && fill === "columns") {
+        // Restoring the identity column order lays consecutive input blocks into columns.
+        gridInput = transpose(
+          text,
+          Array.from({ length: size }, (_, i) => i),
+          true,
+          true,
+          true,
+        );
+      }
+      result = transpose(
+        reverseRoute ? text : gridInput,
+        order,
+        reverseRoute,
+        route.endsWith("columnar"),
+        true,
+      );
     }
     if (tool === "vigenere") result = vigenere(clean, vigKey, vigDecode);
   } catch (e) {
     error = (e as Error).message;
   }
-  const gridSource = reverseRoute ? result : text.replace(/[^A-Za-z]/g, "");
+  const gridSource = reverseRoute ? result : gridInput;
   const gridText = uppercase ? gridSource.toUpperCase() : gridSource;
   const gridOrder = reverseRoute ? Array.from({ length: order.length }, (_, i) => i) : order;
+  const gridRows = order.length ? Math.ceil(gridText.length / order.length) : 0;
+  const visibleGridRows = expandedGrid ? gridRows : Math.min(12, gridRows);
   function changeTool(id: string) {
     setTool(id);
     location.hash = id;
@@ -569,6 +590,19 @@ export default function Workbench() {
                     placeholder="52413 or HOTEL"
                   />
                 </label>
+                {!reverseRoute && (
+                  <label class="field">
+                    Fill grid
+                    <select
+                      aria-label="Fill grid"
+                      value={fill}
+                      onChange={(e) => setFill(e.currentTarget.value as "rows" | "columns")}
+                    >
+                      <option value="rows">Rows first</option>
+                      <option value="columns">Columns first</option>
+                    </select>
+                  </label>
+                )}
                 <label class="field">
                   Method
                   <select
@@ -585,8 +619,17 @@ export default function Workbench() {
               </div>
               <p class="hint">
                 52413 reads columns 5, 2, 4, 1, 3. HOTEL sorts E, H, L, O, T → 41523. Repeated key
-                letters sort left to right. The default output reads the grid rows in their visible
-                order.
+                letters sort left to right.{" "}
+                {reverseRoute ? (
+                  "These methods reconstruct a row-filled encryption grid from its key."
+                ) : (
+                  <>
+                    Fill grid chooses how input letters enter the grid; Method chooses how to read
+                    the result. When filling columns first, any extra letters go in the leftmost
+                    original columns. To undo a word-key cipher with that keyword, choose Restore a
+                    columnar cipher.
+                  </>
+                )}
               </p>
               {order.length > 0 && (
                 <>
@@ -597,7 +640,22 @@ export default function Workbench() {
                       ? "The grid below shows the restored result. Use the key field to change the reconstruction."
                       : "Drag columns or use their arrows."}
                   </p>
+                  <p class="small muted">
+                    Showing {visibleGridRows} of {gridRows} rows.{" "}
+                    {gridRows > 12 && (
+                      <button
+                        type="button"
+                        class="text-button"
+                        aria-expanded={expandedGrid}
+                        aria-controls="transposition-grid"
+                        onClick={() => setExpandedGrid(!expandedGrid)}
+                      >
+                        {expandedGrid ? "Show first 12 rows" : `Show all ${gridRows} rows`}
+                      </button>
+                    )}
+                  </p>
                   <div
+                    id="transposition-grid"
                     class="transpose-grid"
                     aria-label={reverseRoute ? "Restored text grid" : "Reordered input grid"}
                   >
@@ -639,19 +697,15 @@ export default function Workbench() {
                             </div>
                           )}
                         </div>
-                        {Array.from(
-                          { length: Math.min(12, Math.ceil(gridText.length / size)) },
-                          (_, row) => (
-                            <span key={row} class="grid-cell">
-                              {gridText[row * size + col] || "·"}
-                            </span>
-                          ),
-                        )}
+                        {Array.from({ length: visibleGridRows }, (_, row) => (
+                          <span key={row} class="grid-cell">
+                            {gridText[row * size + col] || "·"}
+                          </span>
+                        ))}
                       </div>
                     ))}
                   </div>
                   <p class="small muted">
-                    First twelve rows shown.{" "}
                     {route === "columnar"
                       ? "Output reads down each visible column, from left to right."
                       : "Output reads each visible row, from left to right."}{" "}
